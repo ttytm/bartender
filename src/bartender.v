@@ -22,12 +22,12 @@ const (
 )
 
 fn (b Bar) push(stream Stream) {
-	mut dlm := if stream == Stream.fill { delimeters } else { delimeters.reverse() }
-	mut smooth_runes := if stream == Stream.fill { smooth_ltr } else { smooth_rtl }
+	mut dlm := if stream == .fill { delimeters } else { delimeters.reverse() }
+	mut smooth_runes := if stream == .fill { smooth_ltr } else { smooth_rtl }
 	label := b.label or { 'Push ${stream.str().title()}' }
 
 	if b.shade {
-		if stream == Stream.fill {
+		if stream == .fill {
 			smooth_runes[0] = `░`
 			dlm[1] = `░`
 		} else {
@@ -50,8 +50,8 @@ fn (b Bar) push(stream Stream) {
 }
 
 fn (b Bar) pull(stream Stream) {
-	dlm := if stream == Stream.fill { delimeters.reverse() } else { delimeters }
-	smooth_runes := if stream == Stream.fill { smooth_rtl.reverse() } else { smooth_ltr.reverse() }
+	dlm := if stream == .fill { delimeters.reverse() } else { delimeters }
+	smooth_runes := if stream == .fill { smooth_rtl.reverse() } else { smooth_ltr.reverse() }
 	label := b.label or { 'Pull ${stream.str().title()}' }
 
 	for i in 1 .. b.width + 1 {
@@ -189,11 +189,11 @@ fn main() {
 
 	hide_cursor()
 
-	b.push(Stream.fill)
-	// b2.push() // though shading is only handled in this struct and method, funnily all following include shading
-	b.pull(Stream.fill)
-	b.push(Stream.drain)
-	b.pull(Stream.drain)
+	b.push(.fill)
+	// b2.push(.fill) // though shading is only handled in this struct and method, funnily all following include shading
+	b.pull(.fill)
+	b.push(.drain)
+	b.pull(.drain)
 	b.merge()
 	b.expand()
 	b.split()
