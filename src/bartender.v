@@ -3,12 +3,14 @@
 module bartender
 
 import time
+import term
 
 pub struct Bar {
 mut:
 	state u8
+	kind  Kind // Compare enums instead of type_names after the bar was preped.
 pub mut:
-	label string
+	label [2]string // Pending, Finished
 	theme Theme = Push{.fill}
 	width u16   = 79
 	runes Runes
@@ -19,6 +21,7 @@ pub struct Runes {
 	d []rune // delimeters
 }
 
+// In rust it'd be an enum with it's push & pull variants having values. The current solution can probably be improved.
 type Theme = Pull | Push
 
 pub struct Push {
@@ -34,6 +37,14 @@ pub struct Merge {}
 pub struct Expand {}
 
 pub struct Split {}
+
+enum Kind {
+	push
+	pull
+	merge
+	expand
+	split
+}
 
 pub enum Stream {
 	fill
@@ -54,9 +65,11 @@ pub fn (mut b Bar) prep() {
 	match b.theme.type_name() {
 		'bartender.Push' {
 			b.prep_push(b.theme.stream)
+			b.kind = .push
 		}
 		'bartender.Pull' {
 			b.prep_pull(b.theme.stream)
+			b.kind = .pull
 		}
 		else {}
 	}
@@ -84,32 +97,27 @@ fn (mut b Bar) prep_pull(stream Stream) {
 
 // { == Progress ==> ==========================================================
 
-fn (b Bar) push() {
+fn (b Bar) draw() {
 	for r in b.runes.f {
 		eprint(`\r`)
-		eprint(b.runes.d[0].repeat(b.state))
+		if b.kind == .pull {
+			eprint(b.runes.d[0].repeat(b.width - b.state))
+		} else {
+			eprint(b.runes.d[0].repeat(b.state))
+		}
 		eprint(r)
 		time.sleep(bartender.timeout_ms * time.millisecond)
 	}
-	eprint(b.runes.d[1].repeat(b.width - b.state))
-	eprint(' ${b.state * 100 / b.width}% ${b.label}')
 	if b.state >= b.width {
-		println('')
+		b.finish()
+		return
 	}
-}
-
-fn (b Bar) pull() {
-	for r in b.runes.f {
-		eprint(`\r`)
-		eprint(b.runes.d[0].repeat(b.width - b.state))
-		eprint(r)
-		time.sleep(bartender.timeout_ms * time.millisecond)
+	if b.kind == .pull {
+		eprint(b.runes.d[1].repeat(b.state))
+	} else {
+		eprint(b.runes.d[1].repeat(b.width - b.state))
 	}
-	eprint(b.runes.d[1].repeat(b.state))
-	eprint(' ${b.state * 100 / b.width}% ${b.label}')
-	if b.state >= b.width {
-		println('')
-	}
+	eprint(' ${b.state * 100 / b.width}% ${b.label[0]}')
 }
 
 pub fn (mut b Bar) progress() {
@@ -118,15 +126,26 @@ pub fn (mut b Bar) progress() {
 	}
 	b.state += 1
 
-	match b.theme.type_name() {
-		'bartender.Push' {
-			b.push()
-		}
-		'bartender.Pull' {
-			b.pull()
+	match b.kind {
+		.pull, .push {
+			b.draw()
 		}
 		else {}
 	}
+}
+
+fn (b Bar) finish() {
+	dlm := match b.kind {
+		.pull {
+			b.runes.d[1]
+		}
+		else {
+			b.runes.d[0]
+		}
+	}
+	eprint('\r')
+	term.erase_line('2')
+	println('${dlm.repeat(b.width + 1)} ${b.state * 100 / b.width}% ${b.label[1]}')
 }
 
 // <== }

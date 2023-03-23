@@ -5,10 +5,10 @@ import term { hide_cursor, show_cursor }
 
 fn main() {
 	mut b := bartender.Bar{
-		label: 'Push Fill'
+		label: ['Push Fill', 'Done!']!
 	}
 	mut b2 := bartender.Bar{
-		label: 'Pull Fill'
+		label: ['Pull Fill', 'Finished!']!
 		theme: bartender.Pull{.fill}
 	}
 
@@ -22,13 +22,13 @@ fn main() {
 	}
 
 	// Re-used bars
-	b.label = 'Push Drain'
+	b.label = ['Push Drain', 'Completed!']!
 	b.theme = bartender.Push{.drain}
 	b.prep()
 	for _ in 0 .. b.width {
 		b.progress()
 	}
-	b2.label = 'Pull Drain'
+	b2.label = ['Pull Drain', 'Ready!']!
 	b2.theme = bartender.Pull{.drain}
 	b2.prep()
 	for _ in 0 .. b2.width {
