@@ -139,7 +139,7 @@ fn (b Bar) finish() {
 	}
 	eprint('\r')
 	term.erase_line('2')
-	println('${dlm.repeat(b.width + 1)} ${b.state * 100 / b.width}% ${b.label[1]}')
+	println('${dlm.repeat(b.width + 1)} ${b.label[1]}')
 }
 
 // <== }
