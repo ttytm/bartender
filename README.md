@@ -17,5 +17,5 @@ ln -s $(pwd)/ ~/.vmodules/bartender
 Run examples
 
 ```
-v run examples
+v run examples/<file>.v
 ```
