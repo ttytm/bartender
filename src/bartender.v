@@ -110,16 +110,8 @@ fn (mut b Bar) prep_pull(stream Stream) {
 // { == Progress ==> ==========================================================
 
 fn (b Bar) draw() {
-	n := match b.theme_ {
-		.pull {
-			// The bar progressively empties.
-			[b.width - b.state, b.state]
-		}
-		else {
-			// The bar progressively fills up, the difference to the full width is filled with delimiters.
-			[b.state, b.width - b.state]
-		}
-	}
+	// Progressively empty. || Progressively fill.
+	n := if b.theme_ == .pull { [b.width - b.state, b.state] } else { [b.state, b.width - b.state] }
 
 	for r in b.runes.f {
 		eprint(`\r`)
