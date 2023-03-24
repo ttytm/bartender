@@ -21,6 +21,16 @@ pub mut:
 	timeout u8 = 2 // Milliseconds between printing characters to the same column for a smooth effect
 }
 
+pub struct Classic {
+mut:
+	state u16
+pub mut:
+	label  [2]string // Pending, Finished
+	width  u16       = 79
+	runes  [2]rune   = [`#`, ` `]!
+	border [2]string = ['', '']! // Start, End
+}
+
 type ThemeChoice = Theme | ThemeVariant
 
 // The current solution can probably be improved.
@@ -108,6 +118,30 @@ fn (mut b Bar) prep_pull(stream Stream) {
 
 // { == Progress ==> ==========================================================
 
+pub fn (mut b Classic) progress() {
+	if b.state == 0 {
+		term.hide_cursor()
+	}
+	b.state += 1
+	b.draw()
+}
+
+fn (b Classic) draw() {
+	eprint('\r${b.border[0]}${b.runes[0].repeat(b.state)}')
+	if b.state >= b.width {
+		b.finish()
+		return
+	}
+	eprint('${b.runes[1].repeat(b.width - b.state)}${b.border[1]} ${b.state * 100 / b.width}% ${b.label[0]}')
+}
+
+fn (b Classic) finish() {
+	eprint('\r')
+	term.erase_line('2')
+	println('${b.border[0]}${b.runes[0].repeat(b.width)}${b.border[1]} ${b.label[1]}')
+	term.show_cursor()
+}
+
 pub fn (mut b Bar) progress() {
 	if b.runes.f.len == 0 {
 		b.prep()
@@ -148,3 +182,4 @@ fn (b Bar) finish() {
 }
 
 // <== }
+
