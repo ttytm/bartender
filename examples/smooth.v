@@ -1,11 +1,15 @@
 module main
 
 import bartender { SmoothBar, Theme, ThemeVariant }
+import time
+
+const timeout = time.millisecond * 2
 
 fn main() {
 	mut b := SmoothBar{
 		label: ['Push Fill', 'Done!']!
 		theme: Theme.push
+		timeout: timeout
 	}
 	for _ in 0 .. b.width {
 		b.progress()
@@ -14,6 +18,7 @@ fn main() {
 	mut b2 := SmoothBar{
 		label: ['Pull Fill', 'Finished!']!
 		theme: Theme.pull
+		timeout: timeout
 	}
 	for _ in 0 .. b2.width {
 		b2.progress()
@@ -23,7 +28,7 @@ fn main() {
 	b = SmoothBar{
 		label: ['Push Drain', 'Completed!']!
 		theme: ThemeVariant{.push, .drain}
-		border: ['', '']!
+		timeout: timeout
 	}
 	b.prep()
 	for _ in 0 .. b.width {
@@ -40,6 +45,7 @@ fn main() {
 	mut b3 := SmoothBar{
 		label: ['Merge', '100% Merge']!
 		theme: Theme.merge
+		timeout: timeout
 	}
 	for _ in 0 .. b3.width / 2 {
 		b3.progress()
@@ -49,6 +55,7 @@ fn main() {
 	mut b4 := SmoothBar{
 		label: ['Expand', '100% Expand']!
 		theme: Theme.expand
+		timeout: timeout
 	}
 	for _ in 0 .. b4.width / 2 {
 		b4.progress()
@@ -57,6 +64,7 @@ fn main() {
 	mut b5 := SmoothBar{
 		label: ['Split', '100% Split']!
 		theme: Theme.split
+		timeout: timeout
 	}
 	for _ in 0 .. b5.width / 2 {
 		b5.progress()

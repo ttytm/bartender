@@ -32,7 +32,7 @@ mut:
 	}
 pub mut:
 	theme   ThemeChoice = Theme.push
-	timeout u8 = 2 // Milliseconds between printing characters to the same column for a smooth effect
+	timeout time.Duration = time.microsecond * 500 // Duration between same column character prints for a smooth effect.
 }
 
 type ThemeChoice = Theme | ThemeVariant
@@ -186,7 +186,7 @@ fn (b SmoothBar) draw_push_pull() {
 
 	for r in b.runes.f {
 		eprint('\r${b.border[0]}${b.runes.d[0].repeat(n[0])}${r}')
-		time.sleep(time.millisecond * b.timeout)
+		time.sleep(b.timeout)
 	}
 
 	if b.state >= b.width {
@@ -209,7 +209,7 @@ fn (b SmoothBar) draw_merge() {
 			eprint(b.runes.d[0])
 		}
 		eprint(b.runes.f2[idx])
-		time.sleep(time.millisecond * b.timeout * 2)
+		time.sleep(b.timeout)
 	}
 	if b.state * 2 >= width {
 		finish('${b.border[0]}${b.runes.d[0].repeat(b.width + 1)}${b.border[1]} ${b.label[1]}')
@@ -222,7 +222,7 @@ fn (b SmoothBar) draw_expand() {
 	width := if b.width % 2 != 0 { b.width - 1 } else { b.width }
 	for idx, _ in b.runes.f {
 		eprint('\r${b.runes.d[1].repeat(width / 2 - b.state)}${b.runes.f2[idx]}${b.runes.d[0].repeat(b.state * 2)}${b.runes.f[idx]}')
-		time.sleep(time.millisecond * b.timeout * 2)
+		time.sleep(b.timeout * 2)
 	}
 
 	if b.state * 2 >= width {
@@ -236,7 +236,7 @@ fn (b SmoothBar) draw_split() {
 	width := if b.width % 2 != 0 { b.width - 1 } else { b.width }
 	for idx, _ in b.runes.f {
 		eprint('\r${b.runes.d[0].repeat(width / 2 - b.state)}${b.runes.f2[idx]}${b.runes.d[1].repeat(b.state * 2)}${b.runes.f[idx]}')
-		time.sleep(time.millisecond * b.timeout * 2)
+		time.sleep(b.timeout * 2)
 	}
 
 	if b.state * 2 >= width {
