@@ -81,8 +81,8 @@ pub fn (mut b SmoothBar) prep() {
 				.pull {
 					b.prep_pull(.fill)
 				}
-				.merge {
-					b.prep_merge()
+				.merge, .expand {
+					b.prep_merge_expand()
 				}
 				else {}
 			}
@@ -121,7 +121,7 @@ fn (mut b SmoothBar) prep_pull(stream Stream) {
 	}
 }
 
-fn (mut b SmoothBar) prep_merge() {
+fn (mut b SmoothBar) prep_merge_expand() {
 	b.runes = struct {
 		f: bartender.smooth_ltr
 		f2: bartender.smooth_rtl.reverse()
@@ -157,6 +157,9 @@ pub fn (mut b SmoothBar) progress() {
 		}
 		.merge {
 			b.draw_merge()
+		}
+		.expand {
+			b.draw_expand()
 		}
 		else {}
 	}
@@ -194,11 +197,7 @@ fn (b SmoothBar) draw_push_pull() {
 	eprint('${b.runes.d[1].repeat(n[1])}${b.border[1]} ${b.state * 100 / b.width}% ${b.label[0]}')
 }
 
-pub fn (mut b SmoothBar) draw_merge() {
-	if b.runes.f.len == 0 {
-		b.prep()
-	}
-
+fn (b SmoothBar) draw_merge() {
 	width := if b.width % 2 != 0 { b.width - 1 } else { b.width }
 	for idx, _ in b.runes.f {
 		eprint('\r${b.runes.d[0].repeat(b.state)}${b.runes.f[idx]}')
@@ -215,6 +214,26 @@ pub fn (mut b SmoothBar) draw_merge() {
 		return
 	}
 	eprint('${b.border[0]}${b.runes.d[0].repeat(b.state)} ${b.state * 100 / (width / 2)}%${b.border[1]} ${b.label[0]}')
+}
+
+fn (b SmoothBar) draw_expand() {
+	width := if b.width % 2 != 0 { b.width - 1 } else { b.width }
+	for idx, _ in b.runes.f {
+		eprint(`\r`)
+		eprint(b.runes.d[1].repeat(width / 2 - b.state))
+		eprint(b.runes.f2[idx])
+		eprint(b.runes.d[0].repeat(b.state * 2))
+		eprint(b.runes.f[idx])
+		time.sleep(time.millisecond * b.timeout)
+	}
+
+
+	if b.state * 2 >= width {
+		finish('${b.border[0]}${b.runes.d[0].repeat(b.width + 1)}${b.border[1]} ${b.label[1]}')
+		return
+	}
+	eprint(b.runes.d[1].repeat(width / 2 - b.state))
+	eprint(' ${b.state * 100 / (width / 2)}% ${b.label[1]}')
 }
 
 // <== }
