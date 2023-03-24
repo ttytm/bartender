@@ -13,7 +13,6 @@ fn main() {
 		theme: Theme.pull
 	}
 
-
 	for _ in 0 .. b.width {
 		b.progress()
 	}

@@ -1,15 +1,15 @@
 module main
 
-import bartender { Theme, ThemeVariant }
+import bartender
 import time
 
 fn main() {
 	mut b := bartender.Classic{
-		border: ["|", "|"]!
+		border: ['|', '|']!
 		width: 60
 	}
 	mut b2 := bartender.Classic{
-		border: ["[", "]"]!
+		border: ['[', ']']!
 		runes: [`#`, `-`]!
 		width: 60
 	}
@@ -22,5 +22,4 @@ fn main() {
 		b2.progress()
 		time.sleep(time.millisecond * 20)
 	}
-
 }
