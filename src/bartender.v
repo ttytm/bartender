@@ -11,10 +11,11 @@ mut:
 	theme_ Theme
 	runes  Runes
 pub mut:
-	theme  ThemeChoice = Theme.push
-	border [2]string   = ['', '']! // Start, End
-	label  [2]string // Pending, Finished
-	width  u16 = 79
+	width   u16 = 79
+	label   [2]string // Pending, Finished
+	theme   ThemeChoice = Theme.push
+	border  [2]string   = ['', '']! // Start, End
+	timeout u8 = 2 // Milliseconds between printing characters to the same column for a smooth effect
 }
 
 struct Runes {
@@ -53,7 +54,6 @@ const (
 	smooth_ltr = [` `, `▏`, `▎`, `▍`, `▌`, `▋`, `▊`, `▉`, `█`]
 	smooth_rtl = [`█`, `🮋`, `🮊`, `🮉`, `▐`, `🮈`, `🮇`, `▕`, ` `]
 	delimeters = [`█`, ` `] // Used for progress until current state and remaining space.
-	timeout_ms = 2
 )
 
 // { == Themes ==> ============================================================
@@ -116,7 +116,7 @@ fn (b Bar) draw() {
 
 	for r in b.runes.f {
 		eprint('\r${b.border[0]}${b.runes.d[0].repeat(n[0])}${r}')
-		time.sleep(bartender.timeout_ms * time.millisecond)
+		time.sleep(time.millisecond * b.timeout)
 	}
 
 	if b.state >= b.width {
