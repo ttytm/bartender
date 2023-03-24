@@ -9,14 +9,15 @@ pub struct Bar {
 mut:
 	state  u16
 	theme_ Theme
+	runes  Runes
 pub mut:
-	theme ThemeChoice = Theme.push
-	label [2]string // Pending, Finished
-	width u16 = 79
-	runes Runes
+	theme  ThemeChoice = Theme.push
+	border [2]string   = ['', '']! // Start, End
+	label  [2]string // Pending, Finished
+	width  u16 = 79
 }
 
-pub struct Runes {
+struct Runes {
 	f []rune // Fillers
 	d []rune // Delimeters
 }
@@ -114,10 +115,7 @@ fn (b Bar) draw() {
 	n := if b.theme_ == .pull { [b.width - b.state, b.state] } else { [b.state, b.width - b.state] }
 
 	for r in b.runes.f {
-		eprint(`\r`)
-		// Progress until current state.
-		eprint(b.runes.d[0].repeat(n[0]))
-		eprint(r)
+		eprint('\r${b.border[0]}${b.runes.d[0].repeat(n[0])}${r}')
 		time.sleep(bartender.timeout_ms * time.millisecond)
 	}
 
@@ -127,8 +125,7 @@ fn (b Bar) draw() {
 	}
 
 	// Fill with delimters when state didn't reached full width.
-	eprint(b.runes.d[1].repeat(n[1]))
-	eprint(' ${b.state * 100 / b.width}% ${b.label[0]}')
+	eprint('${b.runes.d[1].repeat(n[1])}${b.border[1]} ${b.state * 100 / b.width}% ${b.label[0]}')
 }
 
 pub fn (mut b Bar) progress() {
@@ -146,7 +143,7 @@ fn (b Bar) finish() {
 	dlm := if b.theme_ == .pull { b.runes.d[1] } else { b.runes.d[0] }
 	eprint('\r')
 	term.erase_line('2')
-	println('${dlm.repeat(b.width + 1)} ${b.label[1]}')
+	println('${b.border[0]}${dlm.repeat(b.width + 1)}${b.border[1]} ${b.label[1]}')
 }
 
 // <== }
