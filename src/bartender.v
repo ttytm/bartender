@@ -73,30 +73,37 @@ const (
 pub fn (mut b SmoothBar) prep() {
 	b.state = 0
 	match mut b.theme {
-		Theme {
-			b.theme_ = b.theme
-			match b.theme {
-				.push {
-					b.prep_push(.fill)
-				}
-				.pull {
-					b.prep_pull(.fill)
-				}
-				else {
-					b.prep_duals()
-				}
-			}
+		Theme { b.match_theme(b.theme as Theme) }
+		ThemeVariant { b.match_theme_variant(b.theme as ThemeVariant) }
+	}
+}
+
+fn (mut b SmoothBar) match_theme(t Theme) {
+	b.theme_ = t
+	match t {
+		.push {
+			b.prep_push(.fill)
 		}
-		ThemeVariant {
-			match b.theme.theme {
-				.push {
-					b.theme_ = .push
-					b.prep_push(b.theme.stream)
-				}
-				.pull {
-					b.theme_ = .pull
-					b.prep_pull(b.theme.stream)
-				}
+		.pull {
+			b.prep_pull(.fill)
+		}
+		else {
+			b.prep_duals()
+		}
+	}
+}
+
+fn (mut b SmoothBar) match_theme_variant(t ThemeVariant) {
+	// Atm the compiler requires this additional check despite the param type.
+	if mut b.theme is ThemeVariant {
+		match t.theme {
+			.push {
+				b.theme_ = .push
+				b.prep_push(b.theme.stream)
+			}
+			.pull {
+				b.theme_ = .pull
+				b.prep_pull(b.theme.stream)
 			}
 		}
 	}
