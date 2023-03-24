@@ -6,6 +6,7 @@ fn main() {
 	mut b := bartender.Bar{
 		label: ['Push Fill', 'Done!']!
 		theme: Theme.push
+		border: ['│', '│']!
 	}
 	mut b2 := bartender.Bar{
 		label: ['Pull Fill', 'Finished!']!
