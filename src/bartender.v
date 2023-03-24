@@ -5,31 +5,33 @@ module bartender
 import time
 import term
 
-pub struct Bar {
+struct PapaBar{
 mut:
 	state  u16
+pub mut:
+	width   u16 = 79
+	label   [2]string // Pending, Finished
+	border  [2]string   = ['', '']! // Start, End
+}
+
+pub struct Bar {
+	PapaBar
+pub mut:
+	runes     [2]rune   = [`#`, ` `]!
+	indicator ?rune
+}
+
+pub struct SmoothBar {
+	PapaBar
+mut:
 	theme_ Theme
 	runes  struct {
 		f []rune // Fillers
 		d []rune // Delimeters
 	}
 pub mut:
-	width   u16 = 79
-	label   [2]string // Pending, Finished
 	theme   ThemeChoice = Theme.push
-	border  [2]string   = ['', '']! // Start, End
 	timeout u8 = 2 // Milliseconds between printing characters to the same column for a smooth effect
-}
-
-pub struct Classic {
-mut:
-	state u16
-pub mut:
-	label     [2]string // Pending, Finished
-	width     u16     = 79
-	runes     [2]rune = [`#`, ` `]!
-	indicator ?rune
-	border    [2]string = ['', '']! // Start, End
 }
 
 type ThemeChoice = Theme | ThemeVariant
@@ -67,12 +69,13 @@ const (
 
 // { == Themes ==> ============================================================
 
-pub fn (mut b Bar) prep() {
+pub fn (mut b SmoothBar) prep() {
 	b.state = 0
 	match mut b.theme {
 		Theme {
 			match b.theme {
 				.push {
+
 					b.prep_push(.fill)
 				}
 				.pull {
@@ -97,14 +100,14 @@ pub fn (mut b Bar) prep() {
 	}
 }
 
-fn (mut b Bar) prep_push(stream Stream) {
+fn (mut b SmoothBar) prep_push(stream Stream) {
 	b.runes = struct {
 		f: if stream == .fill { bartender.smooth_ltr } else { bartender.smooth_rtl }
 		d: if stream == .fill { bartender.delimeters } else { bartender.delimeters.reverse() }
 	}
 }
 
-fn (mut b Bar) prep_pull(stream Stream) {
+fn (mut b SmoothBar) prep_pull(stream Stream) {
 	b.runes = struct {
 		f: if stream == .fill {
 			bartender.smooth_rtl.reverse()
@@ -119,7 +122,7 @@ fn (mut b Bar) prep_pull(stream Stream) {
 
 // { == Progress ==> ==========================================================
 
-pub fn (mut b Classic) progress() {
+pub fn (mut b Bar) progress() {
 	if b.state == 0 {
 		term.hide_cursor()
 	}
@@ -127,7 +130,7 @@ pub fn (mut b Classic) progress() {
 	b.draw()
 }
 
-fn (b Classic) draw() {
+fn (b Bar) draw() {
 	eprint('\r${b.border[0]}${b.runes[0].repeat(b.state - 1)}${b.indicator or { b.runes[1] }}')
 	if b.state >= b.width {
 		b.finish()
@@ -136,16 +139,20 @@ fn (b Classic) draw() {
 	eprint('${b.runes[1].repeat(b.width - b.state)}${b.border[1]} ${b.state * 100 / b.width}% ${b.label[0]}')
 }
 
-fn (b Classic) finish() {
+fn (b Bar) finish() {
 	eprint('\r')
 	term.erase_line('2')
 	println('${b.border[0]}${b.runes[0].repeat(b.width)}${b.border[1]} ${b.label[1]}')
 	term.show_cursor()
 }
 
-pub fn (mut b Bar) progress() {
+pub fn (mut b SmoothBar) progress() {
 	if b.runes.f.len == 0 {
-		b.prep()
+		if b.theme.type_name() == "ThemeChoise" {
+			b.prep_push(.fill)
+		} else {
+			b.prep()
+		}
 	}
 	if b.state == 0 {
 		term.hide_cursor()
@@ -156,7 +163,7 @@ pub fn (mut b Bar) progress() {
 	}
 }
 
-fn (b Bar) draw() {
+fn (b SmoothBar) draw() {
 	// Progressively empty. || Progressively fill.
 	n := if b.theme_ == .pull { [b.width - b.state, b.state] } else { [b.state, b.width - b.state] }
 
@@ -174,7 +181,7 @@ fn (b Bar) draw() {
 	eprint('${b.runes.d[1].repeat(n[1])}${b.border[1]} ${b.state * 100 / b.width}% ${b.label[0]}')
 }
 
-fn (b Bar) finish() {
+fn (b SmoothBar) finish() {
 	dlm := if b.theme_ == .pull { b.runes.d[1] } else { b.runes.d[0] }
 	eprint('\r')
 	term.erase_line('2')

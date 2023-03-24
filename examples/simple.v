@@ -4,15 +4,16 @@ import bartender
 import time
 
 fn main() {
-	mut b := bartender.Classic{
-		border: ['|', '|']!
+	mut b := bartender.Bar{
 		width: 60
+		label: ['Loading...', 'Done!']!
+		border: ['|', '|']!
 	}
-	mut b2 := bartender.Classic{
+	mut b2 := bartender.Bar{
+		width: 60
 		border: ['[', ']']!
 		runes: [`#`, `-`]!
 		indicator: `❯`
-		width: 60
 	}
 
 	for _ in 0 .. b.width {
@@ -21,6 +22,6 @@ fn main() {
 	}
 	for _ in 0 .. b2.width {
 		b2.progress()
-		time.sleep(time.millisecond * 20)
+		time.sleep(time.millisecond * 40)
 	}
 }

@@ -9,7 +9,7 @@ struct ProgressReader {
 	data string [required]
 	size int    [required]
 mut:
-	progress_bar bartender.Bar
+	progress_bar bartender.SmoothBar
 	state        int
 	pos          int
 }
@@ -49,9 +49,11 @@ fn main() {
 			data: data
 			size: data.len
 			state: 0
-			progress_bar: bartender.Bar{
+			progress_bar: bartender.SmoothBar{
 				width: 60
 				label: ['Downloading...', 'Download completed!']!
+				theme: bartender.Theme.push
+				border: ['│', '│']!
 			}
 		}
 	)
