@@ -219,17 +219,15 @@ fn (b SmoothBar) draw_merge() {
 fn (b SmoothBar) draw_expand() {
 	width := if b.width % 2 != 0 { b.width - 1 } else { b.width }
 	for idx, _ in b.runes.f {
-		eprint("\r${b.runes.d[1].repeat(width / 2 - b.state)}${b.runes.f2[idx]}${b.runes.d[0].repeat(b.state * 2)}${b.runes.f[idx]}")
+		eprint('\r${b.runes.d[1].repeat(width / 2 - b.state)}${b.runes.f2[idx]}${b.runes.d[0].repeat(b.state * 2)}${b.runes.f[idx]}')
 		time.sleep(time.millisecond * b.timeout * 2)
 	}
-
 
 	if b.state * 2 >= width {
 		finish('${b.border[0]}${b.runes.d[0].repeat(b.width + 1)}${b.border[1]} ${b.label[1]}')
 		return
 	}
-	eprint(b.runes.d[1].repeat(width / 2 - b.state))
-	eprint(' ${b.state * 100 / (width / 2)}% ${b.label[1]}')
+	eprint('${b.runes.d[1].repeat(width / 2 - b.state)} ${b.state * 100 / (width / 2)}% ${b.label[0]}')
 }
 
 // <== }
