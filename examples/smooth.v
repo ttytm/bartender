@@ -8,7 +8,6 @@ const timeout = time.millisecond * 2
 fn main() {
 	mut b := SmoothBar{
 		label: ['Push Fill', 'Done!']!
-		theme: Theme.push
 		timeout: timeout
 	}
 	for _ in 0 .. b.width {

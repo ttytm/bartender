@@ -27,12 +27,12 @@ mut:
 	theme_ Theme
 	runes  struct {
 		f  []rune // Fillers
-		f2 []rune // Fillers reversed. Used for merge, expand and split variant.
+		f2 []rune // Fillers(usually reversed versions). Used for merge, expand and split variant.
 		d  []rune // Delimeters
 	}
 pub mut:
-	theme   ThemeChoice = Theme.push
 	timeout time.Duration = time.microsecond * 500 // Duration between same column character prints for a smooth effect.
+	theme   ThemeChoice   = Theme.push // Putting sumtype field first breaks default value. Related issue (github.com/vlang/v/issues/17758)
 }
 
 type ThemeChoice = Theme | ThemeVariant

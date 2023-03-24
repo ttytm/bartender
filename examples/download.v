@@ -52,7 +52,6 @@ fn main() {
 			progress_bar: bartender.SmoothBar{
 				width: 60
 				label: ['Downloading...', 'Download completed!']!
-				theme: bartender.Theme.push
 				border: ['│', '│']!
 			}
 		}
