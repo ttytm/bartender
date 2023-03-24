@@ -11,6 +11,7 @@ fn main() {
 	mut b2 := bartender.Classic{
 		border: ['[', ']']!
 		runes: [`#`, `-`]!
+		indicator: `❯`
 		width: 60
 	}
 

@@ -25,10 +25,11 @@ pub struct Classic {
 mut:
 	state u16
 pub mut:
-	label  [2]string // Pending, Finished
-	width  u16       = 79
-	runes  [2]rune   = [`#`, ` `]!
-	border [2]string = ['', '']! // Start, End
+	label     [2]string // Pending, Finished
+	width     u16     = 79
+	runes     [2]rune = [`#`, ` `]!
+	indicator ?rune
+	border    [2]string = ['', '']! // Start, End
 }
 
 type ThemeChoice = Theme | ThemeVariant
@@ -127,7 +128,7 @@ pub fn (mut b Classic) progress() {
 }
 
 fn (b Classic) draw() {
-	eprint('\r${b.border[0]}${b.runes[0].repeat(b.state)}')
+	eprint('\r${b.border[0]}${b.runes[0].repeat(b.state - 1)}${b.indicator or { b.runes[1] }}')
 	if b.state >= b.width {
 		b.finish()
 		return
