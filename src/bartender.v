@@ -9,18 +9,16 @@ pub struct Bar {
 mut:
 	state  u16
 	theme_ Theme
-	runes  Runes
+	runes  struct {
+		f []rune // Fillers
+		d []rune // Delimeters
+	}
 pub mut:
 	width   u16 = 79
 	label   [2]string // Pending, Finished
 	theme   ThemeChoice = Theme.push
 	border  [2]string   = ['', '']! // Start, End
 	timeout u8 = 2 // Milliseconds between printing characters to the same column for a smooth effect
-}
-
-struct Runes {
-	f []rune // Fillers
-	d []rune // Delimeters
 }
 
 type ThemeChoice = Theme | ThemeVariant
@@ -89,14 +87,14 @@ pub fn (mut b Bar) prep() {
 }
 
 fn (mut b Bar) prep_push(stream Stream) {
-	b.runes = Runes{
+	b.runes = struct {
 		f: if stream == .fill { bartender.smooth_ltr } else { bartender.smooth_rtl }
 		d: if stream == .fill { bartender.delimeters } else { bartender.delimeters.reverse() }
 	}
 }
 
 fn (mut b Bar) prep_pull(stream Stream) {
-	b.runes = Runes{
+	b.runes = struct {
 		f: if stream == .fill {
 			bartender.smooth_rtl.reverse()
 		} else {
@@ -109,6 +107,19 @@ fn (mut b Bar) prep_pull(stream Stream) {
 // <== }
 
 // { == Progress ==> ==========================================================
+
+pub fn (mut b Bar) progress() {
+	if b.runes.f.len == 0 {
+		b.prep()
+	}
+	if b.state == 0 {
+		term.hide_cursor()
+	}
+	b.state += 1
+	if b.theme_ == .pull || b.theme_ == .push {
+		b.draw()
+	}
+}
 
 fn (b Bar) draw() {
 	// Progressively empty. || Progressively fill.
@@ -128,22 +139,12 @@ fn (b Bar) draw() {
 	eprint('${b.runes.d[1].repeat(n[1])}${b.border[1]} ${b.state * 100 / b.width}% ${b.label[0]}')
 }
 
-pub fn (mut b Bar) progress() {
-	if b.runes.f.len == 0 {
-		b.prep()
-	}
-	b.state += 1
-
-	if b.theme_ == .pull || b.theme_ == .push {
-		b.draw()
-	}
-}
-
 fn (b Bar) finish() {
 	dlm := if b.theme_ == .pull { b.runes.d[1] } else { b.runes.d[0] }
 	eprint('\r')
 	term.erase_line('2')
 	println('${b.border[0]}${dlm.repeat(b.width + 1)}${b.border[1]} ${b.label[1]}')
+	term.show_cursor()
 }
 
 // <== }

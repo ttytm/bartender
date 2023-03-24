@@ -1,7 +1,6 @@
 module main
 
 import bartender { Theme, ThemeVariant }
-import term { hide_cursor, show_cursor }
 
 fn main() {
 	mut b := bartender.Bar{
@@ -13,7 +12,6 @@ fn main() {
 		theme: Theme.pull
 	}
 
-	hide_cursor()
 
 	for _ in 0 .. b.width {
 		b.progress()
@@ -22,9 +20,12 @@ fn main() {
 		b2.progress()
 	}
 
-	// Re-used bars
-	b.label = ['Push Drain', 'Completed!']!
-	b.theme = ThemeVariant{.push, .drain}
+	// Re-use bars
+	b = bartender.Bar{
+		label: ['Push Drain', 'Completed!']!
+		theme: ThemeVariant{.push, .drain}
+		border: ['', '']!
+	}
 	b.prep()
 	for _ in 0 .. b.width {
 		b.progress()
@@ -35,6 +36,4 @@ fn main() {
 	for _ in 0 .. b2.width {
 		b2.progress()
 	}
-
-	show_cursor()
 }

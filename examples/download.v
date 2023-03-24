@@ -4,7 +4,6 @@ import bartender
 import net.http
 import os
 import io
-import term { hide_cursor, show_cursor }
 
 struct ProgressReader {
 	data string [required]
@@ -36,7 +35,7 @@ fn main() {
 
 	mut resp := http.get(url)!
 	if resp.status_code != 200 {
-		eprintln('An error occurred: status code ${resp.status_code}')
+		eprintln('[Error] Status: ${resp.status_code}')
 		return
 	}
 	mut file := os.create(temp_output) or { panic(err) }
@@ -57,9 +56,7 @@ fn main() {
 		}
 	)
 
-	hide_cursor()
 	io.cp(mut r, mut file)!
-	show_cursor()
 
 	os.rename(temp_output, output)!
 }
