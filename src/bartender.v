@@ -5,19 +5,19 @@ module bartender
 import time
 import term
 
-struct PapaBar{
+struct PapaBar {
 mut:
-	state  u16
+	state u16
 pub mut:
-	width   u16 = 79
-	label   [2]string // Pending, Finished
-	border  [2]string   = ['', '']! // Start, End
+	width  u16 = 79
+	label  [2]string // Pending, Finished
+	border [2]string = ['', '']! // Start, End
 }
 
 pub struct Bar {
 	PapaBar
 pub mut:
-	runes     [2]rune   = [`#`, ` `]!
+	runes     [2]rune = [`#`, ` `]!
 	indicator ?rune
 }
 
@@ -26,8 +26,9 @@ pub struct SmoothBar {
 mut:
 	theme_ Theme
 	runes  struct {
-		f []rune // Fillers
-		d []rune // Delimeters
+		f  []rune // Fillers
+		f2 []rune // Fillers reversed. Used for merge, expand and split variant.
+		d  []rune // Delimeters
 	}
 pub mut:
 	theme   ThemeChoice = Theme.push
@@ -67,7 +68,7 @@ const (
 	delimeters = [`█`, ` `] // Used for progress until current state and remaining space.
 )
 
-// { == Themes ==> ============================================================
+// { == Prepare ==> ===========================================================
 
 pub fn (mut b SmoothBar) prep() {
 	b.state = 0
@@ -75,11 +76,13 @@ pub fn (mut b SmoothBar) prep() {
 		Theme {
 			match b.theme {
 				.push {
-
 					b.prep_push(.fill)
 				}
 				.pull {
 					b.prep_pull(.fill)
+				}
+				.merge {
+					b.prep_merge()
 				}
 				else {}
 			}
@@ -118,6 +121,14 @@ fn (mut b SmoothBar) prep_pull(stream Stream) {
 	}
 }
 
+fn (mut b SmoothBar) prep_merge() {
+	b.runes = struct {
+		f: bartender.smooth_ltr
+		f2: bartender.smooth_rtl.reverse()
+		d: bartender.delimeters
+	}
+}
+
 // <== }
 
 // { == Progress ==> ==========================================================
@@ -130,40 +141,41 @@ pub fn (mut b Bar) progress() {
 	b.draw()
 }
 
+pub fn (mut b SmoothBar) progress() {
+	if b.runes.f.len == 0 {
+		b.prep()
+	}
+	if b.state == 0 {
+		term.hide_cursor()
+	}
+
+	b.state += 1
+
+	match b.theme_ {
+		.push, .pull {
+			b.draw_push_pull()
+		}
+		.merge {
+			b.draw_merge()
+		}
+		else {}
+	}
+}
+
+// <== }
+
+// { == Draw ==> ==============================================================
+
 fn (b Bar) draw() {
 	eprint('\r${b.border[0]}${b.runes[0].repeat(b.state - 1)}${b.indicator or { b.runes[1] }}')
 	if b.state >= b.width {
-		b.finish()
+		finish('${b.border[0]}${b.runes[0].repeat(b.width)}${b.border[1]} ${b.label[1]}')
 		return
 	}
 	eprint('${b.runes[1].repeat(b.width - b.state)}${b.border[1]} ${b.state * 100 / b.width}% ${b.label[0]}')
 }
 
-fn (b Bar) finish() {
-	eprint('\r')
-	term.erase_line('2')
-	println('${b.border[0]}${b.runes[0].repeat(b.width)}${b.border[1]} ${b.label[1]}')
-	term.show_cursor()
-}
-
-pub fn (mut b SmoothBar) progress() {
-	if b.runes.f.len == 0 {
-		if b.theme.type_name() == "ThemeChoise" {
-			b.prep_push(.fill)
-		} else {
-			b.prep()
-		}
-	}
-	if b.state == 0 {
-		term.hide_cursor()
-	}
-	b.state += 1
-	if b.theme_ == .pull || b.theme_ == .push {
-		b.draw()
-	}
-}
-
-fn (b SmoothBar) draw() {
+fn (b SmoothBar) draw_push_pull() {
 	// Progressively empty. || Progressively fill.
 	n := if b.theme_ == .pull { [b.width - b.state, b.state] } else { [b.state, b.width - b.state] }
 
@@ -173,7 +185,8 @@ fn (b SmoothBar) draw() {
 	}
 
 	if b.state >= b.width {
-		b.finish()
+		dlm := if b.theme_ == .pull { b.runes.d[1] } else { b.runes.d[0] }
+		finish('${b.border[0]}${dlm.repeat(b.width + 1)}${b.border[1]} ${b.label[1]}')
 		return
 	}
 
@@ -181,12 +194,34 @@ fn (b SmoothBar) draw() {
 	eprint('${b.runes.d[1].repeat(n[1])}${b.border[1]} ${b.state * 100 / b.width}% ${b.label[0]}')
 }
 
-fn (b SmoothBar) finish() {
-	dlm := if b.theme_ == .pull { b.runes.d[1] } else { b.runes.d[0] }
-	eprint('\r')
-	term.erase_line('2')
-	println('${b.border[0]}${dlm.repeat(b.width + 1)}${b.border[1]} ${b.label[1]}')
-	term.show_cursor()
+pub fn (mut b SmoothBar) draw_merge() {
+	if b.runes.f.len == 0 {
+		b.prep()
+	}
+
+	width := if b.width % 2 != 0 { b.width - 1 } else { b.width }
+	for idx, _ in b.runes.f {
+		eprint('\r${b.runes.d[0].repeat(b.state)}${b.runes.f[idx]}')
+		if width - b.state * 2 >= 0 {
+			eprint(b.runes.d[1].repeat(width - b.state * 2))
+		} else {
+			eprint(b.runes.d[0])
+		}
+		eprint(b.runes.f2[idx])
+		time.sleep(time.millisecond * b.timeout * 2)
+	}
+	if b.state * 2 >= width {
+		finish('${b.border[0]}${b.runes.d[0].repeat(b.width + 1)}${b.border[1]} ${b.label[1]}')
+		return
+	}
+	eprint('${b.border[0]}${b.runes.d[0].repeat(b.state)} ${b.state * 100 / (width / 2)}%${b.border[1]} ${b.label[0]}')
 }
 
 // <== }
+
+fn finish(res string) {
+	eprint('\r')
+	term.erase_line('2')
+	term.show_cursor()
+	println(res)
+}

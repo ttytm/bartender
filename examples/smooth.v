@@ -35,4 +35,12 @@ fn main() {
 	for _ in 0 .. b2.width {
 		b2.progress()
 	}
+
+	mut b3 := SmoothBar{
+		label: ['Merge', '100% Merge']!
+		theme: Theme.merge
+	}
+	for _ in 0 .. b3.width / 2 {
+		b3.progress()
+	}
 }
