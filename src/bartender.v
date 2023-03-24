@@ -225,6 +225,7 @@ fn (b SmoothBar) draw_expand() {
 		eprint(b.runes.d[0].repeat(b.state * 2))
 		eprint(b.runes.f[idx])
 		time.sleep(time.millisecond * b.timeout)
+		time.sleep(time.millisecond * b.timeout * 2)
 	}
 
 
