@@ -7,13 +7,13 @@ fn main() {
 		label: ['Push Fill', 'Done!']!
 		theme: Theme.push
 	}
+	for _ in 0 .. b.width {
+		b.progress()
+	}
+
 	mut b2 := SmoothBar{
 		label: ['Pull Fill', 'Finished!']!
 		theme: Theme.pull
-	}
-
-	for _ in 0 .. b.width {
-		b.progress()
 	}
 	for _ in 0 .. b2.width {
 		b2.progress()
@@ -29,6 +29,7 @@ fn main() {
 	for _ in 0 .. b.width {
 		b.progress()
 	}
+
 	b2.label = ['Pull Drain', 'Ready!']!
 	b2.theme = ThemeVariant{.pull, .drain}
 	b2.prep()
@@ -40,14 +41,24 @@ fn main() {
 		label: ['Merge', '100% Merge']!
 		theme: Theme.merge
 	}
+	for _ in 0 .. b3.width / 2 {
+		b3.progress()
+	}
+
+	// Dual-bar variants
 	mut b4 := SmoothBar{
 		label: ['Expand', '100% Expand']!
 		theme: Theme.expand
 	}
-	for _ in 0 .. b3.width / 2 {
-		b3.progress()
-	}
 	for _ in 0 .. b4.width / 2 {
 		b4.progress()
+	}
+
+	mut b5 := SmoothBar{
+		label: ['Split', '100% Split']!
+		theme: Theme.split
+	}
+	for _ in 0 .. b5.width / 2 {
+		b5.progress()
 	}
 }

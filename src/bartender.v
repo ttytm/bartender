@@ -74,6 +74,7 @@ pub fn (mut b SmoothBar) prep() {
 	b.state = 0
 	match mut b.theme {
 		Theme {
+			b.theme_ = b.theme
 			match b.theme {
 				.push {
 					b.prep_push(.fill)
@@ -81,22 +82,20 @@ pub fn (mut b SmoothBar) prep() {
 				.pull {
 					b.prep_pull(.fill)
 				}
-				.merge, .expand {
-					b.prep_merge_expand()
+				else {
+					b.prep_duals()
 				}
-				else {}
 			}
-			b.theme_ = b.theme
 		}
 		ThemeVariant {
 			match b.theme.theme {
 				.push {
+			b.theme_ = .push
 					b.prep_push(b.theme.stream)
-					b.theme_ = .push
 				}
 				.pull {
+			b.theme_ = .pull
 					b.prep_pull(b.theme.stream)
-					b.theme_ = .pull
 				}
 			}
 		}
@@ -121,14 +120,13 @@ fn (mut b SmoothBar) prep_pull(stream Stream) {
 	}
 }
 
-fn (mut b SmoothBar) prep_merge_expand() {
+fn (mut b SmoothBar) prep_duals() {
 	b.runes = struct {
-		f: bartender.smooth_ltr
-		f2: bartender.smooth_rtl.reverse()
+		f: if b.theme_ == .split {bartender.smooth_rtl} else {bartender.smooth_ltr}
+		f2: if b.theme_ == .split {bartender.smooth_ltr.reverse()} else {bartender.smooth_rtl.reverse()}
 		d: bartender.delimeters
 	}
 }
-
 // <== }
 
 // { == Progress ==> ==========================================================
@@ -161,7 +159,9 @@ pub fn (mut b SmoothBar) progress() {
 		.expand {
 			b.draw_expand()
 		}
-		else {}
+		.split {
+			b.draw_split()
+		}
 	}
 }
 
@@ -228,6 +228,24 @@ fn (b SmoothBar) draw_expand() {
 		return
 	}
 	eprint('${b.runes.d[1].repeat(width / 2 - b.state)} ${b.state * 100 / (width / 2)}% ${b.label[0]}')
+}
+
+fn (b SmoothBar) draw_split() {
+	width := if b.width % 2 != 0 { b.width - 1 } else { b.width }
+	for idx, _ in b.runes.f {
+		eprint(`\r`)
+		eprint(b.runes.d[0].repeat(width / 2 - b.state))
+		eprint(b.runes.f2[idx])
+		eprint(b.runes.d[1].repeat(b.state * 2))
+		eprint(b.runes.f[idx])
+		time.sleep(time.millisecond * b.timeout * 2)
+	}
+
+	if b.state * 2 >= width {
+		finish('${b.border[0]}${b.runes.d[1].repeat(width + 2)}${b.border[1]} ${b.label[1]}')
+		return
+	}
+	eprint('${b.border[0]}${b.runes.d[0].repeat(width / 2 - b.state)} ${b.state * 100 / (width / 2)}%${b.border[1]} ${b.label[0]}')
 }
 
 // <== }
