@@ -90,11 +90,11 @@ pub fn (mut b SmoothBar) prep() {
 		ThemeVariant {
 			match b.theme.theme {
 				.push {
-			b.theme_ = .push
+					b.theme_ = .push
 					b.prep_push(b.theme.stream)
 				}
 				.pull {
-			b.theme_ = .pull
+					b.theme_ = .pull
 					b.prep_pull(b.theme.stream)
 				}
 			}
@@ -122,11 +122,16 @@ fn (mut b SmoothBar) prep_pull(stream Stream) {
 
 fn (mut b SmoothBar) prep_duals() {
 	b.runes = struct {
-		f: if b.theme_ == .split {bartender.smooth_rtl} else {bartender.smooth_ltr}
-		f2: if b.theme_ == .split {bartender.smooth_ltr.reverse()} else {bartender.smooth_rtl.reverse()}
+		f: if b.theme_ == .split { bartender.smooth_rtl } else { bartender.smooth_ltr }
+		f2: if b.theme_ == .split {
+			bartender.smooth_ltr.reverse()
+		} else {
+			bartender.smooth_rtl.reverse()
+		}
 		d: bartender.delimeters
 	}
 }
+
 // <== }
 
 // { == Progress ==> ==========================================================
