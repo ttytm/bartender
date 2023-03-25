@@ -8,7 +8,6 @@ const timeout = time.millisecond * 2
 
 fn main() {
 	// ----------------------------------------------
-
 	mut b := SmoothBar{}
 	// Add optional fields
 	b.label = ['Push Fill', 'Done!']!
