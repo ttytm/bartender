@@ -2,22 +2,61 @@ module bartender
 
 import term
 
-type Color = ComponentColor | TermColor
+type BarColorType = BarColor | TermColor
+type SmoothBarColorType = SmoothBarColor | TermColor
 type TermColor = fn (msg string) string
 
-pub struct ComponentColor {
+pub struct BarColor {
+	fill   TermColor
+	indicator TermColor
+	border TermColor
+}
+
+pub struct SmoothBarColor {
 	fill   TermColor
 	border TermColor
 }
 
-pub fn (mut b SmoothBar) colorize(color Color) {
+pub fn (mut b Bar) colorize(color BarColorType) {
 	b.setup()
 
-	if color !is ComponentColor {
+	if color !is BarColor {
 		b.colorize_all(color as TermColor)
 		return
 	}
-	b.colorize_components(color as ComponentColor)
+	b.colorize_components(color as BarColor)
+}
+
+fn (mut b Bar) colorize_all(color TermColor) {
+	b.runes_ = [term.colorize(color as TermColor, b.runes_[0]),
+		term.colorize(color as TermColor, b.runes_[1])]!
+	b.indicator_ = term.colorize(color as TermColor, b.indicator_)
+
+	if b.border.len > 0 {
+		b.border = [term.colorize(color as TermColor, b.border[0]),
+			term.colorize(color as TermColor, b.border[1])]!
+	}
+}
+
+fn (mut b Bar) colorize_components(color BarColor) {
+	b.runes_ = [term.colorize(color.fill, b.runes_[0]),
+		term.colorize(color.fill, b.runes_[1])]!
+	b.indicator_ = term.colorize(color.indicator, b.indicator_)
+
+	if b.border.len > 0 {
+		b.border = [term.colorize(color.border, b.border[0]),
+			term.colorize(color.border, b.border[1])]!
+	}
+}
+
+pub fn (mut b SmoothBar) colorize(color SmoothBarColorType) {
+	b.setup()
+
+	if color !is SmoothBarColor {
+		b.colorize_all(color as TermColor)
+		return
+	}
+	b.colorize_components(color as SmoothBarColor)
 }
 
 fn (mut b SmoothBar) colorize_all(color TermColor) {
@@ -43,7 +82,7 @@ fn (mut b SmoothBar) colorize_all(color TermColor) {
 	}
 }
 
-fn (mut b SmoothBar) colorize_components(color ComponentColor) {
+fn (mut b SmoothBar) colorize_components(color SmoothBarColor) {
 	mut painted_runes := SmoothRunes{}
 
 	painted_runes.f << term.colorize(color.fill, b.runes.f[0])

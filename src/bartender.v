@@ -14,9 +14,13 @@ pub mut:
 }
 
 pub fn (mut b Bar) progress() {
+	if b.runes_[0].len == 0 {
+		b.setup()
+	}
 	if b.state == 0 {
 		term.hide_cursor()
 	}
+
 	b.state += 1
 	b.draw()
 }
@@ -45,6 +49,10 @@ pub fn (mut b SmoothBar) progress() {
 			b.draw_split()
 		}
 	}
+}
+
+pub fn (mut b Bar) reset() {
+	b.setup()
 }
 
 pub fn (mut b SmoothBar) reset() {

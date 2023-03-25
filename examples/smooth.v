@@ -81,7 +81,7 @@ fn main() {
 		border: ['│', '│']!
 		width: 78
 	}
-	b5.colorize(bartender.ComponentColor{term.green, term.blue})
+	b5.colorize(bartender.SmoothBarColor{term.green, term.blue})
 	for _ in 0 .. b5.width / 2 {
 		b5.progress()
 	}
