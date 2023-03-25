@@ -64,6 +64,7 @@ pub enum Stream {
 	drain
 }
 
+type Color = TermColor|ComponentColor
 type TermColor = fn (msg string) string
 
 pub struct ComponentColor {
@@ -143,7 +144,7 @@ fn (mut b SmoothBar) prep_duals() {
 
 // { == Colors ==> ============================================================
 
-pub fn (mut b SmoothBar) colorize(color ComponentColor|TermColor) {
+pub fn (mut b SmoothBar) colorize(color Color) {
 	b.prep()
 
 	if color !is ComponentColor {
