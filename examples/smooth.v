@@ -33,7 +33,7 @@ fn main() {
 		theme: ThemeVariant{.push, .drain}
 		timeout: timeout
 	}
-	b.prep()
+	b.reset()
 	for _ in 0 .. b.width {
 		b.progress()
 	}
@@ -41,7 +41,7 @@ fn main() {
 	// ----------------------------------------------
 	b2.label = ['Pull Drain', 'Ready!']!
 	b2.theme = ThemeVariant{.pull, .drain}
-	b2.prep()
+	b2.reset()
 	for _ in 0 .. b2.width {
 		b2.progress()
 	}
