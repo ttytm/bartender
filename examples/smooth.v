@@ -8,6 +8,7 @@ const timeout = time.millisecond * 2
 
 fn main() {
 	// ----------------------------------------------
+
 	mut b := SmoothBar{}
 	// Add optional fields
 	b.label = ['Push Fill', 'Done!']!
@@ -52,6 +53,8 @@ fn main() {
 		label: ['Merge', '100% Merge']!
 		theme: Theme.merge
 		timeout: timeout
+		border: ['│', '│']!
+		width: 78
 	}
 	b3.colorize(term.cyan)
 	for _ in 0 .. b3.width / 2 {
@@ -63,6 +66,8 @@ fn main() {
 		label: ['Expand', '100% Expand']!
 		theme: Theme.expand
 		timeout: timeout
+		border: ['│', '│']!
+		width: 78
 	}
 	b4.colorize(term.bright_black)
 	for _ in 0 .. b4.width / 2 {
@@ -74,8 +79,10 @@ fn main() {
 		label: ['Split', '100% Split']!
 		theme: Theme.split
 		timeout: timeout
+		border: ['│', '│']!
+		width: 78
 	}
-	b5.colorize(term.yellow)
+	b5.colorize(bartender.ComponentColor{term.green, term.blue})
 	for _ in 0 .. b5.width / 2 {
 		b5.progress()
 	}

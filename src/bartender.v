@@ -9,7 +9,7 @@ struct PapaBar {
 mut:
 	state u16
 pub mut:
-	width  u16 = 79
+	width  u16 = 80
 	label  [2]string // Pending, Finished
 	border [2]string = ['', '']! // Start, End
 }
@@ -62,6 +62,13 @@ pub enum ThemeVariantOpt {
 pub enum Stream {
 	fill
 	drain
+}
+
+type TermColor = fn (msg string) string
+
+pub struct ComponentColor {
+	fill   TermColor
+	border TermColor
 }
 
 const (
@@ -132,24 +139,61 @@ fn (mut b SmoothBar) prep_duals() {
 	}
 }
 
-pub fn (mut b SmoothBar) colorize(color fn (msg string) string) {
+pub fn (mut b SmoothBar) colorize(color ComponentColor|TermColor) {
 	b.prep()
 
+	if color !is ComponentColor {
+		b.colorize_all(color as TermColor)
+		return
+	}
+	b.colorize_components(color as ComponentColor)
+}
+
+fn (mut b SmoothBar) colorize_all(color TermColor) {
 	mut painted_runes := SmoothRunes{}
 
 	for d in b.runes.d {
-		painted_runes.d << term.colorize(color, d)
+		painted_runes.d << term.colorize(color as TermColor, d)
 	}
 	for mut f in b.runes.f {
-		painted_runes.f << term.colorize(color, f)
+		painted_runes.f << term.colorize(color as TermColor, f)
 	}
 	if b.runes.f2.len > 0 {
 		for mut f in b.runes.f2 {
-			painted_runes.f2 << term.colorize(color, f)
+			painted_runes.f2 << term.colorize(color as TermColor, f)
 		}
 	}
 
 	b.runes = painted_runes
+
+	if b.border.len > 0 {
+		painted_border := [term.colorize(color as TermColor, b.border[0]),
+			term.colorize(color as TermColor, b.border[1])]!
+		b.border = painted_border
+	}
+}
+
+fn (mut b SmoothBar) colorize_components(color ComponentColor) {
+	mut painted_runes := SmoothRunes{}
+
+	painted_runes.d << term.colorize(color.fill, b.runes.d[0])
+	painted_runes.d << b.runes.d[1]
+	for mut f in b.runes.f {
+		painted_runes.f << term.colorize(color.fill, f)
+	}
+	if b.runes.f2.len > 0 {
+		for mut f in b.runes.f2 {
+			painted_runes.f2 << term.colorize(color.fill, f)
+		}
+	}
+
+	b.runes = painted_runes
+
+	if b.border.len > 0 {
+		painted_border := [term.colorize(color.border, b.border[0]),
+			term.colorize(color.border, b.border[1])]!
+		b.border = painted_border
+	}
 }
 
 // <== }
