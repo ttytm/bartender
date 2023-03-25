@@ -2,6 +2,7 @@ module main
 
 import bartender { SmoothBar, Theme, ThemeVariant }
 import time
+import term
 
 const timeout = time.millisecond * 2
 
@@ -45,6 +46,7 @@ fn main() {
 		label: ['Merge', '100% Merge']!
 		theme: Theme.merge
 		timeout: timeout
+		color: term.cyan
 	}
 	for _ in 0 .. b3.width / 2 {
 		b3.progress()
@@ -55,6 +57,7 @@ fn main() {
 		label: ['Expand', '100% Expand']!
 		theme: Theme.expand
 		timeout: timeout
+		color: term.bright_black
 	}
 	for _ in 0 .. b4.width / 2 {
 		b4.progress()
@@ -64,6 +67,7 @@ fn main() {
 		label: ['Split', '100% Split']!
 		theme: Theme.split
 		timeout: timeout
+		color: term.yellow
 	}
 	for _ in 0 .. b5.width / 2 {
 		b5.progress()

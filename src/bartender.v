@@ -9,10 +9,14 @@ struct PapaBar {
 mut:
 	state u16
 pub mut:
+	color  Color
 	width  u16 = 79
 	label  [2]string // Pending, Finished
 	border [2]string = ['', '']! // Start, End
 }
+
+type Color = bool | TermColor
+type TermColor = fn (msg string) string
 
 pub struct Bar {
 	PapaBar
@@ -25,20 +29,22 @@ pub struct SmoothBar {
 	PapaBar
 mut:
 	theme_ Theme
-	runes  struct {
-		f  []rune // Fillers
-		f2 []rune // Fillers(usually reversed versions). Used for merge, expand and split variant.
-		d  []rune // Delimeters
-	}
+	runes  SmoothRunes
 pub mut:
 	timeout time.Duration = time.microsecond * 500 // Duration between same column character prints for a smooth effect.
 	theme   ThemeChoice   = Theme.push // Putting sumtype field first breaks default value. Related issue (github.com/vlang/v/issues/17758)
 }
 
+struct SmoothRunes {
+mut:
+	f  []string // Fillers
+	f2 []string // Fillers(usually reversed versions). Used for merge, expand and split variant.
+	d  []string // Delimeters
+}
+
+// The current solution might be improved. In Rust it would be one enum with `push` & `pull` being tuple variants.
 type ThemeChoice = Theme | ThemeVariant
 
-// The current solution can probably be improved.
-// In rust it'd be an enum with it's push & pull variants having values.
 pub enum Theme {
 	push
 	pull
@@ -63,15 +69,16 @@ pub enum Stream {
 }
 
 const (
-	smooth_ltr = [` `, `▏`, `▎`, `▍`, `▌`, `▋`, `▊`, `▉`, `█`]
-	smooth_rtl = [`█`, `🮋`, `🮊`, `🮉`, `▐`, `🮈`, `🮇`, `▕`, ` `]
-	delimeters = [`█`, ` `] // Used for progress until current state and remaining space.
+	smooth_ltr = [' ', '▏', '▎', '▍', '▌', '▋', '▊', '▉', '█']
+	smooth_rtl = ['█', '🮋', '🮊', '🮉', '▐', '🮈', '🮇', '▕', ' ']
+	delimeters = ['█', ' '] // Used for progress until current state and remaining space.
 )
 
 // { == Prepare ==> ===========================================================
 
 pub fn (mut b SmoothBar) prep() {
 	b.state = 0
+
 	if mut b.theme is Theme {
 		b.theme_ = b.theme
 		match b.theme {
@@ -96,6 +103,10 @@ pub fn (mut b SmoothBar) prep() {
 				b.prep_pull(b.theme.stream)
 			}
 		}
+	}
+
+	if b.color is TermColor {
+		b.paint()
 	}
 }
 
@@ -127,6 +138,22 @@ fn (mut b SmoothBar) prep_duals() {
 		}
 		d: bartender.delimeters
 	}
+}
+
+fn (mut b SmoothBar) paint() {
+	mut painted_runes := SmoothRunes{}
+	for d in b.runes.d {
+		painted_runes.d << term.colorize(b.color as TermColor, d)
+	}
+	for mut f in b.runes.f {
+		painted_runes.f << term.colorize(b.color as TermColor, f)
+	}
+	if b.runes.f2.len > 0 {
+		for mut f in b.runes.f2 {
+			painted_runes.f2 << term.colorize(b.color as TermColor, f)
+		}
+	}
+	b.runes = painted_runes
 }
 
 // <== }
