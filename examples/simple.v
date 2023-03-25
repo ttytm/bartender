@@ -12,6 +12,7 @@ fn main() {
 	}
 	mut b2 := bartender.Bar{
 		width: 60
+		label: ['Loading...', 'Done!']!
 		border: ['[', ']']!
 		runes: [`#`, `-`]!
 		indicator: `❯`
@@ -24,24 +25,5 @@ fn main() {
 	for _ in 0 .. b2.width {
 		b2.progress()
 		time.sleep(time.millisecond * 30)
-	}
-
-	b2.reset()
-	b2.colorize(term.green)
-	for _ in 0 .. b2.width {
-		b2.progress()
-		time.sleep(time.millisecond * 20)
-	}
-
-	mut b3 := bartender.Bar{
-		width: 60
-		border: ['[', ']']!
-		runes: [`#`, `-`]!
-		indicator: `❯`
-	}
-	b3.colorize(bartender.BarColor{term.bright_black, term.cyan, term.magenta})
-	for _ in 0 .. b3.width {
-		b3.progress()
-		time.sleep(time.millisecond * 20)
 	}
 }

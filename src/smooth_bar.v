@@ -52,6 +52,66 @@ pub enum Stream {
 	drain
 }
 
+fn (mut b SmoothBar) setup() {
+	b.state = 0
+
+	if mut b.theme is Theme {
+		b.theme_ = b.theme
+		match b.theme {
+			.push {
+				b.setup_push(.fill)
+			}
+			.pull {
+				b.setup_pull(.fill)
+			}
+			else {
+				b.setup_duals()
+			}
+		}
+	} else if mut b.theme is ThemeVariant {
+		match b.theme.theme {
+			.push {
+				b.theme_ = .push
+				b.setup_push(b.theme.stream)
+			}
+			.pull {
+				b.theme_ = .pull
+				b.setup_pull(b.theme.stream)
+			}
+		}
+	}
+}
+
+fn (mut b SmoothBar) setup_push(stream Stream) {
+	b.runes = struct {
+		s: if stream == .fill { bartender.smooth_ltr } else { bartender.smooth_rtl }
+		f: if stream == .fill { bartender.fillers } else { bartender.fillers.reverse() }
+	}
+}
+
+fn (mut b SmoothBar) setup_pull(stream Stream) {
+	b.runes = struct {
+		s: if stream == .fill {
+			bartender.smooth_rtl.reverse()
+		} else {
+			bartender.smooth_ltr.reverse()
+		}
+		f: if stream == .fill { bartender.fillers.reverse() } else { bartender.fillers }
+	}
+}
+
+fn (mut b SmoothBar) setup_duals() {
+	b.runes = struct {
+		s: if b.theme_ == .split { bartender.smooth_rtl } else { bartender.smooth_ltr }
+		sm: if b.theme_ == .split {
+			bartender.smooth_ltr.reverse()
+		} else {
+			bartender.smooth_rtl.reverse()
+		}
+		f: bartender.fillers
+	}
+}
+
 fn (b SmoothBar) draw_push_pull() {
 	// Progressively empty. || Progressively fill.
 	n := if b.theme_ == .pull { [b.width - b.state, b.state] } else { [b.state, b.width - b.state] }
@@ -114,64 +174,4 @@ fn (b SmoothBar) draw_split() {
 		return
 	}
 	eprint('${b.runes.f[0].repeat(width / 2 - b.state)}${b.border[1]} ${b.state * 100 / (width / 2)}% ${b.label[0]}')
-}
-
-fn (mut b SmoothBar) setup() {
-	b.state = 0
-
-	if mut b.theme is Theme {
-		b.theme_ = b.theme
-		match b.theme {
-			.push {
-				b.setup_push(.fill)
-			}
-			.pull {
-				b.setup_pull(.fill)
-			}
-			else {
-				b.setup_duals()
-			}
-		}
-	} else if mut b.theme is ThemeVariant {
-		match b.theme.theme {
-			.push {
-				b.theme_ = .push
-				b.setup_push(b.theme.stream)
-			}
-			.pull {
-				b.theme_ = .pull
-				b.setup_pull(b.theme.stream)
-			}
-		}
-	}
-}
-
-fn (mut b SmoothBar) setup_push(stream Stream) {
-	b.runes = struct {
-		s: if stream == .fill { bartender.smooth_ltr } else { bartender.smooth_rtl }
-		f: if stream == .fill { bartender.fillers } else { bartender.fillers.reverse() }
-	}
-}
-
-fn (mut b SmoothBar) setup_pull(stream Stream) {
-	b.runes = struct {
-		s: if stream == .fill {
-			bartender.smooth_rtl.reverse()
-		} else {
-			bartender.smooth_ltr.reverse()
-		}
-		f: if stream == .fill { bartender.fillers.reverse() } else { bartender.fillers }
-	}
-}
-
-fn (mut b SmoothBar) setup_duals() {
-	b.runes = struct {
-		s: if b.theme_ == .split { bartender.smooth_rtl } else { bartender.smooth_ltr }
-		sm: if b.theme_ == .split {
-			bartender.smooth_ltr.reverse()
-		} else {
-			bartender.smooth_rtl.reverse()
-		}
-		f: bartender.fillers
-	}
 }

@@ -2,45 +2,71 @@ module bartender
 
 import term
 
-type BarColorType = BarColor | TermColor
-type SmoothBarColorType = SmoothBarColor | TermColor
-type TermColor = fn (msg string) string
+type BarColorType = BarColor | BarColors | Color
+type SmoothBarColorType = Color | SmoothBarColor
 
+type Color = fn (msg string) string
+
+// NOTE: Upstream issue.
+// Doesn't seem possible to use a named type atm. Both Colors below or [2]Color fail.
+// type Colors = [2]fn (msg string) string
+
+struct ComponentColor {
+	progress Color
+	border   Color
+}
+
+// NOTE: Upstream issue.
+// Embedding `ComponentColor` would be preferred. Unfortunately, not working atm.
 pub struct BarColor {
-	fill   TermColor
-	indicator TermColor
-	border TermColor
+	progress  Color = term.reset
+	fill      Color = term.reset
+	border    Color = term.reset
+	indicator Color = term.reset
 }
 
-pub struct SmoothBarColor {
-	fill   TermColor
-	border TermColor
+pub struct BarColors {
+	progress  [2]fn (msg string) string = [term.reset, term.reset]!
+	fill      [2]fn (msg string) string = [term.reset, term.reset]!
+	border    [2]fn (msg string) string = [term.reset, term.reset]!
+	indicator [2]fn (msg string) string = [term.reset, term.reset]!
 }
+
+pub type SmoothBarColor = ComponentColor
+
+// { == Bar ==> ===============================================================
 
 pub fn (mut b Bar) colorize(color BarColorType) {
 	b.setup()
 
-	if color !is BarColor {
-		b.colorize_all(color as TermColor)
-		return
+	match color {
+		BarColor {
+			b.colorize_components(color as BarColor)
+		}
+		BarColors {
+			b.colorize_fg_bg(color as BarColors)
+		}
+		// NOTE: Upstream issue.
+		// Color {} // when used instead of else -> invalid memory access.
+		else {
+			b.colorize_all(color as Color)
+		}
 	}
-	b.colorize_components(color as BarColor)
 }
 
-fn (mut b Bar) colorize_all(color TermColor) {
-	b.runes_ = [term.colorize(color as TermColor, b.runes_[0]),
-		term.colorize(color as TermColor, b.runes_[1])]!
-	b.indicator_ = term.colorize(color as TermColor, b.indicator_)
+fn (mut b Bar) colorize_all(color Color) {
+	b.runes_ = [term.colorize(color as Color, b.runes_[0]), term.colorize(color as Color,
+		b.runes_[1])]!
+	b.indicator_ = term.colorize(color as Color, b.indicator_)
 
 	if b.border.len > 0 {
-		b.border = [term.colorize(color as TermColor, b.border[0]),
-			term.colorize(color as TermColor, b.border[1])]!
+		b.border = [term.colorize(color as Color, b.border[0]),
+			term.colorize(color as Color, b.border[1])]!
 	}
 }
 
 fn (mut b Bar) colorize_components(color BarColor) {
-	b.runes_ = [term.colorize(color.fill, b.runes_[0]),
-		term.colorize(color.fill, b.runes_[1])]!
+	b.runes_ = [term.colorize(color.progress, b.runes_[0]), term.colorize(color.fill, b.runes_[1])]!
 	b.indicator_ = term.colorize(color.indicator, b.indicator_)
 
 	if b.border.len > 0 {
@@ -49,50 +75,75 @@ fn (mut b Bar) colorize_components(color BarColor) {
 	}
 }
 
+pub fn (mut b Bar) colorize_fg_bg(colors BarColors) {
+	b.setup()
+	b.runes_ = [colors.progress.apply_fg_bg(b.runes_[0]), colors.fill.apply_fg_bg(b.runes_[1])]!
+	b.indicator_ = colors.indicator.apply_fg_bg(b.indicator_)
+	if b.border.len > 0 {
+		b.border = [colors.border.apply_fg_bg(b.border[0]), colors.border.apply_fg_bg(b.border[1])]!
+	}
+}
+
+fn (colors [2]fn (msg string) string) apply_fg_bg(s string) string {
+	return term.colorize(colors[0], term.colorize(colors[1], s))
+}
+
+// <== }
+
+// { == SmoothBar ==> =========================================================
+
 pub fn (mut b SmoothBar) colorize(color SmoothBarColorType) {
 	b.setup()
 
+	// NOTE: Upstream issue.
+	// if color is C -> invalid memory access
 	if color !is SmoothBarColor {
-		b.colorize_all(color as TermColor)
+		b.colorize_all(color as Color)
 		return
 	}
 	b.colorize_components(color as SmoothBarColor)
 }
 
-fn (mut b SmoothBar) colorize_all(color TermColor) {
+fn (mut b SmoothBar) colorize_all(color Color) {
+	// NOTE: Upstream issue.
+	// Not possible to directly mutate. E.g.:
+	// for mut f in b.runes.f {
+	// 	f = term.colorize(color as Color, f)
+	// }
+	// Putting them into a variable and then assigning works.
 	mut painted_runes := SmoothRunes{}
 
-	for d in b.runes.f {
-		painted_runes.f << term.colorize(color as TermColor, d)
+	for f in b.runes.f {
+		painted_runes.f << term.colorize(color, f)
 	}
-	for mut f in b.runes.s {
-		painted_runes.s << term.colorize(color as TermColor, f)
+	for mut s in b.runes.s {
+		painted_runes.s << term.colorize(color, s)
 	}
 	if b.runes.sm.len > 0 {
-		for mut f in b.runes.sm {
-			painted_runes.sm << term.colorize(color as TermColor, f)
+		for mut s in b.runes.sm {
+			painted_runes.sm << term.colorize(color, s)
 		}
 	}
 
 	b.runes = painted_runes
 
 	if b.border.len > 0 {
-		b.border = [term.colorize(color as TermColor, b.border[0]),
-			term.colorize(color as TermColor, b.border[1])]!
+		b.border = [term.colorize(color as Color, b.border[0]),
+			term.colorize(color as Color, b.border[1])]!
 	}
 }
 
 fn (mut b SmoothBar) colorize_components(color SmoothBarColor) {
 	mut painted_runes := SmoothRunes{}
 
-	painted_runes.f << term.colorize(color.fill, b.runes.f[0])
+	painted_runes.f << term.colorize(color.progress, b.runes.f[0])
 	painted_runes.f << b.runes.f[1]
 	for mut f in b.runes.s {
-		painted_runes.s << term.colorize(color.fill, f)
+		painted_runes.s << term.colorize(color.progress, f)
 	}
 	if b.runes.sm.len > 0 {
 		for mut f in b.runes.sm {
-			painted_runes.sm << term.colorize(color.fill, f)
+			painted_runes.sm << term.colorize(color.progress, f)
 		}
 	}
 
@@ -104,3 +155,5 @@ fn (mut b SmoothBar) colorize_components(color SmoothBarColor) {
 		b.border = painted_border
 	}
 }
+
+// <== }
