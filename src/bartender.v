@@ -12,11 +12,7 @@ pub mut:
 	width  u16 = 79
 	label  [2]string // Pending, Finished
 	border [2]string = ['', '']! // Start, End
-	color  Color
 }
-
-type Color = TermColor | bool
-type TermColor = fn (msg string) string
 
 pub struct Bar {
 	PapaBar
@@ -104,10 +100,6 @@ pub fn (mut b SmoothBar) prep() {
 			}
 		}
 	}
-
-	if b.color is TermColor {
-		b.paint()
-	}
 }
 
 fn (mut b SmoothBar) prep_push(stream Stream) {
@@ -140,19 +132,23 @@ fn (mut b SmoothBar) prep_duals() {
 	}
 }
 
-fn (mut b SmoothBar) paint() {
+pub fn (mut b SmoothBar) colorize(color fn (msg string) string) {
+	b.prep()
+
 	mut painted_runes := SmoothRunes{}
+
 	for d in b.runes.d {
-		painted_runes.d << term.colorize(b.color as TermColor, d)
+		painted_runes.d << term.colorize(color, d)
 	}
 	for mut f in b.runes.f {
-		painted_runes.f << term.colorize(b.color as TermColor, f)
+		painted_runes.f << term.colorize(color, f)
 	}
 	if b.runes.f2.len > 0 {
 		for mut f in b.runes.f2 {
-			painted_runes.f2 << term.colorize(b.color as TermColor, f)
+			painted_runes.f2 << term.colorize(color, f)
 		}
 	}
+
 	b.runes = painted_runes
 }
 
