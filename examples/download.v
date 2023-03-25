@@ -31,7 +31,7 @@ fn main() {
 	url := 'https://github.com/vlang/v/releases/latest/download/v_linux.zip'
 
 	temp_output := '.tmp'
-	output := 'v_linux.zip'
+	// output := 'v_linux.zip'
 
 	mut resp := http.get(url)!
 	if resp.status_code != 200 {
@@ -59,5 +59,6 @@ fn main() {
 
 	io.cp(mut r, mut file)!
 
-	os.rename(temp_output, output)!
+	os.rm(temp_output)!
+	// os.rename(temp_output, output)!
 }
