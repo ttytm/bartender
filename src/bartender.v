@@ -13,13 +13,6 @@ pub mut:
 	border [2]string = ['', '']! // Start, End
 }
 
-pub struct Bar {
-	Bar_
-pub mut:
-	runes     [2]rune = [`#`, ` `]!
-	indicator ?rune
-}
-
 pub fn (mut b Bar) progress() {
 	if b.state == 0 {
 		term.hide_cursor()
@@ -52,6 +45,10 @@ pub fn (mut b SmoothBar) progress() {
 			b.draw_split()
 		}
 	}
+}
+
+pub fn (mut b SmoothBar) reset() {
+	b.setup()
 }
 
 fn finish(res string) {

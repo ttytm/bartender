@@ -38,9 +38,8 @@ fn (mut b SmoothBar) colorize_all(color TermColor) {
 	b.runes = painted_runes
 
 	if b.border.len > 0 {
-		painted_border := [term.colorize(color as TermColor, b.border[0]),
+		b.border = [term.colorize(color as TermColor, b.border[0]),
 			term.colorize(color as TermColor, b.border[1])]!
-		b.border = painted_border
 	}
 }
 
