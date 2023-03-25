@@ -225,7 +225,7 @@ fn (b SmoothBar) draw_push_pull() {
 fn (b SmoothBar) draw_merge() {
 	width := if b.width % 2 != 0 { b.width - 1 } else { b.width }
 	for idx, _ in b.runes.f {
-		eprint('\r${b.runes.d[0].repeat(b.state)}${b.runes.f[idx]}')
+		eprint('\r${b.border[0]}${b.runes.d[0].repeat(b.state)}${b.runes.f[idx]}')
 		if width - b.state * 2 >= 0 {
 			eprint(b.runes.d[1].repeat(width - b.state * 2))
 		} else {
@@ -238,13 +238,13 @@ fn (b SmoothBar) draw_merge() {
 		finish('${b.border[0]}${b.runes.d[0].repeat(width + 2)}${b.border[1]} ${b.label[1]}')
 		return
 	}
-	eprint('${b.border[0]}${b.runes.d[0].repeat(b.state)} ${b.state * 100 / (width / 2)}%${b.border[1]} ${b.label[0]}')
+	eprint('${b.runes.d[0].repeat(b.state)}${b.border[1]} ${b.state * 100 / (width / 2)}% ${b.label[0]}')
 }
 
 fn (b SmoothBar) draw_expand() {
 	width := if b.width % 2 != 0 { b.width - 1 } else { b.width }
 	for idx, _ in b.runes.f {
-		eprint('\r${b.runes.d[1].repeat(width / 2 - b.state)}${b.runes.f2[idx]}${b.runes.d[0].repeat(b.state * 2)}${b.runes.f[idx]}')
+		eprint('\r${b.border[0]}${b.runes.d[1].repeat(width / 2 - b.state)}${b.runes.f2[idx]}${b.runes.d[0].repeat(b.state * 2)}${b.runes.f[idx]}')
 		time.sleep(b.timeout * 2)
 	}
 
@@ -252,13 +252,13 @@ fn (b SmoothBar) draw_expand() {
 		finish('${b.border[0]}${b.runes.d[0].repeat(width + 2)}${b.border[1]} ${b.label[1]}')
 		return
 	}
-	eprint('${b.runes.d[1].repeat(width / 2 - b.state)} ${b.state * 100 / (width / 2)}% ${b.label[0]}')
+	eprint('${b.runes.d[1].repeat(width / 2 - b.state)}${b.border[1]} ${b.state * 100 / (width / 2)}% ${b.label[0]}')
 }
 
 fn (b SmoothBar) draw_split() {
 	width := if b.width % 2 != 0 { b.width - 1 } else { b.width }
 	for idx, _ in b.runes.f {
-		eprint('\r${b.runes.d[0].repeat(width / 2 - b.state)}${b.runes.f2[idx]}${b.runes.d[1].repeat(b.state * 2)}${b.runes.f[idx]}')
+		eprint('\r${b.border[0]}${b.runes.d[0].repeat(width / 2 - b.state)}${b.runes.f2[idx]}${b.runes.d[1].repeat(b.state * 2)}${b.runes.f[idx]}')
 		time.sleep(b.timeout * 2)
 	}
 
@@ -266,7 +266,7 @@ fn (b SmoothBar) draw_split() {
 		finish('${b.border[0]}${b.runes.d[1].repeat(width + 2)}${b.border[1]} ${b.label[1]}')
 		return
 	}
-	eprint('${b.border[0]}${b.runes.d[0].repeat(width / 2 - b.state)} ${b.state * 100 / (width / 2)}%${b.border[1]} ${b.label[0]}')
+	eprint('${b.runes.d[0].repeat(width / 2 - b.state)}${b.border[1]} ${b.state * 100 / (width / 2)}% ${b.label[0]}')
 }
 
 // <== }
