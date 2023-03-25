@@ -9,13 +9,13 @@ struct PapaBar {
 mut:
 	state u16
 pub mut:
-	color  Color
 	width  u16 = 79
 	label  [2]string // Pending, Finished
 	border [2]string = ['', '']! // Start, End
+	color  Color
 }
 
-type Color = bool | TermColor
+type Color = TermColor | bool
 type TermColor = fn (msg string) string
 
 pub struct Bar {
@@ -239,7 +239,7 @@ fn (b SmoothBar) draw_merge() {
 		time.sleep(b.timeout)
 	}
 	if b.state * 2 >= width {
-		finish('${b.border[0]}${b.runes.d[0].repeat(b.width + 1)}${b.border[1]} ${b.label[1]}')
+		finish('${b.border[0]}${b.runes.d[0].repeat(width + 2)}${b.border[1]} ${b.label[1]}')
 		return
 	}
 	eprint('${b.border[0]}${b.runes.d[0].repeat(b.state)} ${b.state * 100 / (width / 2)}%${b.border[1]} ${b.label[0]}')
@@ -253,7 +253,7 @@ fn (b SmoothBar) draw_expand() {
 	}
 
 	if b.state * 2 >= width {
-		finish('${b.border[0]}${b.runes.d[0].repeat(b.width + 1)}${b.border[1]} ${b.label[1]}')
+		finish('${b.border[0]}${b.runes.d[0].repeat(width + 2)}${b.border[1]} ${b.label[1]}')
 		return
 	}
 	eprint('${b.runes.d[1].repeat(width / 2 - b.state)} ${b.state * 100 / (width / 2)}% ${b.label[0]}')

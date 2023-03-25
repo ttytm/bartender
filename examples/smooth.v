@@ -7,14 +7,16 @@ import term
 const timeout = time.millisecond * 2
 
 fn main() {
-	mut b := SmoothBar{
-		label: ['Push Fill', 'Done!']!
-		timeout: timeout
-	}
+	// ----------------------------------------------
+	mut b := SmoothBar{}
+	// Add optional fields
+	b.label = ['Push Fill', 'Done!']!
+	b.timeout = timeout
 	for _ in 0 .. b.width {
 		b.progress()
 	}
 
+	// ----------------------------------------------
 	mut b2 := SmoothBar{
 		label: ['Pull Fill', 'Finished!']!
 		theme: Theme.pull
@@ -24,7 +26,8 @@ fn main() {
 		b2.progress()
 	}
 
-	// Re-use bars
+	// Re-use e.g.: b, b2
+	// ----------------------------------------------
 	b = SmoothBar{
 		label: ['Push Drain', 'Completed!']!
 		theme: ThemeVariant{.push, .drain}
@@ -35,6 +38,7 @@ fn main() {
 		b.progress()
 	}
 
+	// ----------------------------------------------
 	b2.label = ['Pull Drain', 'Ready!']!
 	b2.theme = ThemeVariant{.pull, .drain}
 	b2.prep()
@@ -42,6 +46,8 @@ fn main() {
 		b2.progress()
 	}
 
+	// Dual-bar variants
+	// ----------------------------------------------
 	mut b3 := SmoothBar{
 		label: ['Merge', '100% Merge']!
 		theme: Theme.merge
@@ -52,7 +58,7 @@ fn main() {
 		b3.progress()
 	}
 
-	// Dual-bar variants
+	// ----------------------------------------------
 	mut b4 := SmoothBar{
 		label: ['Expand', '100% Expand']!
 		theme: Theme.expand
@@ -63,6 +69,7 @@ fn main() {
 		b4.progress()
 	}
 
+	// ----------------------------------------------
 	mut b5 := SmoothBar{
 		label: ['Split', '100% Split']!
 		theme: Theme.split
