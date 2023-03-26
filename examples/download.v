@@ -3,6 +3,7 @@ module main
 import bartender
 import net.http
 import os
+import time
 import io
 
 struct ProgressReader {
@@ -18,12 +19,15 @@ fn (mut r ProgressReader) read(mut buf []u8) !int {
 	if r.pos >= r.size {
 		return io.Eof{}
 	}
-	max_bytes := 3200
+	// max_bytes := 32 * 1024
+	max_bytes := 100 // 32 KiB above is usual.
 	end := if r.pos + max_bytes >= r.size { r.size } else { r.pos + max_bytes }
 	n := copy(mut buf, r.data[r.pos..end])
 	r.pos += n
 	if (f64(r.pos) / r.size * r.progress_bar.width) > r.progress_bar.state {
 		r.progress_bar.progress()
+		// Since this is a relatively small file, delay the progress for visualization purposes.
+		time.sleep(time.millisecond * 2)
 	}
 	return n
 }
