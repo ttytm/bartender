@@ -5,12 +5,11 @@ module bartender
 import term
 
 struct Bar_ {
-mut:
-	state u16
 pub mut:
 	width  u16 = 80
 	label  [2]string // Pending, Finished
 	border [2]string = ['', '']! // Start, End
+	state u16
 }
 
 pub fn (mut b Bar) progress() {
