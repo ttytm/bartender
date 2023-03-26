@@ -38,14 +38,14 @@ fn main() {
 
 	mut b3 := bartender.Bar{
 		width: 60
-		border: ['[', ']']!
+		border: ['│', '│']!
 		runes: [`═`, ` `]!
 		indicator: `❯`
 	}
 	b3.colorize(bartender.BarColors{
-		progress: [term.black, term.bg_green]!
+		progress: [term.black, term.bg_cyan]!
 		fill: [term.black, term.bg_black]!
-		indicator: [term.red, term.bg_green]!
+		indicator: [term.magenta, term.bg_cyan]!
 		border: [term.bright_black, term.bg_black]!
 	})
 	for _ in 0 .. b3.width {

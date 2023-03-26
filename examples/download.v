@@ -10,7 +10,7 @@ struct ProgressReader {
 	data []u8 [required]
 	size int  [required]
 mut:
-	progress_bar bartender.SmoothBar
+	bar bartender.SmoothBar
 	state        int
 	pos          int
 }
@@ -24,8 +24,8 @@ fn (mut r ProgressReader) read(mut buf []u8) !int {
 	end := if r.pos + max_bytes >= r.size { r.size } else { r.pos + max_bytes }
 	n := copy(mut buf, r.data[r.pos..end])
 	r.pos += n
-	if (f64(r.pos) / r.size * r.progress_bar.width) > r.progress_bar.state {
-		r.progress_bar.progress()
+	if (f64(r.pos) / r.size * r.bar.width) > r.bar.state {
+		r.bar.progress()
 		// Since this is a relatively small file, delay the progress for visualization purposes.
 		time.sleep(time.millisecond * 2)
 	}
@@ -37,8 +37,7 @@ fn create_reader(data []u8) !&io.BufferedReader {
 		reader: ProgressReader{
 			data: data
 			size: data.len
-			state: 0
-			progress_bar: bartender.SmoothBar{
+			bar: bartender.SmoothBar{
 				width: 60
 				label: ['Downloading...', 'Download completed!']!
 				border: ['│', '│']!
@@ -57,9 +56,9 @@ fn main() {
 		exit
 	}
 
-	mut file := os.create(file_path) or { panic(err) }
+	mut f := os.create(file_path) or { panic(err) }
 	mut r := create_reader(resp.body.bytes()) or { panic(err) }
 
-	io.cp(mut r, mut file) or { panic(err) }
+	io.cp(mut r, mut f) or { panic(err) }
 	os.rm(file_path) or { panic(err) }
 }

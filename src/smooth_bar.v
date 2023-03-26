@@ -3,7 +3,7 @@ module bartender
 import time
 
 pub struct SmoothBar {
-	Bar_
+	BarBase
 mut:
 	theme_ Theme
 	runes  SmoothRunes

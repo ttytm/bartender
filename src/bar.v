@@ -1,7 +1,7 @@
 module bartender
 
 pub struct Bar {
-	Bar_
+	BarBase
 mut:
 	runes_     [2]string // Strings instead of runes for color support.
 	indicator_ string

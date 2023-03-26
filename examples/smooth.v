@@ -7,7 +7,7 @@ import term
 const timeout = time.millisecond * 2
 
 fn main() {
-	// ----------------------------------------------
+	// ===========================================================================
 	mut b := SmoothBar{}
 	// Add optional fields
 	b.label = ['Push Fill', 'Done!']!
@@ -16,7 +16,7 @@ fn main() {
 		b.progress()
 	}
 
-	// ----------------------------------------------
+	// ===========================================================================
 	mut b2 := SmoothBar{
 		label: ['Pull Fill', 'Finished!']!
 		theme: Theme.pull
@@ -26,8 +26,8 @@ fn main() {
 		b2.progress()
 	}
 
-	// Re-use e.g.: b, b2
-	// ----------------------------------------------
+	// ===========================================================================
+	// Re-use
 	b = SmoothBar{
 		label: ['Push Drain', 'Completed!']!
 		theme: ThemeVariant{.push, .drain}
@@ -38,7 +38,7 @@ fn main() {
 		b.progress()
 	}
 
-	// ----------------------------------------------
+	// ===========================================================================
 	b2.label = ['Pull Drain', 'Ready!']!
 	b2.theme = ThemeVariant{.pull, .drain}
 	b2.reset()
@@ -47,7 +47,7 @@ fn main() {
 	}
 
 	// Dual-bar variants
-	// ----------------------------------------------
+	// ===========================================================================
 	mut b3 := SmoothBar{
 		label: ['Merge', '100% Merge']!
 		theme: Theme.merge
@@ -60,7 +60,7 @@ fn main() {
 		b3.progress()
 	}
 
-	// ----------------------------------------------
+	// ===========================================================================
 	mut b4 := SmoothBar{
 		label: ['Expand', '100% Expand']!
 		theme: Theme.expand
@@ -68,12 +68,13 @@ fn main() {
 		border: ['│', '│']!
 		width: 78
 	}
+	// Colorize
 	b4.colorize(term.bright_black)
 	for _ in 0 .. b4.width / 2 {
 		b4.progress()
 	}
 
-	// ----------------------------------------------
+	// ===========================================================================
 	mut b5 := SmoothBar{
 		label: ['Split', '100% Split']!
 		theme: Theme.split
