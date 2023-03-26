@@ -42,7 +42,11 @@ pub fn (mut b SmoothBar) progress() {
 		term.hide_cursor()
 	}
 
-	b.state += 1
+	b.sub_state += 1
+	if b.sub_state == b.runes.s.len {
+		b.sub_state = 0
+		b.state += 1
+	}
 
 	match b.theme_ {
 		.push, .pull {

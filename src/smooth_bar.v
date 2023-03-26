@@ -1,15 +1,14 @@
 module bartender
 
-import time
-
 pub struct SmoothBar {
 	BarBase
 mut:
-	theme_ Theme
-	runes  SmoothRunes
+	runes     SmoothRunes
+	theme_    Theme
+	sub_state u8
 pub mut:
-	timeout time.Duration = time.microsecond * 500 // Duration between same column character prints for a smooth effect.
-	theme   ThemeChoice   = Theme.push // Putting sumtype field first breaks default value. Related issue (github.com/vlang/v/issues/17758).
+	iters u16 = 80 // Number of iterations.
+	theme ThemeChoice = Theme.push // Putting sumtype field first breaks default value. Related issue (github.com/vlang/v/issues/17758).
 }
 
 // Strings instead of runes for color support.
@@ -80,6 +79,11 @@ fn (mut b SmoothBar) setup() {
 			}
 		}
 	}
+
+	b.iters = b.width * u8(b.runes.s.len)
+	if b.theme_ != .push && b.theme_ != .pull {
+		b.iters /= 2
+	}
 }
 
 fn (mut b SmoothBar) setup_push(stream Stream) {
@@ -113,65 +117,73 @@ fn (mut b SmoothBar) setup_duals() {
 }
 
 fn (b SmoothBar) draw_push_pull() {
-	// Progressively empty. || Progressively fill.
-	n := if b.theme_ == .pull { [b.width - b.state, b.state] } else { [b.state, b.width - b.state] }
-
-	for r in b.runes.s {
-		eprint('\r${b.border[0]}${b.runes.f[0].repeat(n[0])}${r}')
-		time.sleep(b.timeout)
+	n := if b.theme_ == .pull {
+		[b.width - b.state, b.state] // progressively empty
+	} else {
+		[b.state, b.width - b.state] // progressively fill
 	}
+
+	left := '${b.border[0]}${b.runes.f[0].repeat(n[0])}${b.runes.s[b.sub_state]}' // border, progress, smooth Rune
+	right := '${b.runes.f[1].repeat(n[1])}${b.border[1]}' // smooth rune, remaining, border
+	label := '${b.state * 100 / b.width}% ${b.label[0]}'
+	// label := '${f64(b.state * b.smoothess_multiplier * 100) / b.width:.2f}% ${b.label[0]}' // float percent
+
+	eprint('\r${left}${right} ${label}')
 
 	if b.state >= b.width {
 		dlm := if b.theme_ == .pull { b.runes.f[1] } else { b.runes.f[0] }
 		finish('${b.border[0]}${dlm.repeat(b.width + 1)}${b.border[1]} ${b.label[1]}')
-		return
 	}
-	eprint('${b.runes.f[1].repeat(n[1])}${b.border[1]} ${b.state * 100 / b.width}% ${b.label[0]}')
 }
 
 fn (b SmoothBar) draw_merge() {
 	width := if b.width % 2 != 0 { b.width - 1 } else { b.width }
-	for idx, _ in b.runes.s {
-		eprint('\r${b.border[0]}${b.runes.f[0].repeat(b.state)}${b.runes.s[idx]}')
-		if width - b.state * 2 >= 0 {
-			eprint(b.runes.f[1].repeat(width - b.state * 2))
-		} else {
-			eprint(b.runes.f[0])
-		}
-		eprint(b.runes.sm[idx])
-		time.sleep(b.timeout)
+	remaining := width - b.state * 2
+
+	left := '${b.border[0]}${b.runes.f[0].repeat(b.state)}${b.runes.s[b.sub_state]}'
+	// TODO: Smoothness for last two cols.
+	middle := if remaining >= 0 {
+		b.runes.f[1].repeat(remaining)
+	} else {
+		b.runes.f[0]
 	}
+	right := '${b.runes.sm[b.sub_state]}${b.runes.f[0].repeat(b.state)}${b.border[1]}'
+	label := '${b.state * 100 / (width / 2)}% ${b.label[0]}'
+
+	eprint('\r${left}${middle}${right} ${label}')
+
 	if b.state * 2 >= width {
 		finish('${b.border[0]}${b.runes.f[0].repeat(width + 2)}${b.border[1]} ${b.label[1]}')
-		return
 	}
-	eprint('${b.runes.f[0].repeat(b.state)}${b.border[1]} ${b.state * 100 / (width / 2)}% ${b.label[0]}')
 }
 
 fn (b SmoothBar) draw_expand() {
 	width := if b.width % 2 != 0 { b.width - 1 } else { b.width }
-	for idx, _ in b.runes.s {
-		eprint('\r${b.border[0]}${b.runes.f[1].repeat(width / 2 - b.state)}${b.runes.sm[idx]}${b.runes.f[0].repeat(b.state * 2)}${b.runes.s[idx]}')
-		time.sleep(b.timeout * 2)
-	}
+
+	left := '${b.border[0]}${b.runes.f[1].repeat(width / 2 - b.state)}${b.runes.sm[b.sub_state]}'
+	middle := b.runes.f[0].repeat(b.state * 2)
+	right := '${b.runes.s[b.sub_state]}${b.runes.f[1].repeat(width / 2 - b.state)}${b.border[1]}'
+	label := '${b.state * 100 / (width / 2)}% ${b.label[0]}'
+
+	eprint('\r${left}${middle}${right} ${label}')
 
 	if b.state * 2 >= width {
 		finish('${b.border[0]}${b.runes.f[0].repeat(width + 2)}${b.border[1]} ${b.label[1]}')
-		return
 	}
-	eprint('${b.runes.f[1].repeat(width / 2 - b.state)}${b.border[1]} ${b.state * 100 / (width / 2)}% ${b.label[0]}')
 }
 
 fn (b SmoothBar) draw_split() {
 	width := if b.width % 2 != 0 { b.width - 1 } else { b.width }
-	for idx, _ in b.runes.s {
-		eprint('\r${b.border[0]}${b.runes.f[0].repeat(width / 2 - b.state)}${b.runes.sm[idx]}${b.runes.f[1].repeat(b.state * 2)}${b.runes.s[idx]}')
-		time.sleep(b.timeout * 2)
-	}
+
+	left := '${b.border[0]}${b.runes.f[0].repeat(width / 2 - b.state)}${b.runes.sm[b.sub_state]}'
+	middle := b.runes.f[1].repeat(b.state * 2)
+	right := '${b.runes.s[b.sub_state]}${b.runes.f[0].repeat(width / 2 - b.state)}${b.border[1]}'
+	label := '${b.state * 100 / (width / 2)}% ${b.label[0]}'
+
+	eprint('\r${left}${middle}${right} ${label}')
 
 	if b.state * 2 >= width {
 		finish('${b.border[0]}${b.runes.f[1].repeat(width + 2)}${b.border[1]} ${b.label[1]}')
 		return
 	}
-	eprint('${b.runes.f[0].repeat(width / 2 - b.state)}${b.border[1]} ${b.state * 100 / (width / 2)}% ${b.label[0]}')
 }
