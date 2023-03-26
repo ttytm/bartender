@@ -30,7 +30,7 @@ https://user-images.githubusercontent.com/34311583/225964767-c3521d61-ebd4-49c3-
 
 ## Usage
 
-For now, please refer to the sample files for usage.
+Unfortunately, there is currently no API reference available. Until the API stabilizes and a proper, longer-lasting documentation can be provided, please refer to the sample files.
 
 ### Run examples
 
