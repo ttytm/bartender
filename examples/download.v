@@ -6,8 +6,8 @@ import os
 import io
 
 struct ProgressReader {
-	data string [required]
-	size int    [required]
+	data []u8 [required]
+	size int  [required]
 mut:
 	progress_bar bartender.SmoothBar
 	state        int
@@ -18,7 +18,9 @@ fn (mut r ProgressReader) read(mut buf []u8) !int {
 	if r.pos >= r.size {
 		return io.Eof{}
 	}
-	n := copy(mut buf, r.data[r.pos..].bytes())
+	max_bytes := 3200
+	end := if r.pos + max_bytes >= r.size { r.size } else { r.pos + max_bytes }
+	n := copy(mut buf, r.data[r.pos..end])
 	r.pos += n
 	if (f64(r.pos) / r.size * r.progress_bar.width) > r.state {
 		r.state += 1
@@ -27,38 +29,34 @@ fn (mut r ProgressReader) read(mut buf []u8) !int {
 	return n
 }
 
-fn main() {
-	url := 'https://github.com/vlang/v/releases/latest/download/v_linux.zip'
-
-	temp_output := '.tmp'
-	// output := 'v_linux.zip'
-
-	mut resp := http.get(url)!
-	if resp.status_code != 200 {
-		eprintln('[Error] Status: ${resp.status_code}')
-		return
-	}
-	mut file := os.create(temp_output) or { panic(err) }
-	defer {
-		file.close()
-	}
-
-	data := resp.body
-	mut r := io.new_buffered_reader(
+fn create_reader(data []u8) !&io.BufferedReader {
+	return io.new_buffered_reader(
 		reader: ProgressReader{
 			data: data
 			size: data.len
 			state: 0
 			progress_bar: bartender.SmoothBar{
 				width: 60
-				label: ['Downloading V...', 'Download completed!']!
+				label: ['Downloading...', 'Download completed!']!
 				border: ['│', '│']!
 			}
 		}
 	)
+}
 
-	io.cp(mut r, mut file)!
+fn main() {
+	file_path := 'v_linux.zip'
+	url := 'https://github.com/vlang/v/releases/latest/download/v_linux.zip'
 
-	os.rm(temp_output)!
-	// os.rename(temp_output, output)!
+	mut resp := http.get(url)!
+	if resp.status_code != 200 {
+		eprintln('[Error] Download failed with statuscode: ${resp.status_code}')
+		exit
+	}
+
+	mut file := os.create(file_path) or { panic(err) }
+	mut r := create_reader(resp.body.bytes()) or { panic(err) }
+
+	io.cp(mut r, mut file) or { panic(err) }
+	os.rm(file_path) or { panic(err) }
 }
