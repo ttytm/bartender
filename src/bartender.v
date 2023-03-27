@@ -56,19 +56,6 @@ pub fn (mut b Bar) progress() {
 	b.draw()
 }
 
-pub fn (b Bar) pos() u16 {
-	return b.state.pos
-}
-
-pub fn (b Bar) pct() u8 {
-	return u8(b.state.pos * 100 / b.width)
-}
-
-pub fn (b Bar) eta() f64 {
-	div := if b.state.pos == 0 { 1 } else { b.state.pos }
-	return (b.state.time.last_change - b.state.time.start) / div * (b.width - b.state.pos)
-}
-
 pub fn (mut b Bar) reset() {
 	b.setup()
 }
@@ -122,24 +109,24 @@ pub fn (mut b SmoothBar) progress() {
 	}
 }
 
-pub fn (b SmoothBar) pos() u16 {
-	return b.state.pos
-}
-
-pub fn (b SmoothBar) pct() u8 {
-	return u8(b.state.pos * 100 / b.width)
-}
-
-pub fn (b SmoothBar) eta() f64 {
-	div := if b.state.pos == 0 { 1 } else { b.state.pos }
-	return (b.state.time.last_change - b.state.time.start) / div * (b.width - b.state.pos)
-}
-
 pub fn (mut b SmoothBar) reset() {
 	b.setup()
 }
 
 // <== }
+
+pub fn (b BarBase) pos() u16 {
+	return b.state.pos
+}
+
+pub fn (b BarBase) pct() u8 {
+	return u8(b.state.pos * 100 / b.width)
+}
+
+pub fn (b BarBase) eta() f64 {
+	div := if b.state.pos == 0 { 1 } else { b.state.pos }
+	return (b.state.time.last_change - b.state.time.start) / div * (b.width - b.state.pos)
+}
 
 fn finish(res string) {
 	term.erase_line('2')
