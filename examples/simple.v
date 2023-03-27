@@ -25,8 +25,6 @@ fn main() {
 	}
 	for _ in 0 .. b2.width {
 		// Add time to label
-		// NOTE: Interpolation of current label with eta `${b.label[0]}${b.eta()}` doesn't work.
-		// Concatenation with `+=` throws compiler error.
 		b2.label[0] = '${b2.pct()}% (${b2.eta() / 1000:.2f}s)'
 		b2.progress()
 		time.sleep(timeout * 2)
