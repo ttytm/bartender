@@ -3,6 +3,8 @@ module main
 import bartender
 import time
 
+const timeout = time.millisecond * 20
+
 fn main() {
 	mut b := bartender.Bar{
 		width: 60
@@ -11,7 +13,7 @@ fn main() {
 	}
 	mut b2 := bartender.Bar{
 		width: 60
-		label: ['Loading...', 'Done!']!
+		label: ['', 'Done!']!
 		border: ['[', ']']!
 		runes: [`#`, `-`]!
 		indicator: `❯`
@@ -19,10 +21,14 @@ fn main() {
 
 	for _ in 0 .. b.width {
 		b.progress()
-		time.sleep(time.millisecond * 20)
+		time.sleep(timeout)
 	}
 	for _ in 0 .. b2.width {
+		// Add time to label
+		// NOTE: Interpolation of current label with eta `${b.label[0]}${b.eta()}` doesn't work.
+		// Concatenation with `+=` throws compiler error.
+		b2.label[0] = '${b2.pct()}% (${b2.eta() / 1000:.2f}s)'
 		b2.progress()
-		time.sleep(time.millisecond * 30)
+		time.sleep(timeout * 2)
 	}
 }

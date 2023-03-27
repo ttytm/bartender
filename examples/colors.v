@@ -4,6 +4,8 @@ import bartender
 import time
 import term
 
+const timeout = time.millisecond * 20
+
 fn main() {
 	// ===========================================================================
 	mut b := bartender.Bar{
@@ -16,13 +18,13 @@ fn main() {
 	b.colorize(term.green)
 	for _ in 0 .. b.width {
 		b.progress()
-		time.sleep(time.millisecond * 20)
+		time.sleep(timeout)
 	}
 
 	// ===========================================================================
 	mut b2 := bartender.Bar{
 		width: 60
-		label: ['Loading...', 'Done!']!
+		label: ['', 'Done!']!
 		border: ['[', ']']!
 		runes: [`#`, `-`]!
 		indicator: `❯`
@@ -34,8 +36,9 @@ fn main() {
 		border: term.bright_black
 	})
 	for _ in 0 .. b2.width {
+		b2.label[0] = '(${b2.eta() / 1000:.2f}s)'
 		b2.progress()
-		time.sleep(time.millisecond * 20)
+		time.sleep(timeout * 2)
 	}
 
 	// ===========================================================================
@@ -53,6 +56,6 @@ fn main() {
 	})
 	for _ in 0 .. b3.width {
 		b3.progress()
-		time.sleep(time.millisecond * 20)
+		time.sleep(timeout)
 	}
 }

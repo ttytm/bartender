@@ -78,7 +78,7 @@ fn (mut b SmoothBar) setup() {
 		}
 	}
 
-	b.state = 0
+	b.state.pos = 0
 	b.iters = b.width * b.runes.s.len
 	if b.theme_ != .push && b.theme_ != .pull {
 		b.iters /= 2
@@ -117,19 +117,17 @@ fn (mut b SmoothBar) setup_duals() {
 
 fn (b SmoothBar) draw_push_pull() {
 	n := if b.theme_ == .pull {
-		[b.width - b.state, b.state] // progressively empty
+		[b.width - b.state.pos, b.state.pos] // progressively empty
 	} else {
-		[b.state, b.width - b.state] // progressively fill
+		[b.state.pos, b.width - b.state.pos] // progressively fill
 	}
 
 	left := '${b.border[0]}${b.runes.f[0].repeat(n[0])}${b.runes.s[b.rune_i]}' // border, progress, smooth Rune
 	right := '${b.runes.f[1].repeat(n[1])}${b.border[1]}' // smooth rune, remaining, border
-	label := '${b.state * 100 / b.width}% ${b.label[0]}'
-	// label := '${f64(b.state * b.smoothess_multiplier * 100) / b.width:.2f}% ${b.label[0]}' // float percent
 
-	eprint('\r${left}${right} ${label}')
+	eprint('\r${left}${right} ${b.label[0]}')
 
-	if b.state >= b.width {
+	if b.state.pos >= b.width {
 		dlm := if b.theme_ == .pull { b.runes.f[1] } else { b.runes.f[0] }
 		finish('${b.border[0]}${dlm.repeat(b.width + 1)}${b.border[1]} ${b.label[1]}')
 	}
@@ -137,21 +135,20 @@ fn (b SmoothBar) draw_push_pull() {
 
 fn (b SmoothBar) draw_merge() {
 	width := if b.width % 2 != 0 { b.width - 1 } else { b.width }
-	remaining := width - b.state
+	remaining := width - b.state.pos
 
-	left := '${b.border[0]}${b.runes.f[0].repeat(b.state / 2)}${b.runes.s[b.rune_i]}'
+	left := '${b.border[0]}${b.runes.f[0].repeat(b.state.pos / 2)}${b.runes.s[b.rune_i]}'
 	// TODO: Smoothness for last two cols.
 	middle := if remaining >= 0 {
 		b.runes.f[1].repeat(remaining)
 	} else {
 		b.runes.f[0]
 	}
-	right := '${b.runes.sm[b.rune_i]}${b.runes.f[0].repeat(b.state / 2)}${b.border[1]}'
-	label := '${b.state * 100 / width}% ${b.label[0]}'
+	right := '${b.runes.sm[b.rune_i]}${b.runes.f[0].repeat(b.state.pos / 2)}${b.border[1]}'
 
-	eprint('\r${left}${middle}${right} ${label}')
+	eprint('\r${left}${middle}${right} ${b.label[0]}')
 
-	if b.state >= width {
+	if b.state.pos >= width {
 		finish('${b.border[0]}${b.runes.f[0].repeat(width + 2)}${b.border[1]} ${b.label[1]}')
 	}
 }
@@ -159,14 +156,13 @@ fn (b SmoothBar) draw_merge() {
 fn (b SmoothBar) draw_expand() {
 	width := if b.width % 2 != 0 { b.width - 1 } else { b.width }
 
-	left := '${b.border[0]}${b.runes.f[1].repeat((width - b.state) / 2)}${b.runes.sm[b.rune_i]}'
-	middle := b.runes.f[0].repeat(b.state)
-	right := '${b.runes.s[b.rune_i]}${b.runes.f[1].repeat((width - b.state) / 2)}${b.border[1]}'
-	label := '${b.state * 100 / width}% ${b.label[0]}'
+	left := '${b.border[0]}${b.runes.f[1].repeat((width - b.state.pos) / 2)}${b.runes.sm[b.rune_i]}'
+	middle := b.runes.f[0].repeat(b.state.pos)
+	right := '${b.runes.s[b.rune_i]}${b.runes.f[1].repeat((width - b.state.pos) / 2)}${b.border[1]}'
 
-	eprint('\r${left}${middle}${right} ${label}')
+	eprint('\r${left}${middle}${right} ${b.label[0]}')
 
-	if b.state >= width {
+	if b.state.pos >= width {
 		finish('${b.border[0]}${b.runes.f[0].repeat(width + 2)}${b.border[1]} ${b.label[1]}')
 	}
 }
@@ -174,14 +170,13 @@ fn (b SmoothBar) draw_expand() {
 fn (b SmoothBar) draw_split() {
 	width := if b.width % 2 != 0 { b.width - 1 } else { b.width }
 
-	left := '${b.border[0]}${b.runes.f[0].repeat((width - b.state) / 2)}${b.runes.sm[b.rune_i]}'
-	middle := b.runes.f[1].repeat(b.state)
-	right := '${b.runes.s[b.rune_i]}${b.runes.f[0].repeat((width - b.state) / 2)}${b.border[1]}'
-	label := '${b.state * 100 / width}% ${b.label[0]}'
+	left := '${b.border[0]}${b.runes.f[0].repeat((width - b.state.pos) / 2)}${b.runes.sm[b.rune_i]}'
+	middle := b.runes.f[1].repeat(b.state.pos)
+	right := '${b.runes.s[b.rune_i]}${b.runes.f[0].repeat((width - b.state.pos) / 2)}${b.border[1]}'
 
-	eprint('\r${left}${middle}${right} ${label}')
+	eprint('\r${left}${middle}${right} ${b.label[0]}')
 
-	if b.state >= width {
+	if b.state.pos >= width {
 		finish('${b.border[0]}${b.runes.f[1].repeat(width + 2)}${b.border[1]} ${b.label[1]}')
 	}
 }
