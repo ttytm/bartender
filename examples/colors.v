@@ -5,6 +5,7 @@ import time
 import term
 
 fn main() {
+	// ===========================================================================
 	mut b := bartender.Bar{
 		width: 60
 		label: ['Loading...', 'Done!']!
@@ -18,6 +19,7 @@ fn main() {
 		time.sleep(time.millisecond * 20)
 	}
 
+	// ===========================================================================
 	mut b2 := bartender.Bar{
 		width: 60
 		label: ['Loading...', 'Done!']!
@@ -36,6 +38,7 @@ fn main() {
 		time.sleep(time.millisecond * 20)
 	}
 
+	// ===========================================================================
 	mut b3 := bartender.Bar{
 		width: 60
 		border: ['│', '│']!

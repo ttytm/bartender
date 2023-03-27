@@ -11,8 +11,7 @@ struct ProgressReader {
 	size int  [required]
 mut:
 	bar bartender.SmoothBar
-	state        int
-	pos          int
+	pos int
 }
 
 fn (mut r ProgressReader) read(mut buf []u8) !int {
@@ -56,9 +55,9 @@ fn main() {
 		exit
 	}
 
-	mut f := os.create(file_path) or { panic(err) }
-	mut r := create_reader(resp.body.bytes()) or { panic(err) }
+	mut f := os.create(file_path)!
+	mut r := create_reader(resp.body.bytes())!
 
-	io.cp(mut r, mut f) or { panic(err) }
-	os.rm(file_path) or { panic(err) }
+	io.cp(mut r, mut f)!
+	os.rm(file_path)!
 }

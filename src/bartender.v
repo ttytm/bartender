@@ -71,8 +71,7 @@ pub fn (mut b SmoothBar) reset() {
 // <== }
 
 fn finish(res string) {
-	eprint('\r')
 	term.erase_line('2')
+	println('\r${res}')
 	term.show_cursor()
-	println(res)
 }

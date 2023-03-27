@@ -26,6 +26,7 @@ fn main() {
 		time.sleep(timeout)
 	}
 
+	// Re-use bars
 	// ===========================================================================
 	b = SmoothBar{
 		label: ['Push Drain', 'Completed!']!

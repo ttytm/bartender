@@ -7,7 +7,7 @@ mut:
 	theme_    Theme
 	sub_state u8
 pub mut:
-	iters u16 = 80 // Number of iterations.
+	iters int = 80 // Number of iterations. Eventually resolves to number of smooth runes * width.
 	theme ThemeChoice = Theme.push // Putting sumtype field first breaks default value. Related issue (github.com/vlang/v/issues/17758).
 }
 
@@ -80,7 +80,7 @@ fn (mut b SmoothBar) setup() {
 		}
 	}
 
-	b.iters = b.width * u8(b.runes.s.len)
+	b.iters = b.width * b.runes.s.len
 	if b.theme_ != .push && b.theme_ != .pull {
 		b.iters /= 2
 	}
