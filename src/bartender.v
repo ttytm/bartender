@@ -12,9 +12,20 @@ pub mut:
 	state  u16
 }
 
+struct BarError {
+	Error
+}
+
+fn (err BarError) msg() string {
+	return 'Failed to progress. Bar already finished.'
+}
+
 // { == Bar ==> ===============================================================
 
 pub fn (mut b Bar) progress() {
+	if b.state >= b.width {
+		panic(IError(BarError{}))
+	}
 	if b.runes_[0].len == 0 {
 		b.setup()
 	}
@@ -35,6 +46,9 @@ pub fn (mut b Bar) reset() {
 // { == SmoothBar ==> =========================================================
 
 pub fn (mut b SmoothBar) progress() {
+	if b.state >= b.width {
+		panic(IError(BarError{}))
+	}
 	if b.runes.s.len == 0 {
 		b.setup()
 	}
@@ -42,10 +56,13 @@ pub fn (mut b SmoothBar) progress() {
 		term.hide_cursor()
 	}
 
-	b.sub_state += 1
-	if b.sub_state == b.runes.s.len {
-		b.sub_state = 0
+	b.rune_i += 1
+	if b.rune_i == b.runes.s.len {
+		b.rune_i = 0
 		b.state += 1
+		if b.theme_ == .merge || b.theme_ == .expand || b.theme_ == .split {
+			b.state += 1
+		}
 	}
 
 	match b.theme_ {
