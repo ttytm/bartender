@@ -1,5 +1,8 @@
 // Source: https://github.com/tobealive/bartender
 // License: MIT
+
+// This lib.v file contains all public functions. Associated public structs
+// and private sub-functions are located in the corresponding files.
 module bartender
 
 import term

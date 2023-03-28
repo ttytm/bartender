@@ -25,7 +25,7 @@ fn main() {
 		time.sleep(timeout)
 	}
 	for _ in 0 .. b2.width {
-		// Add percent and time to label
+		// Add percent and time to label.
 		b2.label[0] = '${b2.pct()}% (${b2.eta() / 1000:.1f}s)'
 		b2.progress()
 		time.sleep(timeout * 5)
