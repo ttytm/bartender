@@ -1,17 +1,24 @@
 module bartender
 
 pub struct SmoothBar {
-	BarBase
+	BarBase // Includes public config.
 mut:
-	theme_ Theme
+	params SmoothBarParams
 	runes  SmoothRunes
 	rune_i u8
 pub mut:
-	iters int = 80 // Number of iterations. Eventually resolves to number of smooth runes * width.
-	theme ThemeChoice = Theme.push // Putting sumtype field first breaks default value. Related issue (github.com/vlang/v/issues/17758).
+	iters int = 80 // Number of iterations. Eventually resolves to number of smooth runes * params.width.
+	theme ThemeChoice = Theme.push // Extends user config.
 }
 
-// The current solution might be improved. In Rust it would be one enum with `push` & `pull` being tuple variants.
+// Private params. Set on setup() based on user width and theme config.
+struct SmoothBarParams {
+mut:
+	width u16
+	theme Theme
+}
+
+// The current solution might be improved. In Rust it would be one enum with push & pull being tuple variants.
 type ThemeChoice = Theme | ThemeVariant
 
 pub enum Theme {
@@ -51,8 +58,9 @@ const (
 )
 
 fn (mut b SmoothBar) setup() {
+	b.params.width = b.width
 	if mut b.theme is Theme {
-		b.theme_ = b.theme
+		b.params.theme = b.theme
 		match b.theme {
 			.push {
 				b.setup_push(.fill)
@@ -67,19 +75,19 @@ fn (mut b SmoothBar) setup() {
 	} else if mut b.theme is ThemeVariant {
 		match b.theme.theme {
 			.push {
-				b.theme_ = .push
+				b.params.theme = .push
 				b.setup_push(b.theme.stream)
 			}
 			.pull {
-				b.theme_ = .pull
+				b.params.theme = .pull
 				b.setup_pull(b.theme.stream)
 			}
 		}
 	}
 
 	b.state.pos = 0
-	b.iters = b.width * b.runes.s.len
-	if b.theme_ != .push && b.theme_ != .pull {
+	b.iters = b.params.width * b.runes.s.len
+	if b.params.theme != .push && b.params.theme != .pull {
 		b.iters /= 2
 	}
 }
@@ -104,8 +112,8 @@ fn (mut b SmoothBar) setup_pull(stream Stream) {
 
 fn (mut b SmoothBar) setup_duals() {
 	b.runes = struct {
-		s: if b.theme_ == .split { bartender.smooth_rtl } else { bartender.smooth_ltr }
-		sm: if b.theme_ == .split {
+		s: if b.params.theme == .split { bartender.smooth_rtl } else { bartender.smooth_ltr }
+		sm: if b.params.theme == .split {
 			bartender.smooth_ltr.reverse()
 		} else {
 			bartender.smooth_rtl.reverse()
@@ -115,10 +123,10 @@ fn (mut b SmoothBar) setup_duals() {
 }
 
 fn (b SmoothBar) draw_push_pull() {
-	n := if b.theme_ == .pull {
-		[b.width - b.state.pos, b.state.pos] // progressively empty
+	n := if b.params.theme == .pull {
+		[b.params.width - b.state.pos, b.state.pos] // progressively empty
 	} else {
-		[b.state.pos, b.width - b.state.pos] // progressively fill
+		[b.state.pos, b.params.width - b.state.pos] // progressively fill
 	}
 
 	left := '${b.border[0]}${b.runes.f[0].repeat(n[0])}${b.runes.s[b.rune_i]}' // border, progress, smooth Rune
@@ -126,14 +134,14 @@ fn (b SmoothBar) draw_push_pull() {
 
 	eprint('\r${left}${right} ${b.label[0]}')
 
-	if b.state.pos >= b.width {
-		dlm := if b.theme_ == .pull { b.runes.f[1] } else { b.runes.f[0] }
-		finish('${b.border[0]}${dlm.repeat(b.width + 1)}${b.border[1]} ${b.label[1]}')
+	if b.state.pos >= b.params.width {
+		dlm := if b.params.theme == .pull { b.runes.f[1] } else { b.runes.f[0] }
+		finish('${b.border[0]}${dlm.repeat(b.params.width + 1)}${b.border[1]} ${b.label[1]}')
 	}
 }
 
 fn (b SmoothBar) draw_merge() {
-	width := if b.width % 2 != 0 { b.width - 1 } else { b.width }
+	width := if b.params.width % 2 != 0 { b.params.width - 1 } else { b.params.width }
 	remaining := width - b.state.pos
 
 	left := '${b.border[0]}${b.runes.f[0].repeat(b.state.pos / 2)}${b.runes.s[b.rune_i]}'
@@ -153,7 +161,7 @@ fn (b SmoothBar) draw_merge() {
 }
 
 fn (b SmoothBar) draw_expand() {
-	width := if b.width % 2 != 0 { b.width - 1 } else { b.width }
+	width := if b.params.width % 2 != 0 { b.params.width - 1 } else { b.params.width }
 
 	left := '${b.border[0]}${b.runes.f[1].repeat((width - b.state.pos) / 2)}${b.runes.sm[b.rune_i]}'
 	middle := b.runes.f[0].repeat(b.state.pos)
@@ -167,7 +175,7 @@ fn (b SmoothBar) draw_expand() {
 }
 
 fn (b SmoothBar) draw_split() {
-	width := if b.width % 2 != 0 { b.width - 1 } else { b.width }
+	width := if b.params.width % 2 != 0 { b.params.width - 1 } else { b.params.width }
 
 	left := '${b.border[0]}${b.runes.f[0].repeat((width - b.state.pos) / 2)}${b.runes.sm[b.rune_i]}'
 	middle := b.runes.f[1].repeat(b.state.pos)
