@@ -56,6 +56,24 @@ pub fn (mut b Bar) progress() {
 	b.draw()
 }
 
+pub fn (mut b Bar) colorize(color BarColorType) {
+	b.setup()
+
+	match color {
+		BarColor {
+			b.colorize_components(color as BarColor)
+		}
+		BarColors {
+			b.colorize_fg_bg(color as BarColors)
+		}
+		// NOTE: Upstream issue.
+		// Color {} // when used instead of else -> invalid memory access.
+		else {
+			b.colorize_all(color as Color)
+		}
+	}
+}
+
 pub fn (mut b Bar) reset() {
 	b.setup()
 }
@@ -107,6 +125,18 @@ pub fn (mut b SmoothBar) progress() {
 			b.draw_split()
 		}
 	}
+}
+
+pub fn (mut b SmoothBar) colorize(color SmoothBarColorType) {
+	b.setup()
+
+	// NOTE: Upstream issue.
+	// if color is C -> invalid memory access
+	if color !is SmoothBarColor {
+		b.colorize_all(color as Color)
+		return
+	}
+	b.colorize_components(color as SmoothBarColor)
 }
 
 pub fn (mut b SmoothBar) reset() {

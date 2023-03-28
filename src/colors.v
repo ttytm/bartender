@@ -36,24 +36,6 @@ pub type SmoothBarColor = ComponentColor
 
 // { == Bar ==> ===============================================================
 
-pub fn (mut b Bar) colorize(color BarColorType) {
-	b.setup()
-
-	match color {
-		BarColor {
-			b.colorize_components(color as BarColor)
-		}
-		BarColors {
-			b.colorize_fg_bg(color as BarColors)
-		}
-		// NOTE: Upstream issue.
-		// Color {} // when used instead of else -> invalid memory access.
-		else {
-			b.colorize_all(color as Color)
-		}
-	}
-}
-
 fn (mut b Bar) colorize_all(color Color) {
 	b.runes_ = [term.colorize(color as Color, b.runes_[0]), term.colorize(color as Color,
 		b.runes_[1])]!
@@ -91,18 +73,6 @@ fn (colors [2]fn (msg string) string) apply_fg_bg(s string) string {
 // <== }
 
 // { == SmoothBar ==> =========================================================
-
-pub fn (mut b SmoothBar) colorize(color SmoothBarColorType) {
-	b.setup()
-
-	// NOTE: Upstream issue.
-	// if color is C -> invalid memory access
-	if color !is SmoothBarColor {
-		b.colorize_all(color as Color)
-		return
-	}
-	b.colorize_components(color as SmoothBarColor)
-}
 
 fn (mut b SmoothBar) colorize_all(color Color) {
 	// NOTE: Upstream issue.

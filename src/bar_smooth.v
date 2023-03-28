@@ -11,20 +11,6 @@ pub mut:
 	theme ThemeChoice = Theme.push // Putting sumtype field first breaks default value. Related issue (github.com/vlang/v/issues/17758).
 }
 
-// Strings instead of runes for color support.
-struct SmoothRunes {
-mut:
-	f  []string // Fillers.
-	s  []string // Smooth.
-	sm []string // Smooth Mirrored. Used for merge, expand and split variant.
-}
-
-const (
-	smooth_ltr = [' ', '▏', '▎', '▍', '▌', '▋', '▊', '▉', '█']
-	smooth_rtl = ['█', '🮋', '🮊', '🮉', '▐', '🮈', '🮇', '▕', ' ']
-	fillers    = ['█', ' '] // Used for progress until current state and remaining space.
-)
-
 // The current solution might be improved. In Rust it would be one enum with `push` & `pull` being tuple variants.
 type ThemeChoice = Theme | ThemeVariant
 
@@ -50,6 +36,19 @@ pub enum Stream {
 	fill
 	drain
 }
+
+struct SmoothRunes {
+mut: // Strings instead of runes for color support.
+	f  []string // Fillers.
+	s  []string // Smooth.
+	sm []string // Smooth Mirrored. Used for merge, expand and split variant.
+}
+
+const (
+	smooth_ltr = [' ', '▏', '▎', '▍', '▌', '▋', '▊', '▉', '█']
+	smooth_rtl = ['█', '🮋', '🮊', '🮉', '▐', '🮈', '🮇', '▕', ' ']
+	fillers    = ['█', ' '] // Used for progress until current state and remaining space.
+)
 
 fn (mut b SmoothBar) setup() {
 	if mut b.theme is Theme {
