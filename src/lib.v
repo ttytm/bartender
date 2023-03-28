@@ -27,21 +27,14 @@ mut:
 	last_change i64
 }
 
-struct BarError {
-	Error
-}
-
-fn (err BarError) msg() string {
-	return 'Failed to pos. Bar already finished.'
-}
 
 // { == Bar ==> ===============================================================
 
 pub fn (mut b Bar) progress() {
 	if b.state.pos >= b.width {
-		panic(IError(BarError{}))
+		panic(IError(BarError{ kind: .finished }))
 	}
-	if b.runes_[0].len == 0 {
+	if b.params.runes[0].len == 0 {
 		b.setup()
 	}
 	if b.state.pos == 0 {
@@ -56,6 +49,24 @@ pub fn (mut b Bar) progress() {
 	b.draw()
 }
 
+pub fn (mut b Bar) colorize(color BarColorType) {
+	b.setup()
+
+	match color {
+		BarColor {
+			b.colorize_components(color)
+		}
+		BarColors {
+			b.colorize_fg_bg(color)
+		}
+		// NOTE: Upstream issue.
+		// Color {} // when used instead of else -> invalid memory access.
+		else {
+			b.colorize_all(color as Color)
+		}
+	}
+}
+
 pub fn (mut b Bar) reset() {
 	b.setup()
 }
@@ -66,7 +77,7 @@ pub fn (mut b Bar) reset() {
 
 pub fn (mut b SmoothBar) progress() {
 	if b.state.pos >= b.width {
-		panic(IError(BarError{}))
+		panic(IError(BarError{ kind: .finished }))
 	}
 	if b.runes.s.len == 0 {
 		b.setup()
@@ -86,14 +97,14 @@ pub fn (mut b SmoothBar) progress() {
 	if b.rune_i == b.runes.s.len {
 		b.rune_i = 0
 		b.state.pos += 1
-		if b.theme_ == .merge || b.theme_ == .expand || b.theme_ == .split {
+		if b.params.theme == .merge || b.params.theme == .expand || b.params.theme == .split {
 			b.state.pos += 1
 		}
 	}
 
 	// Draw
 	term.erase_line('0')
-	match b.theme_ {
+	match b.params.theme {
 		.push, .pull {
 			b.draw_push_pull()
 		}
@@ -109,18 +120,33 @@ pub fn (mut b SmoothBar) progress() {
 	}
 }
 
+pub fn (mut b SmoothBar) colorize(color SmoothBarColorType) {
+	b.setup()
+
+	// NOTE: Upstream issue.
+	// if color is `Color` -> invalid memory access
+	if color !is SmoothBarColor {
+		b.colorize_all(color as Color)
+	}
+	if color is SmoothBarColor {
+		b.colorize_components(color)
+	}
+}
+
 pub fn (mut b SmoothBar) reset() {
 	b.setup()
 }
 
 // <== }
 
+// { == Misc ==> ==============================================================
+
 pub fn (b BarBase) pos() u16 {
 	return b.state.pos
 }
 
-pub fn (b BarBase) pct() u8 {
-	return u8(b.state.pos * 100 / b.width)
+pub fn (b BarBase) pct() u16 {
+	return b.state.pos * 100 / b.width
 }
 
 pub fn (b BarBase) eta() f64 {
@@ -133,3 +159,5 @@ fn finish(res string) {
 	println('\r${res}')
 	term.show_cursor()
 }
+
+// <== }
