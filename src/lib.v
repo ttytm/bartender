@@ -27,6 +27,7 @@ mut:
 	last_change i64
 }
 
+const spinner_runes = ['⠁', '⠂', '⠄', '⡀', '⢀', '⠠', '⠐', '⠈']!
 
 // { == Bar ==> ===============================================================
 
@@ -65,6 +66,10 @@ pub fn (mut b Bar) colorize(color BarColorType) {
 			b.colorize_all(color as Color)
 		}
 	}
+}
+
+pub fn (b Bar) spinner() string {
+	return bartender.spinner_runes[(b.state.pos - 1) % bartender.spinner_runes.len]
 }
 
 pub fn (mut b Bar) reset() {
@@ -131,6 +136,10 @@ pub fn (mut b SmoothBar) colorize(color SmoothBarColorType) {
 	if color is SmoothBarColor {
 		b.colorize_components(color)
 	}
+}
+
+pub fn (b SmoothBar) spinner() string {
+	return bartender.spinner_runes[(b.rune_i) % bartender.spinner_runes.len]
 }
 
 pub fn (mut b SmoothBar) reset() {

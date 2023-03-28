@@ -10,7 +10,7 @@ fn main() {
 	// ===========================================================================
 	mut b := bartender.Bar{
 		width: 60
-		label: ['Loading...', 'Done!']!
+		label: ['Single Color', 'Done!']!
 		border: ['[', ']']!
 		runes: [`#`, `-`]!
 		indicator: `❯`
@@ -36,7 +36,7 @@ fn main() {
 		border: term.bright_black
 	})
 	for _ in 0 .. b2.width {
-		b2.label[0] = '(${b2.eta() / 1000:.2f}s)'
+		b2.label[0] = 'Multi Color (${b2.eta() / 1000:.1f}s)'
 		b2.progress()
 		time.sleep(timeout * 2)
 	}
@@ -44,6 +44,7 @@ fn main() {
 	// ===========================================================================
 	mut b3 := bartender.Bar{
 		width: 60
+		label: ['Advanced Customization', 'Done!']!
 		border: ['│', '│']!
 		runes: [`═`, ` `]!
 		indicator: `❯`

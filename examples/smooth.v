@@ -10,7 +10,7 @@ fn main() {
 	// ===========================================================================
 	mut b := SmoothBar{}
 	// Add optional fields
-	b.label = ['Push Fill', 'Push Fill Done!']!
+	b.label = ['Push Fill', 'Done!']!
 	for _ in 0 .. b.iters {
 		b.progress()
 		time.sleep(timeout)
@@ -22,10 +22,8 @@ fn main() {
 		theme: Theme.pull
 	}
 	for _ in 0 .. b2.iters {
-		// Add state to label
-		b2.label[0] = '${b.label[0]} ${b2.pct()}% (${b2.eta() / 1000:.2f}s)'
 		b2.progress()
-		time.sleep(timeout * 2)
+		time.sleep(timeout)
 	}
 
 	// Re-use bars
@@ -56,6 +54,7 @@ fn main() {
 		border: ['│', '│']!
 		width: 78
 	}
+	// Single color for bar and borders
 	b3.colorize(term.cyan)
 	for _ in 0 .. b3.iters {
 		b3.progress()
@@ -69,7 +68,6 @@ fn main() {
 		border: ['│', '│']!
 		width: 78
 	}
-	// Colorize
 	b4.colorize(term.bright_black)
 	for _ in 0 .. b4.iters {
 		b4.progress()
@@ -83,9 +81,20 @@ fn main() {
 		border: ['│', '│']!
 		width: 78
 	}
+	// Div color for bar and borders
 	b5.colorize(bartender.SmoothBarColor{term.green, term.blue})
-	for _ in 0 .. b5.iters {
+	for i in 0 .. b5.iters {
+		// Add percentage and time to the label.
+		// The precision for calculating the ETA grows the more advanced the process.
+		// In this example, showing the time is delayed until 20% is completed. Until then, a spinner is displayed.
+		eta := term.colorize(term.blue, if i <= f32(b.iters) * 0.2 {
+			b5.spinner()
+		} else {
+			'${b5.eta() / 1000:.1f}s'
+		})
+		// NOTE: '${b5.label[0]}' does not work atm!
+		b5.label[0] = 'Split ${b5.pct()}% ${eta}'
 		b5.progress()
-		time.sleep(timeout * 2)
+		time.sleep(timeout * 10)
 	}
 }
