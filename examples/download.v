@@ -1,6 +1,6 @@
-// NOTE: This example is a file write rather than a true download progress example.
-// This is as we are loading the full response body and than performing the write operation.
-// For a real download progress, you would need to do a chucked download and write it.
+// NOTE: This example is more of a file-write than a true download progress example.
+// This is because we are loading the full response body and then performing the write operation.
+// For a real download progress, we would need to chuck download the body.
 module main
 
 import bartender
@@ -30,15 +30,14 @@ fn (mut r ProgressReader) read(mut buf []u8) !int {
 
 	if (f64(r.pos) / r.size * r.bar.width) > r.bar.pos() {
 		// Add percentage and time to the label.
-		// The precision for calculating the ETA grows the more advanced the process.
-		// In this example, showing the time is delayed until 20% is completed. Until then, a spinner is displayed.
+		// The accuracy of an ETA calculation increases as a process progresses.
+		// In this example, showing the ETA is delayed until 20%. In the meantime, a spinner is displayed.
 		eta := term.colorize(term.blue, if r.pos <= f32(r.size) * 0.2 {
 			r.bar.spinner()
 		} else {
 			'${r.bar.eta() / 1000:.1f}s'
 		})
-		r.bar.label[0] = 'Downloading... ${r.bar.pct()}% ${eta}'
-
+		r.bar.post = '│ Downloading... ${r.bar.pct()}% ${eta}'
 		r.bar.progress()
 
 		// Since this is a relatively small file, delay the progress for visualization purposes.
@@ -50,10 +49,10 @@ fn (mut r ProgressReader) read(mut buf []u8) !int {
 fn create_reader(data []u8) !&io.BufferedReader {
 	mut bar := bartender.SmoothBar{
 		width: 60
-		label: ['Downloading...', 'Download completed!']!
-		border: ['│', '│']!
+		pre: '│'
+		post: bartender.Affix{'│ Downloading...', '│ Download completed!'}
 	}
-	bar.colorize(bartender.SmoothBarColor{term.cyan, term.blue})
+	bar.colorize(.cyan)
 
 	return io.new_buffered_reader(
 		reader: ProgressReader{

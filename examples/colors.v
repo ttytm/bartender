@@ -1,6 +1,6 @@
 module main
 
-import bartender
+import bartender { Affix, Bar, BarColor, BarRunes, Color, FgBg }
 import time
 import term
 
@@ -8,55 +8,63 @@ const timeout = time.millisecond * 20
 
 fn main() {
 	// ===========================================================================
-	mut b := bartender.Bar{
+	mut b := Bar{
 		width: 60
-		label: ['Single Color', 'Done!']!
-		border: ['[', ']']!
-		runes: [`#`, `-`]!
+		pre: term.green('[')
+		post: Affix{
+			pending: '${term.green(']')} Single Color'
+			finished: '${term.green(']')} Done!'
+		}
 		indicator: `❯`
 	}
-	b.colorize(term.green)
+	b.colorize(Color.green)
 	for _ in 0 .. b.width {
 		b.progress()
 		time.sleep(timeout)
 	}
 
 	// ===========================================================================
-	mut b2 := bartender.Bar{
+	mut b2 := Bar{
 		width: 60
-		label: ['', 'Done!']!
-		border: ['[', ']']!
-		runes: [`#`, `-`]!
+		pre: term.bright_black('[')
+		post: Affix{'${term.bright_black(']')} Multi Color', '${term.bright_black(']')} Done!'}
+		runes: BarRunes{
+			progress: `#`
+			remaining: `-`
+		}
 		indicator: `❯`
 	}
-	b2.colorize(bartender.BarColor{
-		progress: term.cyan
-		fill: term.bright_black
-		indicator: term.magenta
-		border: term.bright_black
+	// Component Colors
+	b2.colorize(BarColor{
+		progress: Color.cyan
+		remaining: Color.bright_black
+		indicator: Color.magenta
 	})
 	for _ in 0 .. b2.width {
-		b2.label[0] = 'Multi Color (${b2.eta() / 1000:.1f}s)'
 		b2.progress()
-		time.sleep(timeout * 2)
+		time.sleep(timeout)
 	}
 
 	// ===========================================================================
-	mut b3 := bartender.Bar{
-		width: 60
-		label: ['Advanced Customization', 'Done!']!
-		border: ['│', '│']!
-		runes: [`═`, ` `]!
+	mut b3 := Bar{
+		width: 59
+		pre: term.cyan('╘')
+		runes: BarRunes{`═`, `─`}
 		indicator: `❯`
 	}
-	b3.colorize(bartender.BarColors{
-		progress: [term.black, term.bg_cyan]!
-		fill: [term.black, term.bg_black]!
-		indicator: [term.magenta, term.bg_cyan]!
-		border: [term.bright_black, term.bg_black]!
+	b3.colorize(BarColor{
+		progress: FgBg{
+			fg: .cyan
+			// Be specific about the foreground and/or background.
+			// fg: .black
+			// bg: .cyan
+		}
+		remaining: Color.black
+		indicator: Color.magenta
 	})
 	for _ in 0 .. b3.width {
+		b3.post = term.cyan('╕') + ' ' + term.cyan(b3.spinner()) + ' Customized...'
 		b3.progress()
-		time.sleep(timeout)
+		time.sleep(timeout * 3)
 	}
 }

@@ -1,17 +1,21 @@
 module bartender
 
+import term
+
 pub struct SmoothBar {
-	BarBase // Includes public config.
+	BarBase
 mut:
 	params SmoothBarParams
 	runes  SmoothRunes
 	rune_i u8
 pub mut:
-	iters int = 80 // Number of iterations. Eventually resolves to number of smooth runes * params.width.
 	theme ThemeChoice = Theme.push // Extends user config.
+	// Number of iterations. Eventually resolves to number of smooth runes * params.width. NOTE: temporary solution.
+	iters int = 80
 }
 
 // Private params. Set on setup() based on user width and theme config.
+// This solution is up for improvement.
 struct SmoothBarParams {
 mut:
 	width u16
@@ -58,7 +62,6 @@ const (
 )
 
 fn (mut b SmoothBar) setup() {
-	b.params.width = b.width
 	if mut b.theme is Theme {
 		b.params.theme = b.theme
 		match b.theme {
@@ -84,6 +87,12 @@ fn (mut b SmoothBar) setup() {
 			}
 		}
 	}
+
+	b.width -= 1
+	if b.params.theme != .push && b.params.theme != .pull {
+		b.width -= 1
+	}
+	b.params.width = b.width
 
 	b.state.pos = 0
 	b.iters = b.params.width * b.runes.s.len
@@ -129,61 +138,75 @@ fn (b SmoothBar) draw_push_pull() {
 		[b.state.pos, b.params.width - b.state.pos] // progressively fill
 	}
 
-	left := '${b.border[0]}${b.runes.f[0].repeat(n[0])}${b.runes.s[b.rune_i]}' // border, progress, smooth Rune
-	right := '${b.runes.f[1].repeat(n[1])}${b.border[1]}' // smooth rune, remaining, border
+	left := '${b.pre.resolve_affix(.pending)}${b.runes.f[0].repeat(n[0])}${b.runes.s[b.rune_i]}'
+	right := '${b.runes.f[1].repeat(n[1])}${b.post.resolve_affix(.pending)}'
 
-	eprint('\r${left}${right} ${b.label[0]}')
+	eprint('\r${left}${right}')
 
 	if b.state.pos >= b.params.width {
-		dlm := if b.params.theme == .pull { b.runes.f[1] } else { b.runes.f[0] }
-		finish('${b.border[0]}${dlm.repeat(b.params.width + 1)}${b.border[1]} ${b.label[1]}')
+		progress := if b.params.theme == .pull { b.runes.f[1] } else { b.runes.f[0] }
+		b.finish(progress.repeat(b.params.width + 1))
 	}
 }
 
 fn (b SmoothBar) draw_merge() {
-	width := if b.params.width % 2 != 0 { b.params.width - 1 } else { b.params.width }
-	remaining := width - b.state.pos
+	remaining := b.params.width - b.state.pos
 
-	left := '${b.border[0]}${b.runes.f[0].repeat(b.state.pos / 2)}${b.runes.s[b.rune_i]}'
+	left := '${b.pre.resolve_affix(.pending)}${b.runes.f[0].repeat(b.state.pos / 2)}${b.runes.s[b.rune_i]}'
 	// TODO: Smoothness for last two cols.
 	middle := if remaining >= 0 {
 		b.runes.f[1].repeat(remaining)
 	} else {
 		b.runes.f[0]
 	}
-	right := '${b.runes.sm[b.rune_i]}${b.runes.f[0].repeat(b.state.pos / 2)}${b.border[1]}'
+	right := '${b.runes.sm[b.rune_i]}${b.runes.f[0].repeat(b.state.pos / 2)}${b.post.resolve_affix(.pending)}'
 
-	eprint('\r${left}${middle}${right} ${b.label[0]}')
+	eprint('\r${left}${middle}${right}')
 
-	if b.state.pos >= width {
-		finish('${b.border[0]}${b.runes.f[0].repeat(width + 2)}${b.border[1]} ${b.label[1]}')
+	if b.state.pos >= b.params.width {
+		b.finish(b.runes.f[0].repeat(b.params.width + 2))
 	}
 }
 
 fn (b SmoothBar) draw_expand() {
-	width := if b.params.width % 2 != 0 { b.params.width - 1 } else { b.params.width }
+	prefix := b.pre.resolve_affix(.pending)
+	postfix := b.post.resolve_affix(.pending)
 
-	left := '${b.border[0]}${b.runes.f[1].repeat((width - b.state.pos) / 2)}${b.runes.sm[b.rune_i]}'
+	left := '${prefix}${b.runes.f[1].repeat((b.params.width - b.state.pos) / 2)}${b.runes.sm[b.rune_i]}'
 	middle := b.runes.f[0].repeat(b.state.pos)
-	right := '${b.runes.s[b.rune_i]}${b.runes.f[1].repeat((width - b.state.pos) / 2)}${b.border[1]}'
+	right := '${b.runes.s[b.rune_i]}${b.runes.f[1].repeat((b.params.width - b.state.pos) / 2)}${postfix}'
 
-	eprint('\r${left}${middle}${right} ${b.label[0]}')
+	eprint('\r${left}${middle}${right}')
 
-	if b.state.pos >= width {
-		finish('${b.border[0]}${b.runes.f[0].repeat(width + 2)}${b.border[1]} ${b.label[1]}')
+	if b.state.pos >= b.params.width {
+		b.finish(b.runes.f[0].repeat(b.params.width + 2))
 	}
 }
 
 fn (b SmoothBar) draw_split() {
-	width := if b.params.width % 2 != 0 { b.params.width - 1 } else { b.params.width }
+	prefix := b.pre.resolve_affix(.pending)
+	postfix := b.post.resolve_affix(.pending)
 
-	left := '${b.border[0]}${b.runes.f[0].repeat((width - b.state.pos) / 2)}${b.runes.sm[b.rune_i]}'
+	left := '${prefix}${b.runes.f[0].repeat((b.params.width - b.state.pos) / 2)}${b.runes.sm[b.rune_i]}'
 	middle := b.runes.f[1].repeat(b.state.pos)
-	right := '${b.runes.s[b.rune_i]}${b.runes.f[0].repeat((width - b.state.pos) / 2)}${b.border[1]}'
+	right := '${b.runes.s[b.rune_i]}${b.runes.f[0].repeat((b.params.width - b.state.pos) / 2)}${postfix}'
 
-	eprint('\r${left}${middle}${right} ${b.label[0]}')
-
-	if b.state.pos >= width {
-		finish('${b.border[0]}${b.runes.f[1].repeat(width + 2)}${b.border[1]} ${b.label[1]}')
+	eprint('\r${left}${middle}${right}')
+	if b.state.pos >= b.params.width {
+		b.finish(b.runes.f[1].repeat(b.params.width + 2))
 	}
+}
+
+fn (b SmoothBar) next_pos() u16 {
+	return b.state.pos + u16(if b.params.theme == .push || b.params.theme == .pull {
+		1
+	} else {
+		2
+	})
+}
+
+fn (b &SmoothBar) finish(bar string) {
+	term.erase_line('2')
+	println('\r${b.pre.resolve_affix(.finished)}${bar}${b.post.resolve_affix(.finished)}')
+	term.show_cursor()
 }

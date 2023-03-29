@@ -1,6 +1,6 @@
 module main
 
-import bartender { SmoothBar, Theme, ThemeVariant }
+import bartender { Color, SmoothBar, Theme, ThemeVariant }
 import time
 import term
 
@@ -10,7 +10,7 @@ fn main() {
 	// ===========================================================================
 	mut b := SmoothBar{}
 	// Add optional fields
-	b.label = ['Push Fill', 'Done!']!
+	b.post = ' Push Fill'
 	for _ in 0 .. b.iters {
 		b.progress()
 		time.sleep(timeout)
@@ -18,7 +18,7 @@ fn main() {
 
 	// ===========================================================================
 	mut b2 := SmoothBar{
-		label: ['Pull Fill', 'Completed!']!
+		post: ' Pull Fill'
 		theme: Theme.pull
 	}
 	for _ in 0 .. b2.iters {
@@ -29,7 +29,7 @@ fn main() {
 	// Re-use bars
 	// ===========================================================================
 	b = SmoothBar{
-		label: ['Push Drain', 'Push Drain']!
+		post: ' Push Drain'
 		theme: ThemeVariant{.push, .drain}
 	}
 	for _ in 0 .. b.iters {
@@ -38,24 +38,26 @@ fn main() {
 	}
 
 	// ===========================================================================
-	b2.label = ['Pull Drain', 'Pull Drain']!
-	b2.theme = ThemeVariant{.pull, .drain}
-	b2.reset()
+	b2 = SmoothBar{
+		post: ' Pull Drain'
+		theme: ThemeVariant{.pull, .drain}
+	}
 	for _ in 0 .. b2.iters {
 		b2.progress()
 		time.sleep(timeout)
 	}
+	time.sleep(timeout)
 
 	// Dual-bar variants
 	// ===========================================================================
 	mut b3 := SmoothBar{
-		label: ['Merge', 'Merge']!
+		post: bartender.Affix{
+			pending: ' Merge'
+			finished: ' 🐿️ ShipIt!'
+		}
 		theme: Theme.merge
-		border: ['│', '│']!
-		width: 78
 	}
-	// Single color for bar and borders
-	b3.colorize(term.cyan)
+	b3.colorize(Color.cyan)
 	for _ in 0 .. b3.iters {
 		b3.progress()
 		time.sleep(timeout * 2)
@@ -63,37 +65,37 @@ fn main() {
 
 	// ===========================================================================
 	mut b4 := SmoothBar{
-		label: ['Expand', 'Expand']!
 		theme: Theme.expand
-		border: ['│', '│']!
-		width: 78
+		post: bartender.Affix{' Expand', ' 🌌 Expanded!'}
 	}
-	b4.colorize(term.bright_black)
+	b4.colorize(Color.bright_black)
 	for _ in 0 .. b4.iters {
 		b4.progress()
 		time.sleep(timeout * 2)
 	}
 
+	// Further customization
 	// ===========================================================================
 	mut b5 := SmoothBar{
-		label: ['Split', 'Split']!
+		pre: term.blue('│')
 		theme: Theme.split
-		border: ['│', '│']!
 		width: 78
 	}
-	// Div color for bar and borders
-	b5.colorize(bartender.SmoothBarColor{term.green, term.blue})
+	b5.colorize(Color.green)
 	for i in 0 .. b5.iters {
 		// Add percentage and time to the label.
-		// The precision for calculating the ETA grows the more advanced the process.
-		// In this example, showing the time is delayed until 20% is completed. Until then, a spinner is displayed.
-		eta := term.colorize(term.blue, if i <= f32(b.iters) * 0.2 {
+		// The accuracy of an ETA calculation increases as a process progresses.
+		// In this example, showing the ETA is delayed. In the meantime, a spinner is displayed.
+		eta := term.colorize(term.blue, if i <= f32(b.iters) * 0.1 {
 			b5.spinner()
 		} else {
 			'${b5.eta() / 1000:.1f}s'
 		})
-		// NOTE: '${b5.label[0]}' does not work atm!
-		b5.label[0] = 'Split ${b5.pct()}% ${eta}'
+		b5.post = if i == b5.iters - 1 {
+			'${term.bright_black('│')} 🪄 Done!'
+		} else {
+			'${term.bright_black('│')} Split ${b5.pct()}% ${eta}'
+		}
 		b5.progress()
 		time.sleep(timeout * 10)
 	}
