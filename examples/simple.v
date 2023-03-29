@@ -10,7 +10,10 @@ fn main() {
 		width: 60
 		// Add pre- and postfixes such as labels and borders.
 		pre: '|'
-		post: bartender.Affix{'| Loading...', '| Done!'}
+		post: bartender.Affix{
+			pending: '| Loading...'
+			finished: '| Done!'
+		}
 	}
 	mut b2 := bartender.Bar{
 		width: 60
