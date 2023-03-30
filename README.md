@@ -1,8 +1,8 @@
 # bartender
 
-https://user-images.githubusercontent.com/34311583/225964767-c3521d61-ebd4-49c3-8aa0-859e4d638690.mov
+> Customizable bars for v term apps.
 
-<br>
+![smooth](https://user-images.githubusercontent.com/34311583/228962398-a7db6cea-3be3-4a21-ae95-a78f9e587a9c.gif)
 
 ## Getting started
 
@@ -13,7 +13,8 @@ https://user-images.githubusercontent.com/34311583/225964767-c3521d61-ebd4-49c3-
   ```
 
   ```v
-  import tobealive.bartender // vpm installed modules require specification of the module provider.
+  // vpm installed modules require specification of the module provider.
+  import tobealive.bartender
   ```
 
 - Or clone the repository to a preferred location and link it to your `.vmodules` directory.
@@ -30,7 +31,27 @@ https://user-images.githubusercontent.com/34311583/225964767-c3521d61-ebd4-49c3-
 
 ## Usage
 
-Unfortunately, there is currently no API reference available. Until the API stabilizes and a proper, longer-lasting documentation can be provided, please refer to the sample files.
+No API reference yet 🫣. Please refer to the sample files until the API has stabilized, and a reliable API reference can be provided with some confidence. Apologies for being too early.
+
+## Showcase
+
+<details open><summary><b>Simple example</b> &nbsp;<sub><sup>Toggle visibility...</sup></sub></summary>
+
+![simple](https://user-images.githubusercontent.com/34311583/228962887-dbc76f93-4c82-43ed-95a1-964851fe3617.gif)
+
+</details>
+
+<details><summary><b>Color and style customizations.</b> &nbsp;<sub><sup>Toggle visibility...</sup></sub></summary>
+
+![colors](https://user-images.githubusercontent.com/34311583/228962409-a5d9b3cb-b6d2-4b34-a2db-305249e95c82.gif)
+
+</details>
+
+<details><summary><b>Smooth bars.</b> &nbsp;<sub><sup>Toggle visibility...</sup></sub></summary>
+
+![download](https://user-images.githubusercontent.com/34311583/228962385-2fd9e185-81a5-481a-aa9c-6101405bf64a.gif)
+
+</details>
 
 ### Run examples
 
@@ -40,14 +61,14 @@ v run examples/<file>.v
 
 ## Outlook
 
-Bartender is in early development. Below are some of the things to look forward to.
+Below are some of the things to look forward to.
 
 - [ ] ReaderWriter Implementation
 - [ ] Multiline
-- [ ] Time Remaining
-- [ ] Documentation
+- [x] Time Remaining
+- [ ] API Reference
 - [ ] Concurrency
-- [ ] Screenwidth
+- [ ] Dynamic term size adaption for all variants (basic width detection works)
 - [ ] Extend visuals & customizability
 
 ## Anowledgements
