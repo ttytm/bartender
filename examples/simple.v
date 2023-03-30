@@ -27,11 +27,11 @@ fn main() {
 		indicator: `❯`
 	}
 
-	for _ in 0 .. b.width {
+	for _ in 0 .. b.iters {
 		b.progress()
 		time.sleep(timeout)
 	}
-	for _ in 0 .. b2.width {
+	for _ in 0 .. b2.iters {
 		// Add percent and time.
 		b2.post = '] ${b2.pct()}% (${b2.eta() / 1000:.1f}s)'
 		b2.progress()

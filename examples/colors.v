@@ -9,23 +9,23 @@ const timeout = time.millisecond * 20
 fn main() {
 	// ===========================================================================
 	mut b := Bar{
-		width: 60
-		pre: term.green('[')
+		width: 60 // Defult value
+		pre: term.magenta('[')
 		post: Affix{
-			pending: '${term.green(']')} Single Color'
-			finished: '${term.green(']')} Done!'
+			pending: '${term.magenta(']')} Single Color'
+			finished: '${term.magenta(']')} Done!'
 		}
 		indicator: `❯`
 	}
-	b.colorize(Color.green)
-	for _ in 0 .. b.width {
+	// Colorize all components uniformly.
+	b.colorize(Color.magenta)
+	for _ in 0 .. b.iters {
 		b.progress()
 		time.sleep(timeout)
 	}
 
 	// ===========================================================================
 	mut b2 := Bar{
-		width: 60
 		pre: term.bright_black('[')
 		post: Affix{'${term.bright_black(']')} Multi Color', '${term.bright_black(']')} Done!'}
 		runes: BarRunes{
@@ -40,15 +40,14 @@ fn main() {
 		remaining: Color.bright_black
 		indicator: Color.magenta
 	})
-	for _ in 0 .. b2.width {
+	for _ in 0 .. b2.iters {
 		b2.progress()
-		time.sleep(timeout)
+		time.sleep(timeout * 2)
 	}
 
 	// ===========================================================================
 	mut b3 := Bar{
-		width: 59
-		pre: term.cyan('╘')
+		pre: term.cyan('╒')
 		runes: BarRunes{`═`, `─`}
 		indicator: `❯`
 	}
@@ -62,9 +61,26 @@ fn main() {
 		remaining: Color.black
 		indicator: Color.magenta
 	})
-	for _ in 0 .. b3.width {
-		b3.post = term.cyan('╕') + ' ' + term.cyan(b3.spinner()) + ' Customized...'
+	for _ in 0 .. b3.iters {
+		b3.post = term.cyan('╕') + ' Customized...'
 		b3.progress()
+		time.sleep(timeout * 2)
+	}
+
+	// ===========================================================================
+	mut b4 := Bar{
+		pre: term.cyan('│')
+		post: term.cyan('│')
+		runes: BarRunes{`█`, `░`}
+	}
+	b4.colorize(BarColor{
+		progress: Color.cyan
+		indicator: Color.cyan
+	})
+	for i in 0 .. b4.iters {
+		j := term.bright_black('(${i + 1}/${b4.width})')
+		b4.post = '${term.cyan('│')} ${j} ${term.blue(b4.spinner())}'
+		b4.progress()
 		time.sleep(timeout * 3)
 	}
 }

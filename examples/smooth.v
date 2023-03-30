@@ -79,8 +79,8 @@ fn main() {
 	mut b5 := SmoothBar{
 		pre: term.blue('│')
 		theme: Theme.split
-		width: 78
 	}
+	b5.width -= 2
 	b5.colorize(Color.green)
 	for i in 0 .. b5.iters {
 		// Add percentage and time to the label.
@@ -91,10 +91,9 @@ fn main() {
 		} else {
 			'${b5.eta() / 1000:.1f}s'
 		})
-		b5.post = if i == b5.iters - 1 {
-			'${term.bright_black('│')} 🪄 Done!'
-		} else {
-			'${term.bright_black('│')} Split ${b5.pct()}% ${eta}'
+		b5.post = bartender.Affix{
+			pending: '${term.bright_black('│')} Split ${b5.pct()}% ${eta}'
+			finished: '${term.bright_black('│')} 🪄 Done!'
 		}
 		b5.progress()
 		time.sleep(timeout * 10)

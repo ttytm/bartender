@@ -29,7 +29,7 @@ fn (mut r ProgressReader) read(mut buf []u8) !int {
 	r.pos += n
 
 	if (f64(r.pos) / r.size * r.bar.width) > r.bar.pos() {
-		// Add percentage and time to the label.
+		// Optional customization. Add percentage, a spinner and time to the label.
 		// The accuracy of an ETA calculation increases as a process progresses.
 		// In this example, showing the ETA is delayed until 20%. In the meantime, a spinner is displayed.
 		eta := term.colorize(term.blue, if r.pos <= f32(r.size) * 0.2 {
@@ -37,10 +37,11 @@ fn (mut r ProgressReader) read(mut buf []u8) !int {
 		} else {
 			'${r.bar.eta() / 1000:.1f}s'
 		})
-		r.bar.post = '│ Downloading... ${r.bar.pct()}% ${eta}'
+
+		r.bar.post = bartender.Affix{'│ Downloading... ${r.bar.pct()}% ${eta}', '│ Download completed!'}
 		r.bar.progress()
 
-		// Since this is a relatively small file, delay the progress for visualization purposes.
+		// Since this is a relatively small file, we delay the progress for visualization purposes.
 		time.sleep(time.millisecond * 20)
 	}
 	return n
@@ -48,7 +49,6 @@ fn (mut r ProgressReader) read(mut buf []u8) !int {
 
 fn create_reader(data []u8) !&io.BufferedReader {
 	mut bar := bartender.SmoothBar{
-		width: 60
 		pre: '│'
 		post: bartender.Affix{'│ Downloading...', '│ Download completed!'}
 	}
