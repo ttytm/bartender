@@ -4,12 +4,17 @@ import term
 
 pub struct Bar {
 	BarBase
-mut:
-	runes_     [2]string // Internally resolve to strings instead of runes for color support.
-	indicator_ string
 pub mut:
 	runes     BarRunes
 	indicator ?rune
+	pre       AffixInput = '['
+	post      AffixInput = fn (b Bar) (string, string) {
+		progress := '] ${b.pct()}% (${b.eta(0)})'
+		return progress, progress
+	}
+mut:
+	runes_     [2]string // Internally resolve to strings instead of runes for color support.
+	indicator_ string
 }
 
 pub struct BarRunes {

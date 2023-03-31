@@ -17,7 +17,7 @@ fn main() {
 		}
 		indicator: `❯`
 	}
-	// Colorize all components uniformly.
+	// Colorize all components uniformly
 	b.colorize(Color.magenta)
 	for _ in 0 .. b.iters {
 		b.progress()
@@ -53,9 +53,9 @@ fn main() {
 		post: term.cyan('╕') + ' Customized...'
 	}
 	b3.colorize(BarColor{
+		// Be specific about the foreground and/or background color
 		progress: FgBg{
 			fg: .cyan
-			// Be specific about the foreground and/or background.
 			// fg: .black
 			// bg: .cyan
 		}

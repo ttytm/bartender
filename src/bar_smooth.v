@@ -4,12 +4,20 @@ import term
 
 pub struct SmoothBar {
 	BarBase
+pub mut:
+	theme ThemeChoice = Theme.push
+	pre   AffixInput  = Affix{
+		pending: ''
+		finished: ''
+	}
+	post AffixInput = fn (b SmoothBar) (string, string) {
+		progress := ' ${b.pct()}% (${b.eta(0)})'
+		return progress, progress
+	}
 mut:
 	theme_ Theme
 	runes  SmoothRunes
 	rune_i u8
-pub mut:
-	theme ThemeChoice = Theme.push
 }
 
 // The current solution might be improved. In Rust it would be one enum with push & pull being tuple variants.
