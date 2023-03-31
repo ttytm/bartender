@@ -1,7 +1,7 @@
 // Source: https://github.com/tobealive/bartender License: MIT
 
-// The lib.v file contains all public functions. Associated public structs
-// and private sub-functions are located in the corresponding files.
+// This lib.v file contains general code for the BarBase as well as all public functions.
+// Associated structs and private sub-functions are located in the corresponding files.
 module bartender
 
 import term
