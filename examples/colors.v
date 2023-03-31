@@ -47,9 +47,10 @@ fn main() {
 
 	// ===========================================================================
 	mut b3 := Bar{
-		pre: term.cyan('╒')
 		runes: BarRunes{`═`, `─`}
 		indicator: `❯`
+		pre: term.cyan('╒')
+		post: term.cyan('╕') + ' Customized...'
 	}
 	b3.colorize(BarColor{
 		progress: FgBg{
@@ -62,7 +63,6 @@ fn main() {
 		indicator: Color.magenta
 	})
 	for _ in 0 .. b3.iters {
-		b3.post = term.cyan('╕') + ' Customized...'
 		b3.progress()
 		time.sleep(timeout * 2)
 	}
@@ -70,7 +70,6 @@ fn main() {
 	// ===========================================================================
 	mut b4 := Bar{
 		pre: term.cyan('│')
-		post: term.cyan('│')
 		runes: BarRunes{`█`, `░`}
 	}
 	b4.colorize(BarColor{

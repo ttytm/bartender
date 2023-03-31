@@ -25,8 +25,8 @@ fn main() {
 		indicator: `❯`
 		// Add percent and time.
 		pre: '['
-		post: fn (b bartender.Bar) string {
-			return '] ${b.pct()}% (${b.eta(0)})'
+		post: fn (b bartender.Bar) (string, string) {
+			return '] ${b.pct()}% (${b.eta(0)})', '] Done!'
 		}
 	}
 

@@ -55,8 +55,15 @@ enum AffixState {
 
 type BarType = Bar | SmoothBar
 
-// TODO: return (string, string) for prefix and postfix in affix_fns
-type AffixInput = Affix | fn (b Bar) string | fn (b SmoothBar) string | string
+type AffixInput = Affix
+	| fn (b Bar) (string, string)
+	| fn (b SmoothBar) (string, string)
+	| string
+
+// Issues with `param BarType` or `AffixFn` as `AffixInput` type
+type AffixFn = fn (b Bar) (string, string)
+	| fn (b BarType) (string, string)
+	| fn (b SmoothBar) (string, string)
 
 const spinner_runes = ['⡀', '⠄', '⠂', '⠁', '⠈', '⠐', '⠠', '⢀']!
 
@@ -284,23 +291,24 @@ fn (mut b BarBase) set_fit_width() {
 // SumType won't work as BarType method. But no issues as param.
 fn (a AffixInput) resolve_affix(b BarType, state AffixState) string {
 	return match a {
-		fn (SmoothBar) string {
-			match b {
-				SmoothBar { a(b) }
-				else { '' }
+		fn (SmoothBar) (string, string) {
+			pending, finished := a(b as SmoothBar)
+			match state {
+				.pending { pending }
+				.finished { finished }
 			}
 		}
-		fn (Bar) string {
-			match b {
-				Bar { a(b) }
-				else { '' }
+		fn (Bar) (string, string) {
+			pending, finished := a(b as Bar)
+			match state {
+				.pending { pending }
+				.finished { finished }
 			}
 		}
 		Affix {
-			if state == .pending {
-				a.pending
-			} else {
-				a.finished
+			match state {
+				.pending { a.pending }
+				.finished { a.finished }
 			}
 		}
 		string {

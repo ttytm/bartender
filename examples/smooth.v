@@ -79,8 +79,8 @@ fn main() {
 	mut b5 := SmoothBar{
 		pre: term.blue('│')
 		theme: Theme.split
-		post: fn (b SmoothBar) string {
-			return '${term.blue('│')} Split ${b.pct().str()}% ${term.blue(b.eta(10))}'
+		post: fn (b SmoothBar) (string, string) {
+			return '${term.blue('│')} Split ${b.pct().str()}% ${term.blue(b.eta(10))}', '${term.bright_black('│')} 🪄 Done!'
 		}
 	}
 	b5.width -= 2
