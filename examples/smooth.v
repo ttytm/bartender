@@ -80,7 +80,7 @@ fn main() {
 		pre: term.blue('│')
 		theme: Theme.split
 		post: fn (b SmoothBar) (string, string) {
-			return '${term.blue('│')} Split ${b.pct().str()}% ${term.blue(b.eta(10))}', '${term.bright_black('│')} 🪄 Done!'
+			return '${term.blue('│')} Split ${b.pct().str()}% ${term.blue(b.eta(10))}', '${term.blue('│')} 🪄 Done!'
 		}
 	}
 	b5.width -= 2
