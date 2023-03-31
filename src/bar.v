@@ -1,6 +1,7 @@
 module bartender
 
 import term
+import time
 
 pub struct Bar {
 	BarBase
@@ -28,6 +29,25 @@ fn (mut b Bar) setup() {
 	b.width_ = b.width
 	b.runes_ = [b.runes.progress.str(), b.runes.remaining.str()]!
 	b.indicator_ = b.indicator or { b.runes.progress }.str()
+}
+
+// Set bar values on progress
+fn (mut b Bar) set_vals() {
+	b.state.time.last_change = time.ticks()
+
+	// Pre- and Postfix
+	prefix, postfix := resolve_affixations(b)
+	b.pre_ = prefix
+	b.post_ = postfix
+
+	// Width - adjust to potential term size change
+	last_width := b.width_
+	b.set_fit_width()
+	if last_width != b.width_ {
+		b.iters = b.width_
+	}
+
+	b.state.pos += 1
 }
 
 fn (b Bar) draw() {

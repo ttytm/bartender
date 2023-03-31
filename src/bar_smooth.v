@@ -1,6 +1,7 @@
 module bartender
 
 import term
+import time
 
 pub struct SmoothBar {
 	BarBase
@@ -127,6 +128,36 @@ fn (mut b SmoothBar) setup_duals() {
 			bartender.smooth_rtl.reverse()
 		}
 		f: bartender.fillers
+	}
+}
+
+fn (mut b SmoothBar) set_vals() {
+	// Time
+	b.state.time.last_change = time.ticks()
+
+	// Pre- and Postfix
+	prefix, postfix := resolve_affixations(b)
+	b.pre_ = prefix
+	b.post_ = postfix
+
+	// Width - adjust to potential term size change
+	last_width := b.width
+	b.set_fit_width()
+	if last_width != b.width_ {
+		b.iters = b.width_ * b.runes.s.len
+		if b.theme_ != .push && b.theme_ != .pull {
+			b.iters /= 2
+		}
+	}
+
+	// Positions
+	b.rune_i += 1 // Index of the smooth rune to be rendered in the current progress.
+	if b.rune_i == b.runes.s.len { // When all the smooth runes are rendered in one col, start again at the next col.
+		b.rune_i = 0
+		b.state.pos += 1
+		if b.theme_ == .merge || b.theme_ == .expand || b.theme_ == .split {
+			b.state.pos += 1
+		}
 	}
 }
 
