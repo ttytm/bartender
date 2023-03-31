@@ -68,7 +68,7 @@ Below are some of the things to look forward to.
 - [x] Time Remaining
 - [ ] API Reference
 - [ ] Concurrency
-- [ ] Dynamic term size adaption for all variants (basic width detection works)
+- [ ] Dynamic adjustment on term resize for all variants (basic width detection works)
 - [ ] Extend visuals & customizability
 
 ## Anowledgements

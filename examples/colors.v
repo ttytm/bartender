@@ -9,7 +9,7 @@ const timeout = time.millisecond * 20
 fn main() {
 	// ===========================================================================
 	mut b := Bar{
-		width: 60 // Defult value
+		width: 60 // Default value
 		pre: term.magenta('[')
 		post: Affix{
 			pending: '${term.magenta(']')} Single Color'

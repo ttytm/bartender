@@ -1,6 +1,6 @@
 // NOTE: This example is more of a file-write than a true download progress example.
 // This is because we are loading the full response body and then performing the write operation.
-// For a real download progress, we would need to chunck-download the body.
+// For a real download progress, we would need to chunk-download the body.
 module main
 
 import bartender
