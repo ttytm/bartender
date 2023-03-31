@@ -60,11 +60,6 @@ type AffixInput = Affix
 	| fn (b SmoothBar) (string, string)
 	| string
 
-// Issues with `param BarType` or `AffixFn` as `AffixInput` type
-type AffixFn = fn (b Bar) (string, string)
-	| fn (b BarType) (string, string)
-	| fn (b SmoothBar) (string, string)
-
 const spinner_runes = ['⡀', '⠄', '⠂', '⠁', '⠈', '⠐', '⠠', '⢀']!
 
 // { == Bar ==> ===============================================================
