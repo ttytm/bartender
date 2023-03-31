@@ -10,8 +10,8 @@ import time
 struct BarBase {
 mut:
 	state State
-	// Private params. Based on public equivalents and assigned on `<bar>.setup()` or on `<bar>.progress()`.
-	// Might get mutated by e.g., state or terminal size changes.
+	// Private params. Based on public equivalents. Assigned on `<bar>.setup()` or on `<bar>.progress()`.
+	// Might get mutated by state or terminal size changes.
 	width_ u16
 	pre_   string
 	post_  string
@@ -55,7 +55,7 @@ enum AffixState {
 
 type BarType = Bar | SmoothBar
 
-// TODO: return (string, stirng) for prefix and postfix in affix_fns
+// TODO: return (string, string) for prefix and postfix in affix_fns
 type AffixInput = Affix | fn (b Bar) string | fn (b SmoothBar) string | string
 
 const spinner_runes = ['⡀', '⠄', '⠂', '⠁', '⠈', '⠐', '⠠', '⢀']!
@@ -115,7 +115,7 @@ pub fn (b Bar) eta(delay u8) string {
 	if next_pos < f32(b.width_) * delay / 100 {
 		return b.spinner()
 	}
-	// Avg. time to progress one postion until now * rest of positions.
+	// Avg. time to progress one position until now * rest of positions.
 	return '${f64(b.state.time.last_change - b.state.time.start) / next_pos * (b.width_ - next_pos) / 1000:.1f}s'
 }
 
@@ -236,7 +236,7 @@ pub fn (b SmoothBar) eta(delay u8) string {
 	if next_pos < f32(b.width_) * delay / 100 {
 		return b.spinner()
 	}
-	// Avg. time to progress one postion until now * rest of positions.
+	// Avg. time until now to move up one position * rest of positions.
 	return '${f64(b.state.time.last_change - b.state.time.start) / next_pos * (b.width_ - next_pos) / 1000:.1f}s'
 }
 
