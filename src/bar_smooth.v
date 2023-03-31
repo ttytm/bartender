@@ -129,8 +129,8 @@ fn (b SmoothBar) draw_push_pull() {
 		[b.state.pos, b.width_ - b.state.pos] // progressively fill
 	}
 
-	left := '${b.pre.resolve_affix(.pending)}${b.runes.f[0].repeat(n[0])}${b.runes.s[b.rune_i]}'
-	right := '${b.runes.f[1].repeat(n[1])}${b.post.resolve_affix(.pending)}'
+	left := '${b.pre_}${b.runes.f[0].repeat(n[0])}${b.runes.s[b.rune_i]}'
+	right := '${b.runes.f[1].repeat(n[1])}${b.post_}'
 
 	eprint('\r${left}${right}')
 
@@ -143,14 +143,14 @@ fn (b SmoothBar) draw_push_pull() {
 fn (b SmoothBar) draw_merge() {
 	remaining := b.width_ - b.state.pos
 
-	left := '${b.pre.resolve_affix(.pending)}${b.runes.f[0].repeat(b.state.pos / 2)}${b.runes.s[b.rune_i]}'
+	left := '${b.pre_}${b.runes.f[0].repeat(b.state.pos / 2)}${b.runes.s[b.rune_i]}'
 	// TODO: Smoothness for last two cols.
 	middle := if remaining >= 0 {
 		b.runes.f[1].repeat(remaining)
 	} else {
 		b.runes.f[0]
 	}
-	right := '${b.runes.sm[b.rune_i]}${b.runes.f[0].repeat(b.state.pos / 2)}${b.post.resolve_affix(.pending)}'
+	right := '${b.runes.sm[b.rune_i]}${b.runes.f[0].repeat(b.state.pos / 2)}${b.post_}'
 
 	eprint('\r${left}${middle}${right}')
 
@@ -160,12 +160,9 @@ fn (b SmoothBar) draw_merge() {
 }
 
 fn (b SmoothBar) draw_expand() {
-	prefix := b.pre.resolve_affix(.pending)
-	postfix := b.post.resolve_affix(.pending)
-
-	left := '${prefix}${b.runes.f[1].repeat((b.width_ - b.state.pos) / 2)}${b.runes.sm[b.rune_i]}'
+	left := '${b.pre_}${b.runes.f[1].repeat((b.width_ - b.state.pos) / 2)}${b.runes.sm[b.rune_i]}'
 	middle := b.runes.f[0].repeat(b.state.pos)
-	right := '${b.runes.s[b.rune_i]}${b.runes.f[1].repeat((b.width_ - b.state.pos) / 2)}${postfix}'
+	right := '${b.runes.s[b.rune_i]}${b.runes.f[1].repeat((b.width_ - b.state.pos) / 2)}${b.post_}'
 
 	eprint('\r${left}${middle}${right}')
 
@@ -175,14 +172,12 @@ fn (b SmoothBar) draw_expand() {
 }
 
 fn (b SmoothBar) draw_split() {
-	prefix := b.pre.resolve_affix(.pending)
-	postfix := b.post.resolve_affix(.pending)
-
-	left := '${prefix}${b.runes.f[0].repeat((b.width_ - b.state.pos) / 2)}${b.runes.sm[b.rune_i]}'
+	left := '${b.pre_}${b.runes.f[0].repeat((b.width_ - b.state.pos) / 2)}${b.runes.sm[b.rune_i]}'
 	middle := b.runes.f[1].repeat(b.state.pos)
-	right := '${b.runes.s[b.rune_i]}${b.runes.f[0].repeat((b.width_ - b.state.pos) / 2)}${postfix}'
+	right := '${b.runes.s[b.rune_i]}${b.runes.f[0].repeat((b.width_ - b.state.pos) / 2)}${b.post_}'
 
 	eprint('\r${left}${middle}${right}')
+
 	if b.state.pos >= b.width_ {
 		b.finish(b.runes.f[1].repeat(b.width_ + 2))
 	}
@@ -198,6 +193,6 @@ fn (b SmoothBar) next_pos() u16 {
 
 fn (b &SmoothBar) finish(bar string) {
 	term.erase_line('2')
-	println('\r${b.pre.resolve_affix(.finished)}${bar}${b.post.resolve_affix(.finished)}')
+	println('\r${b.pre_}${bar}${b.post_}')
 	term.show_cursor()
 }

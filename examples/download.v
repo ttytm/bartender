@@ -32,13 +32,7 @@ fn (mut r ProgressReader) read(mut buf []u8) !int {
 		// Optional customization. Add percentage, a spinner and time to the label.
 		// The accuracy of an ETA calculation increases as a process progresses.
 		// In this example, showing the ETA is delayed until 20%. In the meantime, a spinner is displayed.
-		eta := term.colorize(term.blue, if r.pos <= f32(r.size) * 0.2 {
-			r.bar.spinner()
-		} else {
-			'${r.bar.eta() / 1000:.1f}s'
-		})
-
-		r.bar.post = bartender.Affix{'│ Downloading... ${r.bar.pct()}% ${eta}', '│ Download completed!'}
+		r.bar.post = bartender.Affix{'│ Downloading... ${r.bar.pct()}% ${term.blue(r.bar.eta(20))}', '│ Download completed!'}
 		r.bar.progress()
 
 		// Since this is a relatively small file, we delay the progress for visualization purposes.
