@@ -1,4 +1,5 @@
-// Source: https://github.com/tobealive/bartender License: MIT
+// Source: https://github.com/tobealive/bartender
+// License: MIT
 
 // This lib.v file contains general code for the BarBase as well as all public functions.
 // Associated structs and private sub-functions are located in the corresponding files.
