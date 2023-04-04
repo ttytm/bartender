@@ -106,6 +106,9 @@ pub fn (b Bar) pct() u16 {
 // The display of the time can be postponed until the progress bar reaches 0-100% completion.
 // A spinner will be shown until the specified delay is reached.
 pub fn (b Bar) eta(delay u8) string {
+	if delay > 100 {
+		panic(IError(BarError{ kind: .delay_exceeded }))
+	}
 	next_pos := b.state.pos + 1
 	if next_pos < f32(b.width_) * delay / 100 {
 		return b.spinner()
@@ -193,6 +196,9 @@ pub fn (b SmoothBar) pct() u16 {
 // The display of the time can be postponed until the progress bar reaches 0-100% completion.
 // A spinner will be shown until the specified delay is reached.
 pub fn (b SmoothBar) eta(delay u8) string {
+	if delay > 100 {
+		panic(IError(BarError{ kind: .delay_exceeded }))
+	}
 	next_pos := b.next_pos()
 	if b.width_ == b.state.pos {
 		return ''
