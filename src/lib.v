@@ -101,12 +101,16 @@ pub fn (b Bar) pct() u16 {
 	return (b.state.pos + 1) * 100 / b.width_
 }
 
+// Return the Estimated Time of Arrival (ETA) in the format <n.n>s.
+// The accuracy of the ETA calculation improves as the process progresses.
+// The display of the time can be postponed until the progress bar reaches 0-100% completion.
+// A spinner will be shown until the specified delay is reached.
 pub fn (b Bar) eta(delay u8) string {
 	next_pos := b.state.pos + 1
 	if next_pos < f32(b.width_) * delay / 100 {
 		return b.spinner()
 	}
-	// Avg. time to progress one position until now * rest of positions.
+	// Avg. time until now to move up one position * remaining positions.
 	return '${f64(b.state.time.last_change - b.state.time.start) / next_pos * (b.width_ - next_pos) / 1000:.1f}s'
 }
 
@@ -177,14 +181,6 @@ pub fn (mut b SmoothBar) colorize(color Color) {
 	b.runes = painted_runes
 }
 
-// TODO: allow custom pct / eta fns with append prepend for easier partial customized setup?
-/*
-pub fn (b SmoothBar) pct_str() fn (SmoothBar) string {
-	return fn (b SmoothBar) string {
-		return b.pct().str()
-	}
-}*/
-
 pub fn (b SmoothBar) pct() u16 {
 	if b.width_ == 0 {
 		return 0
@@ -192,7 +188,10 @@ pub fn (b SmoothBar) pct() u16 {
 	return b.next_pos() * 100 / b.width_
 }
 
-// TODO: range input 0..100, document.
+// Return the Estimated Time of Arrival (ETA) in the format <n.n>s.
+// The accuracy of the ETA calculation improves as the process progresses.
+// The display of the time can be postponed until the progress bar reaches 0-100% completion.
+// A spinner will be shown until the specified delay is reached.
 pub fn (b SmoothBar) eta(delay u8) string {
 	next_pos := b.next_pos()
 	if b.width_ == b.state.pos {
@@ -201,7 +200,7 @@ pub fn (b SmoothBar) eta(delay u8) string {
 	if next_pos < f32(b.width_) * delay / 100 {
 		return b.spinner()
 	}
-	// Avg. time until now to move up one position * rest of positions.
+	// Avg. time until now to move up one position * remaining positions.
 	return '${f64(b.state.time.last_change - b.state.time.start) / next_pos * (b.width_ - next_pos) / 1000:.1f}s'
 }
 
