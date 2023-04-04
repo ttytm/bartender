@@ -12,8 +12,7 @@ pub mut:
 		finished: ''
 	}
 	post AffixInput = fn (b SmoothBar) (string, string) {
-		progress := ' ${b.pct()}% (${b.eta(0)})'
-		return progress, progress
+		return ' ${b.pct()}% (${b.eta(0)})', ' ${b.pct()}%'
 	}
 mut:
 	theme_ Theme

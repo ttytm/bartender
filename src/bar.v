@@ -10,8 +10,7 @@ pub mut:
 	indicator ?rune
 	pre       AffixInput = '['
 	post      AffixInput = fn (b Bar) (string, string) {
-		progress := '] ${b.pct()}% (${b.eta(0)})'
-		return progress, progress
+		return '] ${b.pct()}% (${b.eta(0)})', '] ${b.pct()}%'
 	}
 mut:
 	runes_     [2]string // Internally resolve to strings instead of runes for color support.
