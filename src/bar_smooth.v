@@ -2,6 +2,7 @@ module bartender
 
 import term
 import time
+import io
 
 pub struct SmoothBar {
 	BarBase
@@ -51,6 +52,12 @@ mut: // Strings instead of runes for color support.
 	f  []string // Fillers.
 	s  []string // Smooth.
 	sm []string // Smooth Mirrored. Used for merge, expand and split variant.
+}
+
+struct SmoothBarReader {
+	BarReaderBase
+mut:
+	bar SmoothBar
 }
 
 const (
@@ -219,6 +226,21 @@ fn (b SmoothBar) draw_split() {
 	if b.state.pos >= b.width_ {
 		b.finish(b.runes.f[1].repeat(b.width_ + 2))
 	}
+}
+
+fn (mut r SmoothBarReader) read(mut buf []u8) !int {
+	if r.pos >= r.size {
+		return io.Eof{}
+	}
+
+	n := copy(mut buf, r.bytes[r.pos..get_buf_end(r)])
+	r.pos += n
+
+	if (f64(r.pos) / r.size * r.bar.width) > r.bar.pos() {
+		r.bar.progress()
+	}
+
+	return n
 }
 
 fn (b SmoothBar) next_pos() u16 {

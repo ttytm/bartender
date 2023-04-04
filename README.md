@@ -63,7 +63,7 @@ v run examples/<file>.v
 
 Below are some of the things to look forward to.
 
-- [ ] ReaderWriter Implementation
+- [x] Reader Interface
 - [ ] Multiline
 - [x] Time Remaining
 - [ ] API Reference

@@ -2,6 +2,7 @@ module bartender
 
 import term
 import time
+import io
 
 pub struct Bar {
 	BarBase
@@ -20,6 +21,12 @@ mut:
 pub struct BarRunes {
 	progress  rune = `#`
 	remaining rune = ` `
+}
+
+struct BarReader {
+	BarReaderBase
+mut:
+	bar Bar
 }
 
 fn (mut b Bar) setup() {
@@ -56,6 +63,21 @@ fn (b Bar) draw() {
 		return
 	}
 	eprint('${b.runes_[1].repeat(b.width_ - b.state.pos)}${b.post_}')
+}
+
+fn (mut r BarReader) read(mut buf []u8) !int {
+	if r.pos >= r.size {
+		return io.Eof{}
+	}
+
+	n := copy(mut buf, r.bytes[r.pos..get_buf_end(r)])
+	r.pos += n
+
+	if (f64(r.pos) / r.size * r.bar.width) > r.bar.pos() {
+		r.bar.progress()
+	}
+
+	return n
 }
 
 fn (b &Bar) finish(bar string) {

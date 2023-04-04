@@ -7,6 +7,7 @@ module bartender
 
 import term
 import time
+import io
 
 struct BarBase {
 pub mut:
@@ -21,6 +22,13 @@ mut:
 	width_ u16
 	pre_   string
 	post_  string
+}
+
+struct BarReaderBase {
+	bytes []u8
+	size  int
+mut:
+	pos int
 }
 
 struct State {
@@ -46,13 +54,17 @@ enum AffixState {
 }
 
 type BarType = Bar | SmoothBar
+type BarReaderType = BarReader | SmoothBarReader
 
 type AffixInput = Affix
 	| fn (b Bar) (string, string)
 	| fn (b SmoothBar) (string, string)
 	| string
 
-const spinner_runes = ['⡀', '⠄', '⠂', '⠁', '⠈', '⠐', '⠠', '⢀']!
+const (
+	buf_max_len   = 1024
+	spinner_runes = ['⡀', '⠄', '⠂', '⠁', '⠈', '⠐', '⠠', '⢀']!
+)
 
 // { == Bar ==> ===============================================================
 
@@ -203,6 +215,41 @@ pub fn (b SmoothBar) spinner() string {
 
 pub fn (mut b SmoothBar) reset() {
 	b.setup()
+}
+
+// <== }
+
+// { == Reader ==> ============================================================
+
+pub fn bar_reader(b BarType, bytes []u8) &io.BufferedReader {
+	return match b {
+		Bar {
+			io.new_buffered_reader(
+				reader: BarReader{
+					bytes: bytes
+					size: bytes.len
+					bar: b
+				}
+			)
+		}
+		SmoothBar {
+			io.new_buffered_reader(
+				reader: SmoothBarReader{
+					bytes: bytes
+					size: bytes.len
+					bar: b
+				}
+			)
+		}
+	}
+}
+
+fn get_buf_end(r BarReaderType) int {
+	return if r.pos + bartender.buf_max_len >= r.size {
+		r.size
+	} else {
+		r.pos + bartender.buf_max_len
+	}
 }
 
 // <== }
