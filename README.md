@@ -35,21 +35,21 @@
 
   ```v
   // Defaul bar
-  mut b := bartender.Bar{}
+  mut b := Bar{}
   for _ in 0 .. b.iters {
    	b.progress()
   }
 
   // Customized bar
-  mut b2 := bartender.Bar{
+  mut b2 := Bar{
   	width: 60
-  	runes: bartender.BarRunes{
+  	runes: BarRunes{
   		progress: `#`
   		remaining: `-`
   	}
   	indicator: `❯`
   	pre: '|'
-  	post: bartender.Affix{
+  	post: Affix{
   		pending: '| Loading...'
   		finished: '| Done!'
   	}
@@ -77,14 +77,18 @@
   }
 
   // Customized smooth bar
-  mut b3 := bartender.SmoothBar{
+  mut b3 := SmoothBar{
+  	theme: Theme.split
   	width: 80
   	pre: '│'
-  	post: fn (b bartender.SmoothBar) (string, string) {
-  		return '│ Saving... ${b3.pct()}% ${term.blue(b3.eta(20))}', '│ Saved!'
+  	post: fn (b SmoothBar) (string, string) {
+  		return '│ Saving... ${b.pct()}% ${term.blue(b.eta(20))}', '│ Saved!'
   	}
   }
   b3.colorize(.cyan)
+  for _ in 0 .. b3.iters {
+  	b3.progress()
+  }
   ```
 
 - Bar Reader for `io` operations.
@@ -93,7 +97,7 @@
   // 500 MB of sample content.
   content := '1234567890'.repeat(50 * 1024 * 1024)
 
-  mut r := bartender.bar_reader(bartender.Bar{}, content.bytes())
+  mut r := bar_reader(Bar{}, content.bytes())
   mut f := os.create('testfile')!
   io.cp(mut r, mut f)!
   ```
