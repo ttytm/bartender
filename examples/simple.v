@@ -18,7 +18,7 @@ fn main() {
 	// ===========================================================================
 	mut b2 := bartender.Bar{
 		width: 60
-		pre: '['
+		pre: '|'
 		post: bartender.Affix{
 			pending: '| Loading...'
 			finished: '| Done!'
