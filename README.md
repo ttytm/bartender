@@ -29,13 +29,64 @@
   import bartender
   ```
 
-## Usage
+## Usage examples
 
-No API reference yet 🫣. Please refer to the sample files until the API has stabilized, and a reliable API reference can be provided with some confidence. Apologies for being too early.
+Disclaimer: Until a stable version 1.0 is available, new features will be introduced, existing ones may change, or breaking changes may occur in minor(`0.<minor>.*`) versions.
+
+- Simple bar
+
+  ```v
+  mut b := bartender.Bar{}
+  for _ in 0 .. b.iters {
+   	b.progress()
+  }
+  ```
+
+- Customizations
+
+  ```v
+  mut b := bartender.Bar{
+  	width: 60
+  	// Set custom runes
+  	runes: bartender.BarRunes{
+  		progress: `#`
+  		remaining: `-`
+  	}
+  	indicator: `❯`
+   	// Customize pre- and postfixes.
+  	pre: '|'
+  	post: bartender.Affix{
+  		pending: '| Loading...'
+  		finished: '| Done!'
+  	}
+  }
+  for _ in 0 .. b.iters {
+   	b.progress()
+  }
+  ```
+
+- Bar Reader for io operations.
+
+  ```v
+  // 500 MB of sample content.
+  content := '1234567890'.repeat(50 * 1024 * 1024)
+
+  mut r := bartender.bar_reader(bartender.Bar{}, content.bytes())
+  mut f := os.create('testfile') or { panic(err) }
+  io.cp(mut r, mut f)!
+  ```
+
+### Run examples
+
+Extended and executable examples can be found in the sample files.
+
+```
+v run examples/<file>.v
+```
 
 ## Showcase
 
-<details open><summary><b>Simple example</b> &nbsp;<sub><sup>Toggle visibility...</sup></sub></summary>
+<details open><summary><b>Simple bar</b> &nbsp;<sub><sup>Toggle visibility...</sup></sub></summary>
 
 ![simple](https://user-images.githubusercontent.com/34311583/228962887-dbc76f93-4c82-43ed-95a1-964851fe3617.gif)
 
@@ -53,12 +104,6 @@ No API reference yet 🫣. Please refer to the sample files until the API has st
 
 </details>
 
-### Run examples
-
-```
-v run examples/<file>.v
-```
-
 ## Outlook
 
 Below are some of the things to look forward to.
@@ -66,8 +111,6 @@ Below are some of the things to look forward to.
 - [x] Reader Interface
 - [ ] Multiline
 - [x] Time Remaining
-- [ ] API Reference
-- [ ] Concurrency
 - [ ] Dynamic adjustment on term resize for all variants (basic width detection works)
 - [ ] Extend visuals & customizability
 
@@ -78,3 +121,7 @@ Below are some of the things to look forward to.
 
 [10]: https://github.com/Waqar144/progressbar
 [20]: https://github.com/console-rs/indicatif
+
+```
+
+```
