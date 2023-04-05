@@ -12,7 +12,7 @@ fn main() {
 	// Create a reader with byte content to be written.
 	// In this example, 500 megabytes of dummy content.
 	mut r := bartender.bar_reader(bartender.Bar{}, '1234567890'.repeat(50 * 1024 * 1024).bytes())
-	mut f := os.create('testfile') or { panic(err) }
+	mut f := os.create('testfile')!
 	io.cp(mut r, mut f)!
 	f.close()
 

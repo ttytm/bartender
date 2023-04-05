@@ -19,7 +19,7 @@ fn main() {
 	b.colorize(.cyan)
 
 	mut r := bartender.bar_reader(b, '1234567890'.repeat(50 * 1024 * 1024).bytes())
-	mut f := os.create('testfile') or { panic(err) }
+	mut f := os.create('testfile')!
 	io.cp(mut r, mut f)!
 	f.close()
 

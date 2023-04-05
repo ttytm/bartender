@@ -70,7 +70,7 @@
   content := '1234567890'.repeat(50 * 1024 * 1024)
 
   mut r := bartender.bar_reader(bartender.Bar{}, content.bytes())
-  mut f := os.create('testfile') or { panic(err) }
+  mut f := os.create('testfile')!
   io.cp(mut r, mut f)!
   ```
 
