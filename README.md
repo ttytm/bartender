@@ -31,8 +31,6 @@
 
 ## Usage examples
 
-Disclaimer: Until a stable version 1.0 is available, new features will be introduced, existing ones may change, or breaking changes may occur in minor(`0.<minor>.*`) versions.
-
 - Simple bar
 
   ```v
@@ -103,6 +101,10 @@ v run examples/<file>.v
 ![download](https://user-images.githubusercontent.com/34311583/228962385-2fd9e185-81a5-481a-aa9c-6101405bf64a.gif)
 
 </details>
+
+## Disclaimer
+
+Until a stable version 1.0 is available, new features will be introduced, existing ones may change, or breaking changes may occur in minor(`0.<minor>.*`) versions.
 
 ## Outlook
 
