@@ -55,7 +55,6 @@ enum AffixState {
 
 type BarType = Bar | SmoothBar
 type BarReaderType = BarReader | SmoothBarReader
-
 type AffixInput = Affix
 	| fn (b Bar) (string, string)
 	| fn (b SmoothBar) (string, string)
