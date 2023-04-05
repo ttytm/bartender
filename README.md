@@ -123,7 +123,3 @@ Below are some of the things to look forward to.
 
 [10]: https://github.com/Waqar144/progressbar
 [20]: https://github.com/console-rs/indicatif
-
-```
-
-```
