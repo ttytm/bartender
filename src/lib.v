@@ -8,6 +8,7 @@ module bartender
 import term
 import time
 import io
+import os
 
 struct BarBase {
 pub mut:
@@ -74,6 +75,7 @@ pub fn (mut b Bar) progress() {
 		}
 		b.state.time = struct {time.ticks(), 0}
 		term.hide_cursor()
+		os.signal_opt(.int, handle_interrupt) or { panic(err) }
 	}
 	if b.state.pos >= b.width_ {
 		panic(IError(BarError{ kind: .finished }))
@@ -138,6 +140,7 @@ pub fn (mut b SmoothBar) progress() {
 		}
 		b.state.time = struct {time.ticks(), 0}
 		term.hide_cursor()
+		os.signal_opt(.int, handle_interrupt) or { panic(err) }
 	}
 	if b.state.pos > b.width_ {
 		panic(IError(BarError{ kind: .finished }))
@@ -330,6 +333,11 @@ fn resolve_affixations(b BarType) (string, string) {
 	}
 
 	return prefix, postfix
+}
+
+fn handle_interrupt(signal os.Signal) {
+	term.show_cursor()
+	exit(0)
 }
 
 // <== }
