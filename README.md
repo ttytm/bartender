@@ -63,7 +63,7 @@
 
   ```v
   mut b := SmoothBar{
-  	theme: Theme.pull
+  	theme: Theme.pull // Default = Theme.push
   }
   for _ in 0 .. b.iters {
   	b.progress()
@@ -75,6 +75,16 @@
   for _ in 0 .. b2.iters {
   	b2.progress()
   }
+
+  // Customized smooth bar
+  mut b3 := bartender.SmoothBar{
+  	width: 80
+  	pre: '│'
+  	post: fn (b bartender.SmoothBar) (string, string) {
+  		return '│ Saving... ${b3.pct()}% ${term.blue(b3.eta(20))}', '│ Saved!'
+  	}
+  }
+  b3.colorize(.cyan)
   ```
 
 - Bar Reader for `io` operations.
