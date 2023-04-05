@@ -31,39 +31,53 @@
 
 ## Usage examples
 
-- Simple bar
+- Simple bars
 
   ```v
+  // Defaul bar
   mut b := bartender.Bar{}
   for _ in 0 .. b.iters {
    	b.progress()
   }
-  ```
 
-- Customizations
-
-  ```v
-  mut b := bartender.Bar{
+  // Customized bar
+  mut b2 := bartender.Bar{
   	width: 60
-  	// Set custom runes
   	runes: bartender.BarRunes{
   		progress: `#`
   		remaining: `-`
   	}
   	indicator: `❯`
-   	// Customize pre- and postfixes.
   	pre: '|'
   	post: bartender.Affix{
   		pending: '| Loading...'
   		finished: '| Done!'
   	}
   }
-  for _ in 0 .. b.iters {
-   	b.progress()
+  for _ in 0 .. b2.iters {
+   	b2.progress()
   }
   ```
 
-- Bar Reader for io operations.
+- Smooth bars themes
+
+  ```v
+  mut b := SmoothBar{
+  	theme: Theme.pull
+  }
+  for _ in 0 .. b.iters {
+  	b.progress()
+  }
+
+  b2 = SmoothBar{
+  	theme: ThemeVariant{.pull, .drain}
+  }
+  for _ in 0 .. b2.iters {
+  	b2.progress()
+  }
+  ```
+
+- Bar Reader for `io` operations.
 
   ```v
   // 500 MB of sample content.
