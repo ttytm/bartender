@@ -59,7 +59,7 @@
   }
   ```
 
-- Smooth bars themes
+- Smooth bar themes
 
   ```v
   mut b := SmoothBar{
