@@ -6,27 +6,26 @@
 
 ## Getting started
 
-- Install via vpm
+Install via `v` cli
+
+- From source
+
+  ```
+  v install --git https://github.com/tobealive/bartender
+  ```
+
+  ```v
+  import bartender
+  ```
+
+- As vpm module
 
   ```
   v install tobealive.bartender
   ```
 
   ```v
-  // vpm installed modules require specification of the module provider.
   import tobealive.bartender
-  ```
-
-- Or clone the repository to a preferred location and link it to your `.vmodules` directory.
-
-  ```
-  git clone https://github.com/tobealive/bartender.git
-  cd bartender
-  ln -s $(pwd)/ ~/.vmodules/bartender
-  ```
-
-  ```v
-  import bartender
   ```
 
 ## Usage examples
