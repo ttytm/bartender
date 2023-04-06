@@ -53,7 +53,7 @@ fn (mut b Bar) set_vals() {
 		b.iters = b.width_
 	}
 
-	b.state.pos += 1
+	b.state.pos++
 }
 
 fn (b Bar) draw() {

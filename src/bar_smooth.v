@@ -93,9 +93,9 @@ fn (mut b SmoothBar) setup() {
 		}
 	}
 
-	b.width -= 1
+	b.width--
 	if b.theme_ != .push && b.theme_ != .pull {
-		b.width -= 1
+		b.width--
 	}
 	b.width_ = b.width
 
@@ -157,12 +157,12 @@ fn (mut b SmoothBar) set_vals() {
 	}
 
 	// Positions
-	b.rune_i += 1 // Index of the smooth rune to be rendered in the current progress.
+	b.rune_i++ // Index of the smooth rune to be rendered in the current progress.
 	if b.rune_i == b.runes.s.len { // When all the smooth runes are rendered in one col, start again at the next col.
 		b.rune_i = 0
-		b.state.pos += 1
+		b.state.pos++
 		if b.theme_ == .merge || b.theme_ == .expand || b.theme_ == .split {
-			b.state.pos += 1
+			b.state.pos++
 		}
 	}
 }
