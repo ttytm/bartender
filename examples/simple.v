@@ -36,8 +36,8 @@ fn main() {
 		runes: bartender.BarRunes{
 			progress: `#`
 			remaining: `-`
+			indicator: `❯`
 		}
-		indicator: `❯`
 		pre: '['
 		// Customize percent and time
 		post: fn (b bartender.Bar) (string, string) {

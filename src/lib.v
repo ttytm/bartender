@@ -18,7 +18,8 @@ pub mut:
 	iters int = 60
 mut:
 	state State
-	// Private params. Based on public equivalents. Assigned on `<bar>.setup()` or on `<bar>.progress()`.
+	// Private params. Based on public equivalents.
+	// Assigned on `<bar>.setup()` or on `<bar>.progress()`.
 	// Might get mutated by state or terminal size changes.
 	width_ u16
 	pre_   string
@@ -70,7 +71,7 @@ const (
 
 pub fn (mut b Bar) progress() {
 	if b.state.time.start == 0 {
-		if b.runes_[0].len == 0 {
+		if b.runes_.progress == '' {
 			b.setup()
 		}
 		b.state.time = struct {time.ticks(), 0}

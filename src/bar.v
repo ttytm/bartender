@@ -7,20 +7,27 @@ import io
 pub struct Bar {
 	BarBase
 pub mut:
-	runes     BarRunes
-	indicator ?rune
-	pre       AffixInput = '['
-	post      AffixInput = fn (b Bar) (string, string) {
+	runes BarRunes
+	pre   AffixInput = '['
+	post  AffixInput = fn (b Bar) (string, string) {
 		return '] ${b.pct()}% (${b.eta(0)})', '] ${b.pct()}%'
 	}
 mut:
-	runes_     [2]string // Internally resolve to strings instead of runes for color support.
+	runes_ BarRunes_
 	indicator_ string
 }
 
 pub struct BarRunes {
 	progress  rune = `#`
+	indicator ?rune
 	remaining rune = ` `
+}
+
+// Internally resolve to strings instead of runes for color support.
+struct BarRunes_ {
+	progress  string
+	indicator string
+	remaining string
 }
 
 struct BarReader {
@@ -33,8 +40,12 @@ fn (mut b Bar) setup() {
 	b.state.pos = 0
 	b.iters = b.width
 	b.width_ = b.width
-	b.runes_ = [b.runes.progress.str(), b.runes.remaining.str()]!
-	b.indicator_ = b.indicator or { b.runes.progress }.str()
+	b.iters = b.width
+	b.runes_ = BarRunes_{
+		progress: b.runes.progress.str()
+		remaining: b.runes.remaining.str()
+		indicator: b.runes.indicator or { b.runes.progress }.str()
+	}
 }
 
 // Set bar values on progress
@@ -57,12 +68,12 @@ fn (mut b Bar) set_vals() {
 }
 
 fn (b Bar) draw() {
-	eprint('\r${b.pre_}${b.runes_[0].repeat(b.state.pos - 1)}${b.indicator_}')
+	eprint('\r${b.pre_}${b.runes_.progress.repeat(b.state.pos - 1)}${b.runes_.indicator}')
 	if b.state.pos >= b.width_ {
-		b.finish(b.runes_[0].repeat(b.width_))
+		b.finish(b.runes_.progress.repeat(b.width_))
 		return
 	}
-	eprint('${b.runes_[1].repeat(b.width_ - b.state.pos)}${b.post_}')
+	eprint('${b.runes_.remaining.repeat(b.width_ - b.state.pos)}${b.post_}')
 }
 
 fn (mut r BarReader) read(mut buf []u8) !int {

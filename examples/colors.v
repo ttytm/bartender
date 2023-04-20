@@ -9,13 +9,14 @@ const timeout = time.millisecond * 20
 fn main() {
 	// ===========================================================================
 	mut b := Bar{
-		width: 60 // Default value
 		pre: term.magenta('[')
 		post: Affix{
 			pending: '${term.magenta(']')} Single Color'
 			finished: '${term.magenta(']')} Done!'
 		}
-		indicator: `❯`
+		runes: BarRunes{
+			indicator: `❯`
+		}
 	}
 	// Colorize all components uniformly
 	b.colorize(Color.magenta)
@@ -27,12 +28,13 @@ fn main() {
 	// ===========================================================================
 	mut b2 := Bar{
 		pre: term.bright_black('[')
+		// Affix short struct literal.
 		post: Affix{'${term.bright_black(']')} Multi Color', '${term.bright_black(']')} Done!'}
 		runes: BarRunes{
 			progress: `#`
+			indicator: `❯`
 			remaining: `-`
 		}
-		indicator: `❯`
 	}
 	// Component Colors
 	b2.colorize(BarColor{
@@ -47,8 +49,8 @@ fn main() {
 
 	// ===========================================================================
 	mut b3 := Bar{
-		runes: BarRunes{`═`, `─`}
-		indicator: `❯`
+		// BarRunes struct literal
+		runes: BarRunes{`═`, `❯`, `─`}
 		pre: term.cyan('╒')
 		post: term.cyan('╕') + ' Customized...'
 	}
@@ -70,7 +72,10 @@ fn main() {
 	// ===========================================================================
 	mut b4 := Bar{
 		pre: term.cyan('│')
-		runes: BarRunes{`█`, `░`}
+		runes: BarRunes{
+			progress: `█`
+			remaining: `░`
+		}
 	}
 	b4.colorize(BarColor{
 		progress: Color.cyan

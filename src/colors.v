@@ -81,13 +81,19 @@ fn (color ColorType) paint_component(s string) string {
 // { == Bar ==> ===============================================================
 
 fn (mut b Bar) colorize_uni(color Color) {
-	b.runes_ = [color.paint(b.runes_[0], .fg), color.paint(b.runes_[1], .fg)]!
-	b.indicator_ = color.paint(b.indicator_, .fg)
+	b.runes_ = BarRunes_{
+		progress: color.paint(b.runes_.progress, .fg)
+		indicator: color.paint(b.runes_.indicator, .fg)
+		remaining: color.paint(b.runes_.remaining, .fg)
+	}
 }
 
 fn (mut b Bar) colorize_components(color BarColor) {
-	b.runes_ = [color.progress.paint_component(b.runes_[0]), color.remaining.paint_component(b.runes_[1])]!
-	b.indicator_ = color.indicator.paint_component(b.indicator_)
+	b.runes_ = BarRunes_{
+		progress: color.progress.paint_component(b.runes_.progress)
+		indicator: color.indicator.paint_component(b.runes_.indicator)
+		remaining: color.remaining.paint_component(b.runes_.remaining)
+	}
 }
 
 // <== }
