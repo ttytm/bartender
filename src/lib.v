@@ -36,7 +36,6 @@ mut:
 struct State {
 mut:
 	pos     u16
-	percent u8
 	time    struct {
 	mut:
 		start       i64
