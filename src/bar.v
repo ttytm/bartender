@@ -3,6 +3,7 @@ module bartender
 import term
 import time
 import io
+import os
 
 pub struct Bar {
 	BarBase
@@ -13,7 +14,7 @@ pub mut:
 		return '] ${b.pct()}% (${b.eta(0)})', '] ${b.pct()}%'
 	}
 mut:
-	runes_ BarRunes_
+	runes_     BarRunes_
 	indicator_ string
 }
 
@@ -68,12 +69,15 @@ fn (mut b Bar) set_vals() {
 }
 
 fn (b Bar) draw() {
-	eprint('\r${b.pre_}${b.runes_.progress.repeat(b.state.pos - 1)}${b.runes_.indicator}')
-	if b.state.pos >= b.width_ {
-		b.finish(b.runes_.progress.repeat(b.width_))
-		return
-	}
-	eprint('${b.runes_.remaining.repeat(b.width_ - b.state.pos)}${b.post_}')
+	term.erase_line('2')
+	print('\r${b.prep_next()}')
+	os.flush()
+}
+
+fn (b Bar) prep_next() string {
+	left := '${b.pre_}${b.runes_.progress.repeat(b.state.pos - 1)}${b.runes_.indicator}'
+	right := '${b.runes_.remaining.repeat(b.width_ - b.state.pos)}${b.post_}'
+	return left + right
 }
 
 fn (mut r BarReader) read(mut buf []u8) !int {
@@ -89,10 +93,4 @@ fn (mut r BarReader) read(mut buf []u8) !int {
 	}
 
 	return n
-}
-
-fn (b &Bar) finish(bar string) {
-	term.erase_line('2')
-	println('\r${b.pre_}${bar}${b.post_}')
-	term.show_cursor()
 }

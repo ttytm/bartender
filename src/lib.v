@@ -83,11 +83,14 @@ pub fn (mut b Bar) progress() {
 
 	b.set_vals()
 	b.draw()
+	if b.state.pos >= b.width_ {
+		term.show_cursor()
+		println('')
+	}
 }
 
 pub fn (mut b Bar) colorize(color BarColorType) {
 	b.setup()
-
 	if color is BarColor {
 		b.colorize_components(color)
 	} else {
@@ -275,8 +278,7 @@ fn (mut b BarBase) set_fit_width() {
 	if term_width > b.width_ + affix_width {
 		return
 	}
-
-	new_width := u16(term_width - affix_width) - 3
+	new_width := u16(term_width - affix_width)
 	diff := b.width_ - new_width
 
 	if diff > b.state.pos {
