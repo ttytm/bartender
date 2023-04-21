@@ -4,9 +4,10 @@ import bartender { Affix, Bar, BarColor, BarRunes, Color, FgBg }
 import time
 import term
 
-const timeout = time.millisecond * 20
 
 fn main() {
+	timeout := time.millisecond * 20
+
 	// ===========================================================================
 	mut b := Bar{
 		pre: term.magenta('[')

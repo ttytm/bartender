@@ -3,9 +3,10 @@ module main
 import bartender
 import time
 
-const timeout = time.millisecond * 30
 
 fn main() {
+	timeout := time.millisecond * 30
+
 	// Default bar
 	// ===========================================================================
 	mut b := bartender.Bar{}

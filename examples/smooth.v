@@ -4,9 +4,10 @@ import bartender { Color, SmoothBar, Theme, ThemeVariant }
 import time
 import term
 
-const timeout = time.millisecond * 2
 
 fn main() {
+	timeout := time.millisecond * 2
+
 	// ===========================================================================
 	mut b := SmoothBar{}
 	// Add optional fields
