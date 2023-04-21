@@ -44,9 +44,9 @@ Install via `v` cli
   	width: 60
   	runes: BarRunes{
   		progress: `#`
+   		indicator: `❯`
   		remaining: `-`
   	}
-  	indicator: `❯`
   	pre: '|'
   	post: Affix{
   		pending: '| Loading...'
