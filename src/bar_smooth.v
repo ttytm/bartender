@@ -3,6 +3,7 @@ module bartender
 import term
 import time
 import io
+import os
 
 pub struct SmoothBar {
 	BarBase
@@ -167,64 +168,66 @@ fn (mut b SmoothBar) set_vals() {
 	}
 }
 
-fn (b SmoothBar) draw_push_pull() {
-	n := if b.theme_ == .pull {
-		[b.width_ - b.state.pos, b.state.pos] // progressively empty
-	} else {
-		[b.state.pos, b.width_ - b.state.pos] // progressively fill
-	}
-
-	left := '${b.pre_}${b.runes.f[0].repeat(n[0])}${b.runes.s[b.rune_i]}'
-	right := '${b.runes.f[1].repeat(n[1])}${b.post_}'
-
-	eprint('\r${left}${right}')
-
-	if b.state.pos >= b.width_ {
-		progress := if b.theme_ == .pull { b.runes.f[1] } else { b.runes.f[0] }
-		b.finish(progress.repeat(b.width_ + 1))
-	}
-}
-
-fn (b SmoothBar) draw_merge() {
-	remaining := b.width_ - b.state.pos
-
-	left := '${b.pre_}${b.runes.f[0].repeat(b.state.pos / 2)}${b.runes.s[b.rune_i]}'
-	// TODO: Smoothness for last two cols.
-	middle := if remaining >= 0 {
-		b.runes.f[1].repeat(remaining)
-	} else {
-		b.runes.f[0]
-	}
-	right := '${b.runes.sm[b.rune_i]}${b.runes.f[0].repeat(b.state.pos / 2)}${b.post_}'
-
-	eprint('\r${left}${middle}${right}')
-
-	if b.state.pos >= b.width_ {
-		b.finish(b.runes.f[0].repeat(b.width_ + 2))
+fn (b SmoothBar) draw() {
+	print('\r${b.format()}')
+	os.flush()
+	match b.theme_ {
+		.push, .pull {
+			if b.state.pos >= b.width_ {
+				progress := if b.theme_ == .pull { b.runes.f[1] } else { b.runes.f[0] }
+				b.finish(progress.repeat(b.width_ + 1))
+			}
+		}
+		else {
+			if b.state.pos >= b.width_ {
+				b.finish(b.runes.f[0].repeat(b.width_ + 2))
+			}
+		}
 	}
 }
 
-fn (b SmoothBar) draw_expand() {
-	left := '${b.pre_}${b.runes.f[1].repeat((b.width_ - b.state.pos) / 2)}${b.runes.sm[b.rune_i]}'
-	middle := b.runes.f[0].repeat(b.state.pos)
-	right := '${b.runes.s[b.rune_i]}${b.runes.f[1].repeat((b.width_ - b.state.pos) / 2)}${b.post_}'
+fn (b SmoothBar) format() string {
+	return match b.theme_ {
+		.push, .pull {
+			n := if b.theme_ == .pull {
+				[b.width_ - b.state.pos, b.state.pos] // progressively empty
+			} else {
+				[b.state.pos, b.width_ - b.state.pos] // progressively fill
+			}
 
-	eprint('\r${left}${middle}${right}')
+			left := '${b.pre_}${b.runes.f[0].repeat(n[0])}${b.runes.s[b.rune_i]}'
+			right := '${b.runes.f[1].repeat(n[1])}${b.post_}'
 
-	if b.state.pos >= b.width_ {
-		b.finish(b.runes.f[0].repeat(b.width_ + 2))
-	}
-}
+			left + right
+		}
+		.merge {
+			remaining := b.width_ - b.state.pos
 
-fn (b SmoothBar) draw_split() {
-	left := '${b.pre_}${b.runes.f[0].repeat((b.width_ - b.state.pos) / 2)}${b.runes.sm[b.rune_i]}'
-	middle := b.runes.f[1].repeat(b.state.pos)
-	right := '${b.runes.s[b.rune_i]}${b.runes.f[0].repeat((b.width_ - b.state.pos) / 2)}${b.post_}'
+			left := '${b.pre_}${b.runes.f[0].repeat(b.state.pos / 2)}${b.runes.s[b.rune_i]}'
+			// TODO: Smoothness for last two cols.
+			middle := if remaining >= 0 {
+				b.runes.f[1].repeat(remaining)
+			} else {
+				b.runes.f[0]
+			}
+			right := '${b.runes.sm[b.rune_i]}${b.runes.f[0].repeat(b.state.pos / 2)}${b.post_}'
 
-	eprint('\r${left}${middle}${right}')
+			left + middle + right
+		}
+		.expand {
+			left := '${b.pre_}${b.runes.f[1].repeat((b.width_ - b.state.pos) / 2)}${b.runes.sm[b.rune_i]}'
+			middle := b.runes.f[0].repeat(b.state.pos)
+			right := '${b.runes.s[b.rune_i]}${b.runes.f[1].repeat((b.width_ - b.state.pos) / 2)}${b.post_}'
 
-	if b.state.pos >= b.width_ {
-		b.finish(b.runes.f[1].repeat(b.width_ + 2))
+			left + middle + right
+		}
+		.split {
+			left := '${b.pre_}${b.runes.f[0].repeat((b.width_ - b.state.pos) / 2)}${b.runes.sm[b.rune_i]}'
+			middle := b.runes.f[1].repeat(b.state.pos)
+			right := '${b.runes.s[b.rune_i]}${b.runes.f[0].repeat((b.width_ - b.state.pos) / 2)}${b.post_}'
+
+			left + middle + right
+		}
 	}
 }
 

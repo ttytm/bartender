@@ -119,23 +119,7 @@ pub fn (mut b SmoothBar) progress() {
 	}
 
 	b.set_vals()
-
-	// Draw
-	term.erase_line('0')
-	match b.theme_ {
-		.push, .pull {
-			b.draw_push_pull()
-		}
-		.merge {
-			b.draw_merge()
-		}
-		.expand {
-			b.draw_expand()
-		}
-		.split {
-			b.draw_split()
-		}
-	}
+	b.draw()
 }
 
 pub fn (mut b SmoothBar) colorize(color Color) {

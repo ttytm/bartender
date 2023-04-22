@@ -80,10 +80,10 @@ fn (b Bar) draw() {
 	} else {
 		term.clear_previous_line()
 	}
-	println(b.prep_print())
+	println(b.format())
 }
 
-fn (b Bar) prep_print() string {
+fn (b Bar) format() string {
 	left := '${b.pre_}${b.runes_.progress.repeat(b.state.pos - 1)}${b.runes_.indicator}'
 	right := '${b.runes_.remaining.repeat(b.width_ - b.state.pos)}${b.post_}'
 	return left + right
