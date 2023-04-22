@@ -1,7 +1,7 @@
 // Source: https://github.com/tobealive/bartender
 // License: MIT
 
-// This lib.v file contains general code for the BarBase as well as all public functions.
+// lib.v contains all public functions.
 // Associated structs and private sub-functions are located in the corresponding files.
 module bartender
 
@@ -10,83 +10,12 @@ import time
 import io
 import os
 
-struct BarBase {
-pub mut:
-	width u16 = 60
-	// Number of iterations. NOTE: Solution is up for improvement.
-	// Resolves to `width_` for `Bar` and `smooth_runes.len * width_` for `SmoothBar`.
-	iters int = 60
-mut:
-	state State
-	// Private params. Based on public equivalents.
-	// Assigned on `<bar>.setup()` or on `<bar>.progress()`.
-	// Might get mutated by state or terminal size changes.
-	width_ u16
-	pre_   string
-	post_  string
-}
-
-struct BarReaderBase {
-	bytes []u8
-	size  int
-mut:
-	pos int
-}
-
-struct State {
-mut:
-	pos  u16
-	time struct {
-	mut:
-		start       i64
-		last_change i64
-	}
-}
-
-pub struct Affix {
-pub mut:
-	pending  string
-	finished string
-}
-
-enum AffixState {
-	pending
-	finished
-}
-
-type BarType = Bar | SmoothBar
-type BarReaderType = BarReader | SmoothBarReader
-type AffixInput = Affix
-	| fn (b Bar) (string, string)
-	| fn (b SmoothBar) (string, string)
-	| string
-
 const (
 	buf_max_len   = 1024
 	spinner_runes = ['⡀', '⠄', '⠂', '⠁', '⠈', '⠐', '⠠', '⢀']!
 )
 
 // { == Bar ==> ===============================================================
-
-pub fn (mut mb MultiBar) progress() {
-	mut finished := 0
-	for mut b in mb.bars {
-		b.is_multi = true
-		term.cursor_down(1)
-		if b.state.pos > 0 && b.state.pos == b.width_ - 1 {
-			finished++
-		}
-		if b.state.pos > 0 && b.state.pos == b.width_ {
-			continue
-		}
-		b.progress()
-	}
-	if finished < mb.bars.len {
-		term.cursor_up(mb.bars.len)
-		return
-	}
-	term.show_cursor()
-}
 
 pub fn (mut b Bar) progress() {
 	if b.state.time.start == 0 {
@@ -106,6 +35,26 @@ pub fn (mut b Bar) progress() {
 	if !b.is_multi && b.state.pos >= b.width_ {
 		term.show_cursor()
 	}
+}
+
+pub fn (mut mb MultiBar) progress() {
+	mut finished := 0
+	for mut b in mb.bars {
+		b.is_multi = true
+		term.cursor_down(1)
+		if b.state.pos > 0 && b.state.pos == b.width_ - 1 {
+			finished++
+		}
+		if b.state.pos > 0 && b.state.pos == b.width_ {
+			continue
+		}
+		b.progress()
+	}
+	if finished < mb.bars.len {
+		term.cursor_up(mb.bars.len)
+		return
+	}
+	term.show_cursor()
 }
 
 pub fn (mut b Bar) colorize(color BarColorType) {
@@ -288,73 +237,6 @@ fn get_buf_end(r BarReaderType) int {
 
 pub fn (b BarBase) pos() u16 {
 	return b.state.pos
-}
-
-fn (mut b BarBase) set_fit_width() {
-	term_width, _ := term.get_terminal_size()
-	affix_width := utf8_str_visible_length(term.strip_ansi(b.pre_)) +
-		utf8_str_visible_length(term.strip_ansi(b.post_))
-
-	if term_width > b.width_ + affix_width {
-		return
-	}
-	new_width := u16(term_width - affix_width)
-	diff := b.width_ - new_width
-
-	if diff > b.state.pos {
-		b.state.pos = 0
-	} else {
-		b.state.pos -= diff
-	}
-
-	b.width_ = new_width
-}
-
-fn (a AffixInput) resolve_affix(b BarType, state AffixState) string {
-	return match a {
-		fn (SmoothBar) (string, string) {
-			pending, finished := a(b as SmoothBar)
-			match state {
-				.pending { pending }
-				.finished { finished }
-			}
-		}
-		fn (Bar) (string, string) {
-			pending, finished := a(b as Bar)
-			match state {
-				.pending { pending }
-				.finished { finished }
-			}
-		}
-		Affix {
-			match state {
-				.pending { a.pending }
-				.finished { a.finished }
-			}
-		}
-		string {
-			a
-		}
-	}
-}
-
-fn resolve_affixations(b BarType) (string, string) {
-	next_pos := match b {
-		Bar { b.state.pos + 1 }
-		SmoothBar { b.next_pos() }
-	}
-	prefix := if next_pos >= b.width_ {
-		b.pre.resolve_affix(b, .finished)
-	} else {
-		b.pre.resolve_affix(b, .pending)
-	}
-	postfix := if next_pos >= b.width_ {
-		b.post.resolve_affix(b, .finished)
-	} else {
-		b.post.resolve_affix(b, .pending)
-	}
-
-	return prefix, postfix
 }
 
 fn handle_interrupt(signal os.Signal) {
