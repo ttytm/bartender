@@ -3,7 +3,6 @@ module main
 import bartender
 import time
 
-
 fn main() {
 	timeout := time.millisecond * 30
 

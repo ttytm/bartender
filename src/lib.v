@@ -35,8 +35,8 @@ mut:
 
 struct State {
 mut:
-	pos     u16
-	time    struct {
+	pos  u16
+	time struct {
 	mut:
 		start       i64
 		last_change i64
@@ -68,10 +68,30 @@ const (
 
 // { == Bar ==> ===============================================================
 
+pub fn (mut mb MultiBar) progress() {
+	mut finished := 0
+	for mut b in mb.bars {
+		b.is_multi = true
+		term.cursor_down(1)
+		if b.state.pos > 0 && b.state.pos == b.width_ - 1 {
+			finished++
+		}
+		if b.state.pos > 0 && b.state.pos == b.width_ {
+			continue
+		}
+		b.progress()
+	}
+	if finished < mb.bars.len {
+		term.cursor_up(mb.bars.len)
+		return
+	}
+	term.show_cursor()
+}
+
 pub fn (mut b Bar) progress() {
 	if b.state.time.start == 0 {
 		if b.runes_.progress == '' {
-			b.setup()
+			b.setup(b.is_multi)
 		}
 		b.state.time = struct {time.ticks(), 0}
 		term.hide_cursor()
@@ -83,14 +103,13 @@ pub fn (mut b Bar) progress() {
 
 	b.set_vals()
 	b.draw()
-	if b.state.pos >= b.width_ {
+	if !b.is_multi && b.state.pos >= b.width_ {
 		term.show_cursor()
-		println('')
 	}
 }
 
 pub fn (mut b Bar) colorize(color BarColorType) {
-	b.setup()
+	b.setup(b.is_multi)
 	if color is BarColor {
 		b.colorize_components(color)
 	} else {
@@ -129,7 +148,8 @@ pub fn (b Bar) spinner() string {
 }
 
 pub fn (mut b Bar) reset() {
-	b.setup()
+	b.setup(b.is_multi)
+	b.state.time = struct {0, 0}
 }
 
 // <== }

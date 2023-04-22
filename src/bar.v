@@ -3,7 +3,6 @@ module bartender
 import term
 import time
 import io
-import os
 
 pub struct Bar {
 	BarBase
@@ -16,6 +15,11 @@ pub mut:
 mut:
 	runes_     BarRunes_
 	indicator_ string
+	is_multi   bool
+}
+
+pub struct MultiBar {
+	bars []Bar
 }
 
 pub struct BarRunes {
@@ -37,11 +41,11 @@ mut:
 	bar Bar
 }
 
-fn (mut b Bar) setup() {
+fn (mut b Bar) setup(is_multi bool) {
 	b.state.pos = 0
-	b.iters = b.width
 	b.width_ = b.width
 	b.iters = b.width
+	b.is_multi = is_multi
 	b.runes_ = BarRunes_{
 		progress: b.runes.progress.str()
 		remaining: b.runes.remaining.str()
@@ -69,12 +73,17 @@ fn (mut b Bar) set_vals() {
 }
 
 fn (b Bar) draw() {
-	term.erase_line('2')
-	print('\r${b.prep_next()}')
-	os.flush()
+	if b.state.pos == 1 && !b.is_multi {
+		// HACK: make a single bar that follows multi bars work
+		println('')
+		term.clear_previous_line()
+	} else {
+		term.clear_previous_line()
+	}
+	println(b.prep_print())
 }
 
-fn (b Bar) prep_next() string {
+fn (b Bar) prep_print() string {
 	left := '${b.pre_}${b.runes_.progress.repeat(b.state.pos - 1)}${b.runes_.indicator}'
 	right := '${b.runes_.remaining.repeat(b.width_ - b.state.pos)}${b.post_}'
 	return left + right
