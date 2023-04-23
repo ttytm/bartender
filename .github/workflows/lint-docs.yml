@@ -6,6 +6,9 @@ on:
     paths: ['**/*.md', '**/*.yml']
   pull_request:
 
+env:
+  WORK_PATH: /home/runner/work/${{ github.event.repository.name }}/${{ github.event.repository.name }}/
+
 jobs:
   check-docs:
     runs-on: ubuntu-latest

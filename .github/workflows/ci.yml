@@ -3,55 +3,53 @@ name: CI
 on:
   push:
     branches: [main]
-    paths: ['**/*.v', '**/*.yml', '**/*.toml', '**/*.mod']
+    paths-ignore: ['**/*.md']
   pull_request:
-    paths: ['**/*.v', '**/*.yml', '**/*.toml', '**/*.mod']
+    paths-ignore: ['**/*.md']
 
 env:
-  WORK_PATH: /home/runner/work/bartender/bartender/
+  WORK_PATH: /home/runner/work/${{ github.event.repository.name }}/${{ github.event.repository.name }}/
 
 jobs:
-  cache-V:
+  setup:
     runs-on: ubuntu-latest
     steps:
-      - name: Check if V is cached
-        id: check-v-cache
-        uses: actions/cache/restore@v3
-        with:
-          path: ${{ env.WORK_PATH }}vlang/
-          key: vlang-nightly
-
-      - if: ${{ steps.check-v-cache.outputs.cache-hit != 'true' }}
-        name: Install V
+      - name: Install V
         uses: vlang/setup-v@v1.3
-        # with:
-        #   version: 'weekly.2023.15'
+        with:
+          check-latest: true
 
-      - if: ${{ steps.check-v-cache.outputs.cache-hit != 'true' }}
-        name: Cache Vlang
+      - if: ${{ steps.cache-status.outputs.cache-hit != 'true' }}
+        name: Add V Version to Environment
+        run: echo "V_VER=$(v -v)" >> $GITHUB_ENV
+
+      - if: ${{ steps.cache-status.outputs.cache-hit != 'true' }}
+        name: Save V Cache
         uses: actions/cache/save@v3
         with:
           path: ${{ env.WORK_PATH }}vlang/
-          key: vlang-nightly
+          key: ${{ runner.os }}-v-${{ env.V_VER }}
+
+  lint:
+    needs: setup
+    uses: tobealive/bartender/.github/workflows/lint.yml@main
 
   simple-build:
-    needs: cache-V
+    needs: setup
     runs-on: ubuntu-latest
     strategy:
       matrix:
         trimming: [null, -skip-unused]
     steps:
-      - name: Restore Vlang
+      - name: Restore V Cache
         uses: actions/cache/restore@v3
         with:
           path: ${{ env.WORK_PATH }}vlang/
-          key: vlang-nightly
+          key: ${{ runner.os }}-v-
           fail-on-cache-miss: true
 
-      - name: Install V
+      - name: Setup V
         uses: vlang/setup-v@v1.3
-        with:
-          version: 'weekly.2023.15'
 
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@v3
@@ -59,18 +57,18 @@ jobs:
       - name: ${{ matrix.trimming }} build
         run: v -shared ${{ matrix.trimming }} .
 
-  tests:
+  test:
     needs: simple-build
     runs-on: ubuntu-latest
     steps:
-      - name: Restore Vlang
+      - name: Restore V Cache
         uses: actions/cache/restore@v3
         with:
           path: ${{ env.WORK_PATH }}vlang/
-          key: vlang-nightly
+          key: ${{ runner.os }}-v-
           fail-on-cache-miss: true
 
-      - name: Install V
+      - name: Setup V
         uses: vlang/setup-v@v1.3
         with:
           version: 'weekly.2023.15'
@@ -81,11 +79,11 @@ jobs:
       - name: Run tests
         run: v test .
 
-  cache-clang:
-    needs: tests
+  setup-clang:
+    needs: [lint, test]
     runs-on: ubuntu-latest
     steps:
-      - name: Check if LLVM and Clang is cached
+      - name: Ensure LLVM and Clang is cached
         id: check-llvm-cache
         uses: actions/cache/restore@v3
         with:
@@ -106,23 +104,24 @@ jobs:
           key: llvm-15
 
   different-compilers:
-    needs: cache-clang
+    needs: setup-clang
     runs-on: ubuntu-latest
     strategy:
       matrix:
         compiler: [gcc, clang]
-        trimming: [null, -skip-unused]
-        memory-management: [null, -autofree]
+        trimming:
+          [null, -skip-unused]
+          # TODO: check how prod behaves offline
         optimization: [null, -prod]
     steps:
-      - name: Restore Vlang
+      - name: Restore V Cache
         uses: actions/cache/restore@v3
         with:
           path: ${{ env.WORK_PATH }}vlang/
-          key: vlang-nightly
+          key: ${{ runner.os }}-v-
           fail-on-cache-miss: true
 
-      - name: Install V
+      - name: Setup V
         uses: vlang/setup-v@v1.3
         with:
           version: 'weekly.2023.15'
@@ -134,7 +133,7 @@ jobs:
           sudo apt-get install --quiet -y build-essential
 
       - if: ${{ matrix.compiler == 'clang' }}
-        name: Restore LLVM and Clang
+        name: Restore LLVM and Clang Cache
         uses: actions/cache/restore@v3
         with:
           path: ${{ env.WORK_PATH }}llvm
@@ -151,8 +150,8 @@ jobs:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@v3
 
-      - name: ${{ matrix.compiler }} ${{ matrix.trimming }} ${{ matrix.optimization }} ${{ matrix.memory-management }} build
-        run: v -cc ${{ matrix.compiler }} ${{ matrix.trimming }} ${{ matrix.optimization }} ${{ matrix.memory-management }} .
+      - name: ${{ matrix.compiler }} ${{ matrix.trimming }} ${{ matrix.optimization }} build
+        run: v -shared -cc ${{ matrix.compiler }} ${{ matrix.trimming }} ${{ matrix.optimization }} .
 
   clang-sanitizers:
     needs: different-compilers
@@ -161,19 +160,17 @@ jobs:
       matrix:
         sanitizer: [address, memory, undefined, leak] # TODO: thread sanitizer was removed due to strange warnings. It should be fixed and turned on.
     steps:
-      - name: Restore Vlang
+      - name: Restore V Cache
         uses: actions/cache/restore@v3
         with:
           path: ${{ env.WORK_PATH }}vlang/
-          key: vlang-nightly
+          key: ${{ runner.os }}-v-
           fail-on-cache-miss: true
 
-      - name: Install V
+      - name: Setup V
         uses: vlang/setup-v@v1.3
-        with:
-          version: 'weekly.2023.15'
 
-      - name: Restore LLVM and Clang
+      - name: Restore LLVM and Clang Cache
         uses: actions/cache/restore@v3
         with:
           path: ${{ env.WORK_PATH }}llvm
@@ -199,17 +196,15 @@ jobs:
       matrix:
         sanitizer: [leak] # TODO: thread sanitizer was removed due to strange warnings. It should be fixed and turned on.
     steps:
-      - name: Restore Vlang
+      - name: Restore V Cache
         uses: actions/cache/restore@v3
         with:
           path: ${{ env.WORK_PATH }}vlang/
-          key: vlang-nightly
+          key: ${{ runner.os }}-v-
           fail-on-cache-miss: true
 
-      - name: Install V
+      - name: Setup V
         uses: vlang/setup-v@v1.3
-        with:
-          version: 'weekly.2023.15'
 
       - name: Set up GCC
         run: |
@@ -226,17 +221,15 @@ jobs:
     needs: different-compilers
     runs-on: ubuntu-latest
     steps:
-      - name: Restore Vlang
+      - name: Restore V Cache
         uses: actions/cache/restore@v3
         with:
           path: ${{ env.WORK_PATH }}vlang/
-          key: vlang-nightly
+          key: ${{ runner.os }}-v-
           fail-on-cache-miss: true
 
-      - name: Install V
+      - name: Setup V
         uses: vlang/setup-v@v1.3
-        with:
-          version: 'weekly.2023.15'
 
       - name: Set up GCC
         run: |
@@ -253,17 +246,15 @@ jobs:
     needs: different-compilers
     runs-on: ubuntu-latest
     steps:
-      - name: Restore Vlang
+      - name: Restore V Cache
         uses: actions/cache/restore@v3
         with:
           path: ${{ env.WORK_PATH }}vlang/
-          key: vlang-nightly
+          key: ${{ runner.os }}-v-
           fail-on-cache-miss: true
 
-      - name: Install V
+      - name: Setup V
         uses: vlang/setup-v@v1.3
-        with:
-          version: 'weekly.2023.15'
 
       - name: Set up GCC
         run: |
@@ -275,152 +266,3 @@ jobs:
 
       - name: GCC undefined sanitizer
         run: v -cc gcc -cflags -fsanitize=undefined -cflags -fsanitize=shift -cflags -fsanitize=shift-exponent -cflags -fsanitize=shift-base -cflags -fsanitize=integer-divide-by-zero -cflags -fsanitize=unreachable -cflags -fsanitize=vla-bound -cflags -fsanitize=null -cflags -fsanitize=return -cflags -fsanitize=signed-integer-overflow -cflags -fsanitize=bounds -cflags -fsanitize=bounds-strict -cflags -fsanitize=alignment -cflags -fsanitize=object-size -cflags -fsanitize=float-divide-by-zero -cflags -fsanitize=float-cast-overflow -cflags -fsanitize=nonnull-attribute -cflags -fsanitize=returns-nonnull-attribute -cflags -fsanitize=bool -cflags -fsanitize=enum -cflags -fsanitize=vptr -cflags -fsanitize=pointer-overflow -cflags -fsanitize=builtin test .
-
-  vab-compilation:
-    needs:
-      [
-        clang-sanitizers,
-        gcc-sanitizers,
-        gcc-address-sanitizers,
-        gcc-undefined-sanitizers,
-      ]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Restore Vlang
-        uses: actions/cache/restore@v3
-        with:
-          path: ${{ env.WORK_PATH }}vlang/
-          key: vlang-nightly
-          fail-on-cache-miss: true
-
-      - name: Install V
-        uses: vlang/setup-v@v1.3
-        with:
-          version: 'weekly.2023.15'
-
-      - uses: actions/setup-java@v3
-        with:
-          distribution: 'adopt'
-          java-version: 17
-
-      - name: Setup Android SDK
-        uses: amyu/setup-android@v2
-        with:
-          sdk-version: 31
-          build-tools-version: '33.0.2'
-          ndk-version: '25.2.9519653'
-          cache-disabled: true
-
-      - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@v3
-
-      - name: Install vab
-        run: |
-          v install vab
-          v -g ~/.vmodules/vab
-          sudo ln -s ~/.vmodules/vab/vab /usr/local/bin/vab
-
-      - name: Build APK
-        run: vab --min-sdk-version 26 --api 31 --archs 'arm64-v8a' -v 3 .
-
-  linux-to-other-platforms-compilation:
-    needs:
-      [
-        clang-sanitizers,
-        gcc-sanitizers,
-        gcc-address-sanitizers,
-        gcc-undefined-sanitizers,
-      ]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Restore Vlang
-        uses: actions/cache/restore@v3
-        with:
-          path: ${{ env.WORK_PATH }}vlang/
-          key: vlang-nightly
-          fail-on-cache-miss: true
-
-      - name: Install V
-        uses: vlang/setup-v@v1.3
-        with:
-          version: 'weekly.2023.15'
-
-      - name: Install MinGW-w64
-        run: |
-          sudo apt-get update
-          sudo apt-get install --quiet -y gcc-mingw-w64-x86-64
-
-      - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@v3
-
-      - name: Build Windows executable
-        run: v -os windows .
-
-  check-formatting:
-    needs: [vab-compilation, linux-to-other-platforms-compilation]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Restore Vlang
-        uses: actions/cache/restore@v3
-        with:
-          path: ${{ env.WORK_PATH }}vlang/
-          key: vlang-nightly
-          fail-on-cache-miss: true
-
-      - name: Install V
-        uses: vlang/setup-v@v1.3
-        with:
-          version: 'weekly.2023.15'
-
-      - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@v3
-
-      - name: Check formatting
-        run: v fmt -verify .
-
-  check-docs:
-    needs: [vab-compilation, linux-to-other-platforms-compilation]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Restore Vlang
-        uses: actions/cache/restore@v3
-        with:
-          path: ${{ env.WORK_PATH }}vlang/
-          key: vlang-nightly
-          fail-on-cache-miss: true
-
-      - name: Install V
-        uses: vlang/setup-v@v1.3
-        with:
-          version: 'weekly.2023.15'
-
-      - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@v3
-
-      - name: Check markdown line length & code examples
-        run: v check-md -hide-warnings .
-
-      - name: Check public methods without documentation
-        run: v missdoc --exclude src/tests/ --verify .
-
-  vet-check:
-    needs: [vab-compilation, linux-to-other-platforms-compilation]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Restore Vlang
-        uses: actions/cache/restore@v3
-        with:
-          path: ${{ env.WORK_PATH }}vlang/
-          key: vlang-nightly
-          fail-on-cache-miss: true
-
-      - name: Install V
-        uses: vlang/setup-v@v1.3
-        with:
-          version: 'weekly.2023.15'
-
-      - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@v3
-
-      - name: Check code with vet
-        run: v vet -W .

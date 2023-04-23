@@ -1,0 +1,48 @@
+name: Lint
+
+on:
+  workflow_call:
+
+env:
+  WORK_PATH: /home/runner/work/${{ github.event.repository.name }}/${{ github.event.repository.name }}/
+
+jobs:
+  check-formatting:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restore Cache
+        uses: actions/cache/restore@v3
+        with:
+          path: ${{ env.WORK_PATH }}vlang/
+          key: ${{ runner.os }}-v-
+          fail-on-cache-miss: true
+
+      - name: Setup V
+        uses: vlang/setup-v@v1.3
+
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@v3
+
+      - name: Check Formatting
+        run: v fmt -verify .
+
+  # Vet includes checking public functions without documentation
+  # Disable until public functions are documented
+  # vet:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Restore V Cache
+  #       uses: actions/cache/restore@v3
+  #       with:
+  #         path: ${{ env.WORK_PATH }}vlang/
+  #         key: ${{ runner.os }}-v-
+  #         fail-on-cache-miss: true
+  #
+  #     - name: Setup V
+  #       uses: vlang/setup-v@v1.3
+  #
+  #     - name: Checkout ${{ github.event.repository.name }}
+  #       uses: actions/checkout@v3
+  #
+  #     - name: Vet Code
+  #       run: v vet -W .
