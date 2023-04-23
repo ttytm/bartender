@@ -147,6 +147,8 @@ Below are some of the things to look forward to.
 
 - [Waqar144/progressbar][10] inspired the start of project.
 - [console-rs/indicatif][20] serves as inspiration for further development.
+- [ArtemkaKun/v-project-basement][30] served as a base for CI scripts and issue templates
 
 [10]: https://github.com/Waqar144/progressbar
 [20]: https://github.com/console-rs/indicatif
+[30]: https://github.com/ArtemkaKun/v-project-basement
