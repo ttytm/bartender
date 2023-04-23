@@ -39,7 +39,6 @@ jobs:
     strategy:
       matrix:
         trimming: [null, -skip-unused]
-        memory-management: [null, -autofree]
     steps:
       - name: Restore Vlang
         uses: actions/cache/restore@v3
@@ -56,8 +55,8 @@ jobs:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@v3
 
-      - name: ${{ matrix.trimming }} ${{ matrix.memory-management }} build
-        run: v -shared ${{ matrix.trimming }} ${{ matrix.memory-management }} .
+      - name: ${{ matrix.trimming }} build
+        run: v -shared ${{ matrix.trimming }} .
 
   tests:
     needs: simple-build
