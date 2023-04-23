@@ -18,28 +18,28 @@ jobs:
         uses: actions/cache/restore@v3
         with:
           path: ${{ env.WORK_PATH }}vlang/
-          key: vlang-0.3.3-weekly.2023.08
+          key: vlang-nightly
 
       - if: ${{ steps.check-v-cache.outputs.cache-hit != 'true' }}
         name: Install V
         uses: vlang/setup-v@v1.3
-        with:
-          version: 'weekly.2023.08'
+        # with:
+        #   version: 'weekly.2023.08'
 
       - if: ${{ steps.check-v-cache.outputs.cache-hit != 'true' }}
         name: Cache Vlang
         uses: actions/cache/save@v3
         with:
           path: ${{ env.WORK_PATH }}vlang/
-          key: vlang-0.3.3-weekly.2023.08
+          key: vlang-nightly
 
   simple-build:
     needs: cache-V
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        trimming: [ null , -skip-unused ]
-        memory-management: [ null , -autofree ]
+        trimming: [null, -skip-unused]
+        memory-management: [null, -autofree]
     steps:
       - name: Restore Vlang
         uses: actions/cache/restore@v3
@@ -110,10 +110,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        compiler: [ gcc, clang ]
-        trimming: [ null , -skip-unused ]
-        memory-management: [ null , -autofree ]
-        optimization: [ null , -prod ]
+        compiler: [gcc, clang]
+        trimming: [null, -skip-unused]
+        memory-management: [null, -autofree]
+        optimization: [null, -prod]
     steps:
       - name: Restore Vlang
         uses: actions/cache/restore@v3
@@ -159,7 +159,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        sanitizer: [ address, memory, undefined, leak ] # TODO: thread sanitizer was removed due to strange warnings. It should be fixed and turned on.
+        sanitizer: [address, memory, undefined, leak] # TODO: thread sanitizer was removed due to strange warnings. It should be fixed and turned on.
     steps:
       - name: Restore Vlang
         uses: actions/cache/restore@v3
@@ -197,7 +197,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        sanitizer: [ leak ]  # TODO: thread sanitizer was removed due to strange warnings. It should be fixed and turned on.
+        sanitizer: [leak] # TODO: thread sanitizer was removed due to strange warnings. It should be fixed and turned on.
     steps:
       - name: Restore Vlang
         uses: actions/cache/restore@v3
@@ -277,7 +277,13 @@ jobs:
         run: v -cc gcc -cflags -fsanitize=undefined -cflags -fsanitize=shift -cflags -fsanitize=shift-exponent -cflags -fsanitize=shift-base -cflags -fsanitize=integer-divide-by-zero -cflags -fsanitize=unreachable -cflags -fsanitize=vla-bound -cflags -fsanitize=null -cflags -fsanitize=return -cflags -fsanitize=signed-integer-overflow -cflags -fsanitize=bounds -cflags -fsanitize=bounds-strict -cflags -fsanitize=alignment -cflags -fsanitize=object-size -cflags -fsanitize=float-divide-by-zero -cflags -fsanitize=float-cast-overflow -cflags -fsanitize=nonnull-attribute -cflags -fsanitize=returns-nonnull-attribute -cflags -fsanitize=bool -cflags -fsanitize=enum -cflags -fsanitize=vptr -cflags -fsanitize=pointer-overflow -cflags -fsanitize=builtin test .
 
   vab-compilation:
-    needs: [clang-sanitizers, gcc-sanitizers, gcc-address-sanitizers, gcc-undefined-sanitizers]
+    needs:
+      [
+        clang-sanitizers,
+        gcc-sanitizers,
+        gcc-address-sanitizers,
+        gcc-undefined-sanitizers,
+      ]
     runs-on: ubuntu-latest
     steps:
       - name: Restore Vlang
@@ -318,7 +324,13 @@ jobs:
         run: vab --min-sdk-version 26 --api 31 --archs 'arm64-v8a' -v 3 .
 
   linux-to-other-platforms-compilation:
-    needs: [clang-sanitizers, gcc-sanitizers, gcc-address-sanitizers, gcc-undefined-sanitizers]
+    needs:
+      [
+        clang-sanitizers,
+        gcc-sanitizers,
+        gcc-address-sanitizers,
+        gcc-undefined-sanitizers,
+      ]
     runs-on: ubuntu-latest
     steps:
       - name: Restore Vlang
