@@ -117,7 +117,10 @@ v run examples/<file>.v
 
 </details>
 
-<details><summary><b>Color and style customizations.</b> &nbsp;<sub><sup>Toggle visibility...</sup></sub></summary>
+<details>
+<summary>
+  <b>Color and style customizations.</b> &nbsp;<sub><sup>Toggle visibility...</sup></sub>
+</summary>
 
 ![colors](https://user-images.githubusercontent.com/34311583/228962409-a5d9b3cb-b6d2-4b34-a2db-305249e95c82.gif)
 
@@ -131,7 +134,8 @@ v run examples/<file>.v
 
 ## Disclaimer
 
-Until a stable version 1.0 is available, new features will be introduced, existing ones may change, or breaking changes may occur in minor(`0.<minor>.*`) versions.
+Until a stable version 1.0 is available, new features will be introduced, existing ones may change,
+or breaking changes may occur in minor(`0.<minor>.*`) versions.
 
 ## Outlook
 
