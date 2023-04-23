@@ -2,9 +2,10 @@ name: CI
 
 on:
   push:
-    branches:
-      - 'main'
+    branches: [main]
+    paths: ['**/*.v', '**/*.yml', '**/*.toml', '**/*.mod']
   pull_request:
+    paths: ['**/*.v', '**/*.yml', '**/*.toml', '**/*.mod']
 
 env:
   WORK_PATH: /home/runner/work/bartender/bartender/
