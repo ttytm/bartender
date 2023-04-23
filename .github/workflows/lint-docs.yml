@@ -3,24 +3,24 @@ name: Lint Docs
 on:
   push:
     branches: [main]
-    paths: ['**/*.md']
+    paths: ['**/*.md', '**/*.yml']
   pull_request:
 
-check-docs:
-  needs: [vab-compilation, linux-to-other-platforms-compilation]
-  runs-on: ubuntu-latest
-  steps:
-    - name: Restore Cache
-      uses: actions/cache/restore@v3
-      with:
-        path: ${{ env.WORK_PATH }}vlang/
-        key: vlang-nightly
+jobs:
+  check-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restore Cache
+        uses: actions/cache/restore@v3
+        with:
+          path: ${{ env.WORK_PATH }}vlang/
+          key: vlang-nightly
 
-    - name: Setup V
-      uses: vlang/setup-v@v1.3
+      - name: Setup V
+        uses: vlang/setup-v@v1.3
 
-    - name: Checkout ${{ github.event.repository.name }}
-      uses: actions/checkout@v3
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@v3
 
-    - name: Check Markdown
-      run: v check-md -hide-warnings .
+      - name: Check Markdown
+        run: v check-md -hide-warnings .
