@@ -19,7 +19,7 @@ pub mut:
 mut:
 	theme_ Theme
 	runes  SmoothRunes
-	rune_i u8
+	rune_i u8 // idx used to render all runes in one col before progressing to next col(b.state.pos).
 }
 
 // The current solution might be improved. In Rust it would be one enum with push & pull being tuple variants.
