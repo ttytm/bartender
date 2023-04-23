@@ -24,7 +24,7 @@ jobs:
         name: Install V
         uses: vlang/setup-v@v1.3
         # with:
-        #   version: 'weekly.2023.08'
+        #   version: 'weekly.2023.15'
 
       - if: ${{ steps.check-v-cache.outputs.cache-hit != 'true' }}
         name: Cache Vlang
@@ -48,6 +48,11 @@ jobs:
           key: vlang-nightly
           fail-on-cache-miss: true
 
+      - name: Install V
+        uses: vlang/setup-v@v1.3
+        with:
+          version: 'weekly.2023.15'
+
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@v3
 
@@ -64,6 +69,11 @@ jobs:
           path: ${{ env.WORK_PATH }}vlang/
           key: vlang-nightly
           fail-on-cache-miss: true
+
+      - name: Install V
+        uses: vlang/setup-v@v1.3
+        with:
+          version: 'weekly.2023.15'
 
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@v3
@@ -112,6 +122,11 @@ jobs:
           key: vlang-nightly
           fail-on-cache-miss: true
 
+      - name: Install V
+        uses: vlang/setup-v@v1.3
+        with:
+          version: 'weekly.2023.15'
+
       - if: ${{ matrix.compiler == 'gcc' }}
         name: Set up GCC
         run: |
@@ -153,6 +168,11 @@ jobs:
           key: vlang-nightly
           fail-on-cache-miss: true
 
+      - name: Install V
+        uses: vlang/setup-v@v1.3
+        with:
+          version: 'weekly.2023.15'
+
       - name: Restore LLVM and Clang
         uses: actions/cache/restore@v3
         with:
@@ -186,6 +206,11 @@ jobs:
           key: vlang-nightly
           fail-on-cache-miss: true
 
+      - name: Install V
+        uses: vlang/setup-v@v1.3
+        with:
+          version: 'weekly.2023.15'
+
       - name: Set up GCC
         run: |
           sudo apt-get update
@@ -208,6 +233,11 @@ jobs:
           key: vlang-nightly
           fail-on-cache-miss: true
 
+      - name: Install V
+        uses: vlang/setup-v@v1.3
+        with:
+          version: 'weekly.2023.15'
+
       - name: Set up GCC
         run: |
           sudo apt-get update
@@ -229,6 +259,11 @@ jobs:
           path: ${{ env.WORK_PATH }}vlang/
           key: vlang-nightly
           fail-on-cache-miss: true
+
+      - name: Install V
+        uses: vlang/setup-v@v1.3
+        with:
+          version: 'weekly.2023.15'
 
       - name: Set up GCC
         run: |
@@ -257,6 +292,11 @@ jobs:
           path: ${{ env.WORK_PATH }}vlang/
           key: vlang-nightly
           fail-on-cache-miss: true
+
+      - name: Install V
+        uses: vlang/setup-v@v1.3
+        with:
+          version: 'weekly.2023.15'
 
       - uses: actions/setup-java@v3
         with:
@@ -300,6 +340,11 @@ jobs:
           key: vlang-nightly
           fail-on-cache-miss: true
 
+      - name: Install V
+        uses: vlang/setup-v@v1.3
+        with:
+          version: 'weekly.2023.15'
+
       - name: Install MinGW-w64
         run: |
           sudo apt-get update
@@ -322,6 +367,11 @@ jobs:
           key: vlang-nightly
           fail-on-cache-miss: true
 
+      - name: Install V
+        uses: vlang/setup-v@v1.3
+        with:
+          version: 'weekly.2023.15'
+
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@v3
 
@@ -338,6 +388,11 @@ jobs:
           path: ${{ env.WORK_PATH }}vlang/
           key: vlang-nightly
           fail-on-cache-miss: true
+
+      - name: Install V
+        uses: vlang/setup-v@v1.3
+        with:
+          version: 'weekly.2023.15'
 
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@v3
@@ -358,6 +413,11 @@ jobs:
           path: ${{ env.WORK_PATH }}vlang/
           key: vlang-nightly
           fail-on-cache-miss: true
+
+      - name: Install V
+        uses: vlang/setup-v@v1.3
+        with:
+          version: 'weekly.2023.15'
 
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@v3
