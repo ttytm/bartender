@@ -4,7 +4,6 @@ import bartender { Affix, Bar, BarColor, BarRunes, Color, FgBg }
 import time
 import term
 
-
 fn main() {
 	timeout := time.millisecond * 20
 

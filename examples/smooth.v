@@ -4,7 +4,6 @@ import bartender { Color, SmoothBar, Theme, ThemeVariant }
 import time
 import term
 
-
 fn main() {
 	timeout := time.millisecond * 2
 
