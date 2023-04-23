@@ -18,7 +18,7 @@ const test_bar = Bar{
 
 fn test_setup() {
 	mut b := bartender.test_bar
-	b.setup()
+	b.setup(b.is_multi)
 	assert b.state.pos == 0
 	assert b.width_ == b.width
 	assert b.runes_ == BarRunes_{
@@ -31,23 +31,23 @@ fn test_setup() {
 fn test_progress() {
 	mut b := bartender.test_bar
 	b.progress()
-	assert b.prep_print() == '[>                   ] Loading...'
+	assert b.format() == '[>                   ] Loading...'
 	b.progress()
-	assert b.prep_print() == '[#>                  ] Loading...'
+	assert b.format() == '[#>                  ] Loading...'
 	for i := 0; i < 8; i++ {
 		b.progress()
 	}
-	assert b.prep_print() == '[#########>          ] Loading...'
+	assert b.format() == '[#########>          ] Loading...'
 	for i := 0; i < 10; i++ {
 		b.progress()
 	}
 	assert b.state.pos == 20
-	assert b.prep_print() == '[###################>] Done!'
+	assert b.format() == '[###################>] Done!'
 }
 
 fn test_pct() {
 	mut b := bartender.test_bar
-	b.setup()
+	b.setup(b.is_multi)
 	b.state.pos = 10
 	// pct() gets the percentage of the next position to be used in the next draw event
 	assert b.pct() == 55
@@ -55,7 +55,7 @@ fn test_pct() {
 
 fn test_eta() {
 	mut b := bartender.test_bar
-	b.setup()
+	b.setup(b.is_multi)
 	for i := 0; i < 10; i++ {
 		b.progress()
 		// would take 2000ms to complete full bar
