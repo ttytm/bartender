@@ -115,7 +115,7 @@ jobs:
       matrix:
         compiler: [gcc, clang]
         trimming: [null, -skip-unused]
-        # optimization: [null, -prod]
+        optimization: [null, -prod]
     steps:
       - name: Restore V Cache
         uses: actions/cache/restore@v3
@@ -153,8 +153,13 @@ jobs:
         with:
           path: ${{ env.GHA_PATH }}
 
-      - name: ${{ matrix.compiler }} ${{ matrix.trimming }} build
-        run: v -shared -cc ${{ matrix.compiler }} ${{ matrix.trimming }} ${{ env.GHA_PATH }}
+      - if: ${{ matrix.compiler == 'clang' }}
+        name: ${{ matrix.compiler }} ${{ matrix.trimming }} build
+        run: v -cg -shared -cc ${{ matrix.compiler }} ${{ matrix.trimming }} ${{ env.GHA_PATH }}
+
+      - if: ${{ matrix.compiler == 'gcc' }}
+        name: ${{ matrix.compiler }} ${{ matrix.trimming }} ${{ matrix.optimization }} build
+        run: v -cg -shared -cc ${{ matrix.compiler }} ${{ matrix.trimming }} ${{ matrix.optimization }} ${{ env.GHA_PATH }}
 
   clang-sanitizers:
     needs: different-compilers
