@@ -142,7 +142,7 @@ or breaking changes may occur in minor(`0.<minor>.*`) versions.
 Below are some of the things to look forward to.
 
 - [x] Reader Interface
-- [ ] Multiline
+- [x] Multiline (Smooth Bar Split Themes are not supported yet)
 - [x] Time Remaining
 - [ ] Dynamic adjustment on term resize for all variants (basic width detection works)
 - [ ] Extend visuals & customizability

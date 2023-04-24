@@ -125,6 +125,7 @@ pub fn (mut b SmoothBar) progress() {
 }
 
 pub fn (bars []&SmoothBar) watch(mut wg sync.WaitGroup) {
+	// NOTE: Same function for Bars and SmoothBars. Re-check with Vlangs progression if this can be solved with a sumtype.
 	bars.ensure_mutli() or {
 		eprintln(err)
 		exit(0)
@@ -134,7 +135,7 @@ pub fn (bars []&SmoothBar) watch(mut wg sync.WaitGroup) {
 			term.show_cursor()
 			break
 		}
-		// Redraw the bars every 15ms to reduce load and prevent flashing output.
+		// Slow redraw loop to reduce load.
 		time.sleep(time.millisecond * 5)
 	}
 	wg.done()
