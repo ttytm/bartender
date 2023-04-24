@@ -1,7 +1,5 @@
 module bartender
 
-import time
-
 const test_bar = SmoothBar{
 	width: 40
 	post: ' Loading...'

@@ -42,7 +42,10 @@ pub fn (mut b Bar) progress() {
 }
 
 pub fn (bars []&Bar) watch(mut wg sync.WaitGroup) {
-	bars.ensure_mutli()
+	bars.ensure_mutli() or {
+		eprintln(err)
+		exit(0)
+	}
 	for {
 		if bars.draw() {
 			term.show_cursor()

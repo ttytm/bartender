@@ -114,7 +114,7 @@ fn (mut b Bar) colorize_components(color BarColor) {
 
 fn (bars []&Bar) draw() bool {
 	finished := !bars.any(it.state.pos > 0 && it.state.pos < it.width_)
-	formatted := bars.format()
+	formatted := bars.map(it.format())
 	println(formatted.join_lines())
 	if !finished {
 		term.cursor_up(bars.len)
@@ -122,11 +122,7 @@ fn (bars []&Bar) draw() bool {
 	return finished
 }
 
-fn (bars []&Bar) format() []string {
-	return bars.map(it.format())
-}
-
-fn (bars []&Bar) ensure_mutli() {
+fn (bars []&Bar) ensure_mutli() ! {
 	mut not_multi := []int{}
 	for i, bar in bars {
 		if !bar.multi {
@@ -134,7 +130,9 @@ fn (bars []&Bar) ensure_mutli() {
 		}
 	}
 	if not_multi.len > 0 {
-		eprintln('Failed drawing bars. []&Bar indices not set as multi: ${not_multi}')
-		exit(0)
+		return IError(BarError{
+			kind: .missing_multi
+			msg: '${not_multi}'
+		})
 	}
 }
