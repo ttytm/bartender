@@ -48,8 +48,7 @@ pub fn (bars []&Bar) watch(mut wg sync.WaitGroup) {
 			term.show_cursor()
 			break
 		}
-		// Don't need to loop/update the bars to rapidly.
-		// Update the bar every 15ms. Also, prevents flashing output.
+		// Redraw the bars every 15ms to reduce load and prevent flashing output.
 		time.sleep(time.millisecond * 15)
 	}
 	wg.done()
