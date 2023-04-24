@@ -119,7 +119,25 @@ pub fn (mut b SmoothBar) progress() {
 	}
 
 	b.set_vals()
-	b.draw()
+	if !b.multi {
+		b.draw()
+	}
+}
+
+pub fn (bars []&SmoothBar) watch(mut wg sync.WaitGroup) {
+	bars.ensure_mutli() or {
+		eprintln(err)
+		exit(0)
+	}
+	for {
+		if bars.draw() {
+			term.show_cursor()
+			break
+		}
+		// Redraw the bars every 15ms to reduce load and prevent flashing output.
+		time.sleep(time.millisecond * 5)
+	}
+	wg.done()
 }
 
 pub fn (mut b SmoothBar) colorize(color Color) {

@@ -12,7 +12,6 @@ pub mut:
 	post  AffixInput = fn (b Bar) (string, string) {
 		return '] ${b.pct()}% (${b.eta(0)})', '] ${b.pct()}%'
 	}
-	multi bool
 mut:
 	runes_     BarRunes_
 	indicator_ string

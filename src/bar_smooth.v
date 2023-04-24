@@ -259,3 +259,29 @@ fn (b &SmoothBar) finish(bar string) {
 	println('\r${b.pre_}${bar}${b.post_}')
 	term.show_cursor()
 }
+
+fn (bars []&SmoothBar) draw() bool {
+	formatted := bars.map(it.format())
+	println(formatted.join_lines())
+	finished := !bars.any(it.state.pos < it.width_)
+	if !finished {
+		term.cursor_up(bars.len)
+	}
+	return finished
+}
+
+// A function that takes a sumtype arg []&Bar | []&SmoothBar would more concice, but won't work atm.
+fn (bars []&SmoothBar) ensure_mutli() ! {
+	mut not_multi := []int{}
+	for i, bar in bars {
+		if !bar.multi {
+			not_multi << i
+		}
+	}
+	if not_multi.len > 0 {
+		return IError(BarError{
+			kind: .missing_multi
+			msg: '${not_multi}'
+		})
+	}
+}
