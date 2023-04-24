@@ -8,7 +8,7 @@ env:
   GHA_PATH: ${{ github.event.repository.name }}-gha
 
 jobs:
-  check-formatting:
+  fmt:
     runs-on: ubuntu-latest
     steps:
       - name: Restore Cache

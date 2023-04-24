@@ -58,7 +58,7 @@ jobs:
           path: ${{ env.GHA_PATH }}
 
       - name: ${{ matrix.trimming }} build
-        run: v -shared ${{ matrix.trimming }} ${{ env.GHA_PATH }}
+        run: v -cg -shared ${{ matrix.trimming }} ${{ env.GHA_PATH }}
 
   test:
     needs: simple-build
@@ -73,8 +73,6 @@ jobs:
 
       - name: Setup V
         uses: vlang/setup-v@v1.3
-        with:
-          version: 'weekly.2023.15'
 
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@v3
