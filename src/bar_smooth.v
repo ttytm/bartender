@@ -263,6 +263,7 @@ fn (b &SmoothBar) finish(bar string) {
 fn (bars []&SmoothBar) draw() bool {
 	formatted := bars.map(it.format())
 	println(formatted.join_lines())
+
 	finished := !bars.any(it.state.pos < it.width_)
 	if !finished {
 		term.cursor_up(bars.len)

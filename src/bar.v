@@ -112,9 +112,10 @@ fn (mut b Bar) colorize_components(color BarColor) {
 }
 
 fn (bars []&Bar) draw() bool {
-	finished := !bars.any(it.state.pos > 0 && it.state.pos < it.width_)
 	formatted := bars.map(it.format())
 	println(formatted.join_lines())
+
+	finished := !bars.any(it.state.pos > 0 && it.state.pos < it.width_)
 	if !finished {
 		term.cursor_up(bars.len)
 	}
