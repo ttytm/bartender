@@ -44,7 +44,8 @@ pub fn (mut b Bar) progress() {
 pub fn (bars []&Bar) watch(mut wg sync.WaitGroup) {
 	bars.ensure_mutli()
 	for {
-		if draw(bars) {
+		if bars.draw() {
+			term.show_cursor()
 			break
 		}
 		// Don't need to loop/update the bars to rapidly.

@@ -112,24 +112,18 @@ fn (mut b Bar) colorize_components(color BarColor) {
 	}
 }
 
-fn draw(bars []&Bar) bool {
-	mut finished := 0
-	for b in bars {
-		term.cursor_down(1)
-		if b.state.pos > 0 && b.state.pos == b.width_ {
-			finished++
-		}
-		if b.state.pos > 0 && b.state.pos > b.width_ {
-			continue
-		}
-		b.draw()
-	}
-	if finished < bars.len {
+fn (bars []&Bar) draw() bool {
+	finished := !bars.any(it.state.pos > 0 && it.state.pos < it.width_)
+	formatted := bars.format()
+	println(formatted.join_lines())
+	if !finished {
 		term.cursor_up(bars.len)
-		return false
 	}
-	term.show_cursor()
-	return true
+	return finished
+}
+
+fn (bars []&Bar) format() []string {
+	return bars.map(it.format())
 }
 
 fn (bars []&Bar) ensure_mutli() {
