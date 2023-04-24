@@ -9,6 +9,7 @@ on:
 
 env:
   WORK_PATH: /home/runner/work/${{ github.event.repository.name }}/${{ github.event.repository.name }}/
+  GHA_PATH: ${{ github.event.repository.name }}-gha
 
 jobs:
   setup:
@@ -53,9 +54,11 @@ jobs:
 
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@v3
+        with:
+          path: ${{ env.GHA_PATH }}
 
       - name: ${{ matrix.trimming }} build
-        run: v -shared ${{ matrix.trimming }} .
+        run: v -shared ${{ matrix.trimming }} ${{ env.GHA_PATH }}
 
   test:
     needs: simple-build
@@ -75,9 +78,11 @@ jobs:
 
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@v3
+        with:
+          path: ${{ env.GHA_PATH }}
 
       - name: Run tests
-        run: v test .
+        run: v test ${{ env.GHA_PATH }}
 
   setup-clang:
     needs: [lint, test]
@@ -109,9 +114,7 @@ jobs:
     strategy:
       matrix:
         compiler: [gcc, clang]
-        trimming:
-          [null, -skip-unused]
-          # TODO: check how prod behaves offline
+        trimming: [null, -skip-unused]
         optimization: [null, -prod]
     steps:
       - name: Restore V Cache
@@ -123,8 +126,6 @@ jobs:
 
       - name: Setup V
         uses: vlang/setup-v@v1.3
-        with:
-          version: 'weekly.2023.15'
 
       - if: ${{ matrix.compiler == 'gcc' }}
         name: Set up GCC
@@ -149,9 +150,11 @@ jobs:
 
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@v3
+        with:
+          path: ${{ env.GHA_PATH }}
 
       - name: ${{ matrix.compiler }} ${{ matrix.trimming }} ${{ matrix.optimization }} build
-        run: v -shared -cc ${{ matrix.compiler }} ${{ matrix.trimming }} ${{ matrix.optimization }} .
+        run: v -shared -cc ${{ matrix.compiler }} ${{ matrix.trimming }} ${{ matrix.optimization }} ${{ env.GHA_PATH }}
 
   clang-sanitizers:
     needs: different-compilers
@@ -185,9 +188,11 @@ jobs:
 
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@v3
+        with:
+          path: ${{ env.GHA_PATH }}
 
       - name: Clang ${{ matrix.sanitizer }} sanitizer
-        run: v -cc clang -cflags -fsanitize=${{ matrix.sanitizer }} test .
+        run: v -cc clang -cflags -fsanitize=${{ matrix.sanitizer }} test ${{ env.GHA_PATH }}
 
   gcc-sanitizers:
     needs: different-compilers
@@ -213,9 +218,11 @@ jobs:
 
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@v3
+        with:
+          path: ${{ env.GHA_PATH }}
 
       - name: GCC ${{ matrix.sanitizer }} sanitizer
-        run: v -cc gcc -cflags -fsanitize=${{ matrix.sanitizer }} test .
+        run: v -cc gcc -cflags -fsanitize=${{ matrix.sanitizer }} test ${{ env.GHA_PATH }}
 
   gcc-address-sanitizers:
     needs: different-compilers
@@ -238,9 +245,11 @@ jobs:
 
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@v3
+        with:
+          path: ${{ env.GHA_PATH }}
 
       - name: GCC address sanitizer
-        run: v -cc gcc -cflags -fsanitize=address -cflags -fsanitize-address-use-after-scope -cflags -fsanitize=pointer-compare -cflags -fsanitize=pointer-subtract test .
+        run: v -cc gcc -cflags -fsanitize=address -cflags -fsanitize-address-use-after-scope -cflags -fsanitize=pointer-compare -cflags -fsanitize=pointer-subtract test ${{ env.GHA_PATH }}
 
   gcc-undefined-sanitizers:
     needs: different-compilers
@@ -263,6 +272,8 @@ jobs:
 
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@v3
+        with:
+          path: ${{ env.GHA_PATH }}
 
       - name: GCC undefined sanitizer
-        run: v -cc gcc -cflags -fsanitize=undefined -cflags -fsanitize=shift -cflags -fsanitize=shift-exponent -cflags -fsanitize=shift-base -cflags -fsanitize=integer-divide-by-zero -cflags -fsanitize=unreachable -cflags -fsanitize=vla-bound -cflags -fsanitize=null -cflags -fsanitize=return -cflags -fsanitize=signed-integer-overflow -cflags -fsanitize=bounds -cflags -fsanitize=bounds-strict -cflags -fsanitize=alignment -cflags -fsanitize=object-size -cflags -fsanitize=float-divide-by-zero -cflags -fsanitize=float-cast-overflow -cflags -fsanitize=nonnull-attribute -cflags -fsanitize=returns-nonnull-attribute -cflags -fsanitize=bool -cflags -fsanitize=enum -cflags -fsanitize=vptr -cflags -fsanitize=pointer-overflow -cflags -fsanitize=builtin test .
+        run: v -cc gcc -cflags -fsanitize=undefined -cflags -fsanitize=shift -cflags -fsanitize=shift-exponent -cflags -fsanitize=shift-base -cflags -fsanitize=integer-divide-by-zero -cflags -fsanitize=unreachable -cflags -fsanitize=vla-bound -cflags -fsanitize=null -cflags -fsanitize=return -cflags -fsanitize=signed-integer-overflow -cflags -fsanitize=bounds -cflags -fsanitize=bounds-strict -cflags -fsanitize=alignment -cflags -fsanitize=object-size -cflags -fsanitize=float-divide-by-zero -cflags -fsanitize=float-cast-overflow -cflags -fsanitize=nonnull-attribute -cflags -fsanitize=returns-nonnull-attribute -cflags -fsanitize=bool -cflags -fsanitize=enum -cflags -fsanitize=vptr -cflags -fsanitize=pointer-overflow -cflags -fsanitize=builtin test ${{ env.GHA_PATH }}

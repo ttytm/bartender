@@ -5,11 +5,17 @@ on:
 
 env:
   WORK_PATH: /home/runner/work/${{ github.event.repository.name }}/${{ github.event.repository.name }}/
+  GHA_PATH: ${{ github.event.repository.name }}-gha
 
 jobs:
   check-formatting:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@v3
+        with:
+          path: ${{ env.GHA_PATH }}
+
       - name: Restore Cache
         uses: actions/cache/restore@v3
         with:
@@ -20,11 +26,8 @@ jobs:
       - name: Setup V
         uses: vlang/setup-v@v1.3
 
-      - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@v3
-
       - name: Check Formatting
-        run: v fmt -verify .
+        run: v fmt -verify ${{ env.GHA_PATH }}
 
   # Vet includes checking public functions without documentation
   # Disable until public functions are documented
