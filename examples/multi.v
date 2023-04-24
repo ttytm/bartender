@@ -1,20 +1,36 @@
 module main
 
 import bartender
+import sync
 import time
+import rand
+
+fn pseudo_dissimilar_progress(mut wg sync.WaitGroup, mut b bartender.Bar) ! {
+	rand_num := rand.intn(100) or { panic(err) }
+	for _ in 0 .. b.iters {
+		b.progress()
+		time.sleep((time.millisecond * rand_num) + (25 * time.millisecond))
+	}
+	wg.done()
+}
 
 fn main() {
-	timeout := time.millisecond * 30
-
-	mut b := bartender.Bar{}
-	mut b2 := b
-	mut b3 := b
-
-	mut mb := bartender.MultiBar{
-		bars: [b, b2, b3]
+	mut b1 := bartender.Bar{
+		multi: true
 	}
-	for _ in 0 .. b.iters {
-		mb.progress()
-		time.sleep(timeout)
+	b1.pre = '1: ['
+	mut b2 := b1
+	b2.pre = '2: ['
+	mut b3 := b1
+	b3.pre = '3: ['
+	mut bars := [&b1, &b2, &b3]
+
+	mut wg := sync.new_waitgroup()
+	for mut b in bars {
+		wg.add(1)
+		spawn pseudo_dissimilar_progress(mut wg, mut b)
 	}
+	wg.add(1)
+	spawn bars.watch(mut wg)
+	wg.wait()
 }

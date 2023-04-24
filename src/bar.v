@@ -12,14 +12,10 @@ pub mut:
 	post  AffixInput = fn (b Bar) (string, string) {
 		return '] ${b.pct()}% (${b.eta(0)})', '] ${b.pct()}%'
 	}
+	multi bool
 mut:
 	runes_     BarRunes_
 	indicator_ string
-	is_multi   bool
-}
-
-pub struct MultiBar {
-	bars []Bar
 }
 
 pub struct BarRunes {
@@ -41,11 +37,10 @@ mut:
 	bar Bar
 }
 
-fn (mut b Bar) setup(is_multi bool) {
+fn (mut b Bar) setup() {
 	b.state.pos = 0
 	b.width_ = b.width
 	b.iters = b.width
-	b.is_multi = is_multi
 	b.runes_ = BarRunes_{
 		progress: b.runes.progress.str()
 		remaining: b.runes.remaining.str()
@@ -73,13 +68,10 @@ fn (mut b Bar) set_vals() {
 }
 
 fn (b Bar) draw() {
-	if b.state.pos == 1 && !b.is_multi {
-		// HACK: make a single bar that follows multi bars work
+	if b.state.pos == 1 && !b.multi {
 		println('')
-		term.clear_previous_line()
-	} else {
-		term.clear_previous_line()
 	}
+	term.clear_previous_line()
 	println(b.format())
 }
 
@@ -117,5 +109,38 @@ fn (mut b Bar) colorize_components(color BarColor) {
 		progress: color.progress.paint_component(b.runes_.progress)
 		indicator: color.indicator.paint_component(b.runes_.indicator)
 		remaining: color.remaining.paint_component(b.runes_.remaining)
+	}
+}
+
+fn draw(bars []&Bar) bool {
+	mut finished := 0
+	for b in bars {
+		term.cursor_down(1)
+		if b.state.pos > 0 && b.state.pos == b.width_ {
+			finished++
+		}
+		if b.state.pos > 0 && b.state.pos > b.width_ {
+			continue
+		}
+		b.draw()
+	}
+	if finished < bars.len {
+		term.cursor_up(bars.len)
+		return false
+	}
+	term.show_cursor()
+	return true
+}
+
+fn (bars []&Bar) ensure_mutli() {
+	mut not_multi := []int{}
+	for i, bar in bars {
+		if !bar.multi {
+			not_multi << i
+		}
+	}
+	if not_multi.len > 0 {
+		eprintln('Failed drawing bars. []&Bar indices not set as multi: ${not_multi}')
+		exit(0)
 	}
 }
