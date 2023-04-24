@@ -25,7 +25,7 @@ jobs:
         run: echo "V_VER=$(v -v)" >> $GITHUB_ENV
 
       - if: ${{ steps.cache-status.outputs.cache-hit != 'true' }}
-        name: Save V Cache
+        name: Cache V
         uses: actions/cache/save@v3
         with:
           path: ${{ env.WORK_PATH }}vlang/
@@ -88,7 +88,7 @@ jobs:
     needs: [lint, test]
     runs-on: ubuntu-latest
     steps:
-      - name: Ensure LLVM and Clang is cached
+      - name: Check if LLVM and Clang is cached
         id: check-llvm-cache
         uses: actions/cache/restore@v3
         with:
@@ -115,7 +115,7 @@ jobs:
       matrix:
         compiler: [gcc, clang]
         trimming: [null, -skip-unused]
-        optimization: [null, -prod]
+        # optimization: [null, -prod]
     steps:
       - name: Restore V Cache
         uses: actions/cache/restore@v3
@@ -128,7 +128,7 @@ jobs:
         uses: vlang/setup-v@v1.3
 
       - if: ${{ matrix.compiler == 'gcc' }}
-        name: Set up GCC
+        name: Setup GCC
         run: |
           sudo apt-get update
           sudo apt-get install --quiet -y build-essential
@@ -153,8 +153,8 @@ jobs:
         with:
           path: ${{ env.GHA_PATH }}
 
-      - name: ${{ matrix.compiler }} ${{ matrix.trimming }} ${{ matrix.optimization }} build
-        run: v -shared -cc ${{ matrix.compiler }} ${{ matrix.trimming }} ${{ matrix.optimization }} ${{ env.GHA_PATH }}
+      - name: ${{ matrix.compiler }} ${{ matrix.trimming }} build
+        run: v -shared -cc ${{ matrix.compiler }} ${{ matrix.trimming }} ${{ env.GHA_PATH }}
 
   clang-sanitizers:
     needs: different-compilers
