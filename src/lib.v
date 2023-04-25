@@ -119,8 +119,14 @@ pub fn (mut b SmoothBar) progress() {
 	}
 
 	b.set_vals()
-	if !b.multi {
-		b.draw()
+	if b.multi {
+		return
+	}
+
+	b.draw()
+	if b.state.pos >= b.width_ && b.rune_i == 0 {
+		println('')
+		term.show_cursor()
 	}
 }
 

@@ -3,7 +3,6 @@ module bartender
 import term
 import time
 import io
-import os
 
 pub struct SmoothBar {
 	BarBase
@@ -99,7 +98,6 @@ fn (mut b SmoothBar) setup() {
 		b.width--
 	}
 	b.width_ = b.width
-
 	b.iters = b.width_ * b.runes.s.len
 	if b.theme_ != .push && b.theme_ != .pull {
 		b.iters /= 2
@@ -169,62 +167,77 @@ fn (mut b SmoothBar) set_vals() {
 }
 
 fn (b SmoothBar) draw() {
-	print('\r${b.format()}')
-	os.flush()
-	match b.theme_ {
-		.push, .pull {
-			if b.state.pos >= b.width_ {
-				progress := if b.theme_ == .pull { b.runes.f[1] } else { b.runes.f[0] }
-				b.finish(progress.repeat(b.width_ + 1))
-			}
-		}
-		else {
-			if b.state.pos >= b.width_ {
-				b.finish(b.runes.f[0].repeat(b.width_ + 2))
-			}
-		}
-	}
+	term.clear_previous_line()
+	println(b.format())
 }
 
 fn (b SmoothBar) format() string {
+	remaining := b.width_ - b.state.pos
 	return match b.theme_ {
-		.push, .pull {
-			n := if b.theme_ == .pull {
-				[b.width_ - b.state.pos, b.state.pos] // progressively empty
-			} else {
-				[b.state.pos, b.width_ - b.state.pos] // progressively fill
-			}
+		.push {
+			left := b.pre_ + b.runes.f[0].repeat(b.state.pos)
+			smooth_rune := if b.state.pos >= b.width_ { b.runes.f[0] } else { b.runes.s[b.rune_i] }
+			right := b.runes.f[1].repeat(b.width_ - b.state.pos) + b.post_
 
-			left := '${b.pre_}${b.runes.f[0].repeat(n[0])}${b.runes.s[b.rune_i]}'
-			right := '${b.runes.f[1].repeat(n[1])}${b.post_}'
+			left + smooth_rune + right
+		}
+		.pull {
+			mut left := b.pre_ + b.runes.f[0].repeat(b.width_ - b.state.pos) + b.runes.s[b.rune_i]
+			if b.state.pos >= b.width_ {
+				left = b.pre_ + b.runes.f[1]
+			}
+			right := b.runes.f[1].repeat(b.state.pos) + b.post_
 
 			left + right
 		}
 		.merge {
-			remaining := b.width_ - b.state.pos
-
-			left := '${b.pre_}${b.runes.f[0].repeat(b.state.pos / 2)}${b.runes.s[b.rune_i]}'
-			// TODO: Smoothness for last two cols.
-			middle := if remaining >= 0 {
-				b.runes.f[1].repeat(remaining)
-			} else {
-				b.runes.f[0]
+			left := b.pre_ + b.runes.f[0].repeat(b.state.pos / 2)
+			middle := if remaining == 0 { // Finished. Full bar is filled.
+				b.runes.f[0].repeat(2)
+			} else if remaining <= 2 { // Last two cols. Smooth runes are in the center.
+				b.runes.f[0] + b.runes.s[b.rune_i] + b.runes.sm[b.rune_i] + b.runes.f[0]
+			} else { // Default. Center filled with remaining space smooth runes left and right.
+				b.runes.s[b.rune_i] + b.runes.f[1].repeat(remaining) + b.runes.sm[b.rune_i]
 			}
-			right := '${b.runes.sm[b.rune_i]}${b.runes.f[0].repeat(b.state.pos / 2)}${b.post_}'
+			right := b.runes.f[0].repeat(b.state.pos / 2) + b.post_
 
 			left + middle + right
 		}
 		.expand {
-			left := '${b.pre_}${b.runes.f[1].repeat((b.width_ - b.state.pos) / 2)}${b.runes.sm[b.rune_i]}'
+			left := b.pre_ + if remaining == 0 {
+				b.runes.f[0].repeat(1)
+			} else if remaining <= 2 {
+				b.runes.sm[b.rune_i] + b.runes.f[0]
+			} else {
+				b.runes.f[1].repeat((b.width_ - b.state.pos) / 2) + b.runes.sm[b.rune_i]
+			}
 			middle := b.runes.f[0].repeat(b.state.pos)
-			right := '${b.runes.s[b.rune_i]}${b.runes.f[1].repeat((b.width_ - b.state.pos) / 2)}${b.post_}'
+			right := if remaining == 0 {
+				b.runes.f[0].repeat(1)
+			} else if remaining <= 2 {
+				b.runes.f[0] + b.runes.s[b.rune_i]
+			} else {
+				b.runes.s[b.rune_i] + b.runes.f[1].repeat((b.width_ - b.state.pos) / 2)
+			} + b.post_
 
 			left + middle + right
 		}
 		.split {
-			left := '${b.pre_}${b.runes.f[0].repeat((b.width_ - b.state.pos) / 2)}${b.runes.sm[b.rune_i]}'
+			left := b.pre_ + if remaining == 0 {
+				b.runes.f[1].repeat(1)
+			} else if remaining <= 2 {
+				b.runes.sm[b.rune_i] + b.runes.f[1]
+			} else {
+				b.runes.f[0].repeat((b.width_ - b.state.pos) / 2) + b.runes.sm[b.rune_i]
+			}
 			middle := b.runes.f[1].repeat(b.state.pos)
-			right := '${b.runes.s[b.rune_i]}${b.runes.f[0].repeat((b.width_ - b.state.pos) / 2)}${b.post_}'
+			right := if remaining == 0 {
+				b.runes.f[1].repeat(1)
+			} else if remaining <= 2 {
+				b.runes.f[1] + b.runes.s[b.rune_i]
+			} else {
+				b.runes.s[b.rune_i] + b.runes.f[0].repeat((b.width_ - b.state.pos) / 2)
+			} + b.post_
 
 			left + middle + right
 		}
@@ -252,12 +265,6 @@ fn (b SmoothBar) next_pos() u16 {
 	} else {
 		2
 	})
-}
-
-fn (b &SmoothBar) finish(bar string) {
-	term.erase_line('2')
-	println('\r${b.pre_}${bar}${b.post_}')
-	term.show_cursor()
 }
 
 fn (bars []&SmoothBar) draw() bool {
