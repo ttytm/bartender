@@ -75,9 +75,10 @@ fn (b Bar) draw() {
 }
 
 fn (b Bar) format() string {
-	left := '${b.pre_}${b.runes_.progress.repeat(b.state.pos - 1)}${b.runes_.indicator}'
+	left := '${b.pre_}${b.runes_.progress.repeat(b.state.pos - 1)}'
+	indicator := if b.state.pos < b.width_ { b.runes_.indicator } else { b.runes_.progress }
 	right := '${b.runes_.remaining.repeat(b.width_ - b.state.pos)}${b.post_}'
-	return left + right
+	return left + indicator + right
 }
 
 fn (mut r BarReader) read(mut buf []u8) !int {

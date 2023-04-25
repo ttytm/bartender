@@ -42,7 +42,7 @@ fn test_progress() {
 		b.progress()
 	}
 	assert b.state.pos == 20
-	assert b.format() == '[###################>] Done!'
+	assert b.format() == '[####################] Done!'
 }
 
 fn test_pct() {
