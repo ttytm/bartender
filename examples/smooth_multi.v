@@ -5,7 +5,7 @@ import sync
 import time
 import rand
 
-fn pseudo_dissimilar_progress(mut wg sync.WaitGroup, mut b bartender.SmoothBar) ! {
+fn pseudo_dissimilar_progress_(mut wg sync.WaitGroup, mut b bartender.SmoothBar) ! {
 	rand_num := rand.intn(20) or { panic(err) }
 	for _ in 0 .. b.iters {
 		b.progress()
@@ -29,7 +29,7 @@ fn main() {
 	mut wg := sync.new_waitgroup()
 	for mut b in bars {
 		wg.add(1)
-		spawn pseudo_dissimilar_progress(mut wg, mut b)
+		spawn pseudo_dissimilar_progress_(mut wg, mut b)
 	}
 	wg.add(1)
 	spawn bars.watch(mut wg)
