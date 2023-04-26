@@ -46,6 +46,7 @@ pub fn (bars []&Bar) watch(mut wg sync.WaitGroup) {
 		eprintln(err)
 		exit(0)
 	}
+	time.sleep(time.millisecond * 15)
 	for {
 		if bars.draw() {
 			term.show_cursor()
