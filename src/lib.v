@@ -23,7 +23,7 @@ pub fn (mut b Bar) progress() {
 		if b.runes_.progress == '' {
 			b.setup()
 		}
-		b.state.time = struct {time.ticks(), 0}
+		b.state.time = Times{time.ticks(), 0}
 		term.hide_cursor()
 		os.signal_opt(.int, handle_interrupt) or { panic(err) }
 	}
@@ -99,7 +99,7 @@ pub fn (b Bar) spinner() string {
 
 pub fn (mut b Bar) reset() {
 	b.setup()
-	b.state.time = struct {0, 0}
+	b.state.time = Times{0, 0}
 }
 
 // <== }
@@ -111,7 +111,7 @@ pub fn (mut b SmoothBar) progress() {
 		if b.runes.s.len == 0 {
 			b.setup()
 		}
-		b.state.time = struct {time.ticks(), 0}
+		b.state.time = Times{time.ticks(), 0}
 		term.hide_cursor()
 		os.signal_opt(.int, handle_interrupt) or { panic(err) }
 	}

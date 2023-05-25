@@ -107,14 +107,14 @@ fn (mut b SmoothBar) setup() {
 }
 
 fn (mut b SmoothBar) setup_push(stream Stream) {
-	b.runes = struct {
+	b.runes = SmoothRunes{
 		s: if stream == .fill { bartender.smooth_ltr } else { bartender.smooth_rtl }
 		f: if stream == .fill { bartender.fillers } else { bartender.fillers.reverse() }
 	}
 }
 
 fn (mut b SmoothBar) setup_pull(stream Stream) {
-	b.runes = struct {
+	b.runes = SmoothRunes{
 		s: if stream == .fill {
 			bartender.smooth_rtl.reverse()
 		} else {
@@ -125,7 +125,7 @@ fn (mut b SmoothBar) setup_pull(stream Stream) {
 }
 
 fn (mut b SmoothBar) setup_duals() {
-	b.runes = struct {
+	b.runes = SmoothRunes{
 		s: if b.theme_ == .split { bartender.smooth_rtl } else { bartender.smooth_ltr }
 		sm: if b.theme_ == .split {
 			bartender.smooth_ltr.reverse()
