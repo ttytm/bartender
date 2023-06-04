@@ -3,38 +3,7 @@ module bartender
 import term
 import time
 import io
-
-pub struct Bar {
-	BarBase
-pub mut:
-	runes BarRunes
-	pre   AffixInput = '['
-	post  AffixInput = fn (b Bar) (string, string) {
-		return '] ${b.pct()}% (${b.eta(0)})', '] ${b.pct()}%'
-	}
-mut:
-	runes_     BarRunes_
-	indicator_ string
-}
-
-pub struct BarRunes {
-	progress  rune = `#`
-	indicator ?rune
-	remaining rune = ` `
-}
-
-// Internally resolve to strings instead of runes for color support.
-struct BarRunes_ {
-	progress  string
-	indicator string
-	remaining string
-}
-
-struct BarReader {
-	BarReaderBase
-mut:
-	bar Bar
-}
+import os
 
 fn (mut b Bar) setup() {
 	b.state.pos = 0
@@ -112,33 +81,60 @@ fn (mut b Bar) colorize_components(color BarColor) {
 	}
 }
 
-fn (bars []&Bar) draw() bool {
-	mut finished := true
-	mut formatted := []string{}
-	for b in bars {
-		formatted << b.format()
-		if b.state.pos > 0 && b.state.pos < b.width_ {
-			finished = false
+// Functions for exposure.
+
+fn (mut b Bar) progress_() {
+	if b.state.time.start == 0 {
+		if b.runes_.progress == '' {
+			b.setup()
 		}
+		b.state.time = struct {time.ticks(), 0}
+		term.hide_cursor()
+		os.signal_opt(.int, handle_interrupt) or { panic(err) }
 	}
-	println(formatted.join_lines())
-	if !finished {
-		term.cursor_up(bars.len)
+	if b.state.pos >= b.width_ {
+		panic(IError(BarError{ kind: .finished }))
 	}
-	return finished
+
+	b.set_vals()
+	if b.multi {
+		return
+	}
+	b.draw()
+	if b.state.pos >= b.width_ {
+		term.show_cursor()
+	}
 }
 
-fn (bars []&Bar) ensure_mutli() ! {
-	mut not_multi := []int{}
-	for i, bar in bars {
-		if !bar.multi {
-			not_multi << i
-		}
+fn (mut b Bar) colorize_(color BarColorType) {
+	b.setup()
+	if color is BarColor {
+		b.colorize_components(color)
+	} else {
+		b.colorize_uni(color as Color)
 	}
-	if not_multi.len > 0 {
-		return IError(BarError{
-			kind: .missing_multi
-			msg: '${not_multi}'
-		})
+}
+
+fn (b Bar) eta_(delay u8) string {
+	if delay > 100 {
+		panic(IError(BarError{ kind: .delay_exceeded }))
 	}
+	next_pos := b.state.pos + 1
+	if next_pos < f32(b.width_) * delay / 100 {
+		return b.spinner()
+	}
+	// Avg. time(until current position) to move up one position * remaining positions.
+	return '${f64(b.state.time.last_change - b.state.time.start) / next_pos * (b.width_ - next_pos) / 1000:.1f}s'
+}
+
+fn (b Bar) pct_() u16 {
+	if b.width_ == 0 {
+		return 0
+	}
+	return (b.state.pos + 1) * 100 / b.width_
+}
+
+fn (mut b Bar) reset_() {
+	b.setup()
+	b.state.time = struct {0, 0}
 }

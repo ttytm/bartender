@@ -3,68 +3,7 @@ module bartender
 import term
 import time
 import io
-
-pub struct SmoothBar {
-	BarBase
-pub mut:
-	theme ThemeChoice = Theme.push
-	pre   AffixInput  = Affix{
-		pending: ''
-		finished: ''
-	}
-	post AffixInput = fn (b SmoothBar) (string, string) {
-		return ' ${b.pct()}% (${b.eta(0)})', ' ${b.pct()}%'
-	}
-mut:
-	theme_ Theme
-	runes  SmoothRunes
-	rune_i u8 // idx used to render all runes in one col before progressing to next col(b.state.pos).
-}
-
-// The current solution might be improved. In Rust it would be one enum with push & pull being tuple variants.
-type ThemeChoice = Theme | ThemeVariant
-
-pub enum Theme {
-	push
-	pull
-	merge
-	expand
-	split
-}
-
-pub struct ThemeVariant {
-	theme  ThemeVariantOpt
-	stream Stream
-}
-
-pub enum ThemeVariantOpt {
-	push
-	pull
-}
-
-pub enum Stream {
-	fill
-	drain
-}
-
-struct SmoothRunes {
-mut: // Strings instead of runes for color support.
-	f  []string // Fillers.
-	s  []string // Smooth.
-	sm []string // Smooth Mirrored. Used for merge, expand and split variant.
-}
-
-struct SmoothBarReader {
-	BarReaderBase
-mut:
-	bar SmoothBar
-}
-
-const (
-	smooth_ltr = [' ', '▏', '▎', '▍', '▌', '▋', '▊', '▉', '█']
-	smooth_rtl = ['█', '🮋', '🮊', '🮉', '▐', '🮈', '🮇', '▕', ' ']
-	fillers    = ['█', ' '] // Used for progress until current state and remaining space.
-)
+import os
 
 fn (mut b SmoothBar) setup() {
 	if mut b.theme is Theme {
@@ -108,31 +47,31 @@ fn (mut b SmoothBar) setup() {
 
 fn (mut b SmoothBar) setup_push(stream Stream) {
 	b.runes = SmoothRunes{
-		s: if stream == .fill { bartender.smooth_ltr } else { bartender.smooth_rtl }
-		f: if stream == .fill { bartender.fillers } else { bartender.fillers.reverse() }
+		s: if stream == .fill { smooth_ltr } else { smooth_rtl }
+		f: if stream == .fill { fillers } else { fillers.reverse() }
 	}
 }
 
 fn (mut b SmoothBar) setup_pull(stream Stream) {
 	b.runes = SmoothRunes{
 		s: if stream == .fill {
-			bartender.smooth_rtl.reverse()
+			smooth_rtl.reverse()
 		} else {
-			bartender.smooth_ltr.reverse()
+			smooth_ltr.reverse()
 		}
-		f: if stream == .fill { bartender.fillers.reverse() } else { bartender.fillers }
+		f: if stream == .fill { fillers.reverse() } else { fillers }
 	}
 }
 
 fn (mut b SmoothBar) setup_duals() {
 	b.runes = SmoothRunes{
-		s: if b.theme_ == .split { bartender.smooth_rtl } else { bartender.smooth_ltr }
+		s: if b.theme_ == .split { smooth_rtl } else { smooth_ltr }
 		sm: if b.theme_ == .split {
-			bartender.smooth_ltr.reverse()
+			smooth_ltr.reverse()
 		} else {
-			bartender.smooth_rtl.reverse()
+			smooth_rtl.reverse()
 		}
-		f: bartender.fillers
+		f: fillers
 	}
 }
 
@@ -267,34 +206,71 @@ fn (b SmoothBar) next_pos() u16 {
 	})
 }
 
-fn (bars []&SmoothBar) draw() bool {
-	mut finished := true
-	mut formatted := []string{}
-	for b in bars {
-		formatted << b.format()
-		if b.state.pos < b.width_ {
-			finished = false
+// Functions for exposure.
+
+fn (mut b SmoothBar) progress_() {
+	if b.state.time.start == 0 {
+		if b.runes.s.len == 0 {
+			b.setup()
 		}
+		b.state.time = struct {time.ticks(), 0}
+		term.hide_cursor()
+		os.signal_opt(.int, handle_interrupt) or { panic(err) }
 	}
-	println(formatted.join_lines())
-	if !finished {
-		term.cursor_up(bars.len)
+	if b.state.pos > b.width_ {
+		panic(IError(BarError{ kind: .finished }))
 	}
-	return finished
+
+	b.set_vals()
+	if b.multi {
+		return
+	}
+
+	b.draw()
+	if b.state.pos >= b.width_ && b.rune_i == 0 {
+		println('')
+		term.show_cursor()
+	}
 }
 
-// A function that takes a sumtype arg []&Bar | []&SmoothBar would more concice, but won't work atm.
-fn (bars []&SmoothBar) ensure_mutli() ! {
-	mut not_multi := []int{}
-	for i, bar in bars {
-		if !bar.multi {
-			not_multi << i
+fn (mut b SmoothBar) colorize_(color Color) {
+	b.setup()
+
+	mut painted_runes := SmoothRunes{}
+
+	for r in b.runes.f {
+		painted_runes.f << color.paint(r, .fg)
+	}
+	for mut r in b.runes.s {
+		painted_runes.s << color.paint(r, .fg)
+	}
+	if b.runes.sm.len > 0 {
+		for mut r in b.runes.sm {
+			painted_runes.sm << color.paint(r, .fg)
 		}
 	}
-	if not_multi.len > 0 {
-		return IError(BarError{
-			kind: .missing_multi
-			msg: '${not_multi}'
-		})
+
+	b.runes = painted_runes
+}
+
+fn (b SmoothBar) eta_(delay u8) string {
+	if delay > 100 {
+		panic(IError(BarError{ kind: .delay_exceeded }))
 	}
+	next_pos := b.next_pos()
+	if b.width_ == b.state.pos {
+		return ''
+	}
+	if next_pos < f32(b.width_) * delay / 100 {
+		return b.spinner_()
+	}
+	// Avg. time(until current position) to move up one position * remaining positions.
+	return '${f64(b.state.time.last_change - b.state.time.start) / next_pos * (b.width_ - next_pos) / 1000:.1f}s'
+}
+
+fn (b SmoothBar) pct_() u16 {
+	if b.width_ == 0 {
+		return 0
+	}
+	return b.next_pos() * 100 / b.width_
 }

@@ -1,7 +1,5 @@
 module bartender
 
-import term
-
 struct BarBase {
 pub mut:
 	width u16 = 60
@@ -29,34 +27,12 @@ mut:
 struct State {
 mut:
 	pos  u16
-	time Times
-}
-
-struct Times {
-mut:
-	start       i64
-	last_change i64
+	time struct {
+	mut:
+		start       i64
+		last_change i64
+	}
 }
 
 type BarType = Bar | SmoothBar
 type BarReaderType = BarReader | SmoothBarReader
-
-fn (mut b BarBase) set_fit_width() {
-	term_width, _ := term.get_terminal_size()
-	affix_width := utf8_str_visible_length(term.strip_ansi(b.pre_)) +
-		utf8_str_visible_length(term.strip_ansi(b.post_))
-
-	if term_width > b.width_ + affix_width {
-		return
-	}
-	new_width := u16(term_width - affix_width)
-	diff := b.width_ - new_width
-
-	if diff > b.state.pos {
-		b.state.pos = 0
-	} else {
-		b.state.pos -= diff
-	}
-
-	b.width_ = new_width
-}
