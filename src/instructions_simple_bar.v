@@ -88,7 +88,7 @@ fn (mut b Bar) progress_() {
 		if b.runes_.progress == '' {
 			b.setup()
 		}
-		b.state.time = Times{time.ticks(), 0}
+		b.state.time = struct {time.ticks(), 0}
 		term.hide_cursor()
 		os.signal_opt(.int, handle_interrupt) or { panic(err) }
 	}
@@ -136,5 +136,5 @@ fn (b Bar) pct_() u16 {
 
 fn (mut b Bar) reset_() {
 	b.setup()
-	b.state.time = Times{0, 0}
+	b.state.time = struct {0, 0}
 }

@@ -213,7 +213,7 @@ fn (mut b SmoothBar) progress_() {
 		if b.runes.s.len == 0 {
 			b.setup()
 		}
-		b.state.time = Times{time.ticks(), 0}
+		b.state.time = struct {time.ticks(), 0}
 		term.hide_cursor()
 		os.signal_opt(.int, handle_interrupt) or { panic(err) }
 	}

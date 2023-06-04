@@ -27,13 +27,11 @@ mut:
 struct State {
 mut:
 	pos  u16
-	time Times
-}
-
-struct Times {
-mut:
-	start       i64
-	last_change i64
+	time struct {
+	mut:
+		start       i64
+		last_change i64
+	}
 }
 
 type BarType = Bar | SmoothBar
