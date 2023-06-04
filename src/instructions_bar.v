@@ -123,7 +123,7 @@ fn (b Bar) eta_(delay u8) string {
 	if next_pos < f32(b.width_) * delay / 100 {
 		return b.spinner()
 	}
-	// Avg. time until now to move up one position * remaining positions.
+	// Avg. time(until current position) to move up one position * remaining positions.
 	return '${f64(b.state.time.last_change - b.state.time.start) / next_pos * (b.width_ - next_pos) / 1000:.1f}s'
 }
 

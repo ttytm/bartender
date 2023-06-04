@@ -37,6 +37,10 @@ pub fn (mut b Bar) reset() {
 	b.reset_()
 }
 
+pub fn (mut b Bar) bar_reader(bytes []u8) &io.BufferedReader {
+	return bar_reader_(b, bytes)
+}
+
 pub fn (bars []&Bar) watch(mut wg sync.WaitGroup) {
 	bars.watch_(mut wg)
 }
@@ -45,10 +49,6 @@ pub fn (bars []&Bar) watch(mut wg sync.WaitGroup) {
 
 pub fn (mut b SmoothBar) progress() {
 	b.progress_()
-}
-
-pub fn (bars []&SmoothBar) watch(mut wg sync.WaitGroup) {
-	bars.watch_(mut wg)
 }
 
 pub fn (mut b SmoothBar) colorize(color Color) {
@@ -73,6 +73,14 @@ pub fn (b SmoothBar) spinner() string {
 
 pub fn (mut b SmoothBar) reset() {
 	b.setup()
+}
+
+pub fn (mut b SmoothBar) bar_reader(bytes []u8) &io.BufferedReader {
+	return bar_reader_(b, bytes)
+}
+
+pub fn (bars []&SmoothBar) watch(mut wg sync.WaitGroup) {
+	bars.watch_(mut wg)
 }
 
 // == Misc ====================================================================
