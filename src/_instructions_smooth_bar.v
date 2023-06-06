@@ -206,8 +206,6 @@ fn (b SmoothBar) next_pos() u16 {
 	})
 }
 
-// Functions for exposure.
-
 fn (mut b SmoothBar) progress_() {
 	if b.state.time.start == 0 {
 		if b.runes.s.len == 0 {

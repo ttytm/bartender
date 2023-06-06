@@ -81,8 +81,6 @@ fn (mut b Bar) colorize_components(color BarColor) {
 	}
 }
 
-// Functions for exposure.
-
 fn (mut b Bar) progress_() {
 	if b.state.time.start == 0 {
 		if b.runes_.progress == '' {

@@ -36,9 +36,7 @@ fn (bars []&SmoothBar) ensure_mutli() ! {
 	}
 }
 
-// Functions for exposure.
-
-pub fn (bars []&SmoothBar) watch_(mut wg sync.WaitGroup) {
+fn (bars []&SmoothBar) watch_(mut wg sync.WaitGroup) {
 	// NOTE: Same function for Bars and SmoothBars. Re-check with Vlangs progression if this can be solved with a sumtype.
 	bars.ensure_mutli() or {
 		eprintln(err)
