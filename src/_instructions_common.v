@@ -1,6 +1,7 @@
 module bartender
 
 import term
+import os
 
 fn (mut b BarBase) set_fit_width() {
 	term_width, _ := term.get_terminal_size()
