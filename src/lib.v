@@ -143,8 +143,3 @@ pub fn bar_reader(b BarType, bytes []u8) &io.BufferedReader {
 pub fn (b BarBase) pos() u16 {
 	return b.state.pos
 }
-
-fn handle_interrupt(signal os.Signal) {
-	term.show_cursor()
-	exit(0)
-}

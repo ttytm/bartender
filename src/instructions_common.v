@@ -21,3 +21,8 @@ fn (mut b BarBase) set_fit_width() {
 
 	b.width_ = new_width
 }
+
+fn handle_interrupt(signal os.Signal) {
+	term.show_cursor()
+	exit(0)
+}

@@ -35,4 +35,5 @@ mut:
 }
 
 type BarType = Bar | SmoothBar
+
 type BarReaderType = BarReader | SmoothBarReader
