@@ -13,9 +13,9 @@ enum ErrorKind {
 }
 
 fn (err BarError) msg() string {
-	match err.kind {
-		.finished { return 'Trying to progress already finished bar.' }
-		.delay_exceeded { return 'Delay cannot exceed 100%.' }
-		.missing_multi { return 'Failed drawing bars. []&Bar indices not set as multi: ${err.msg}' }
+	return match err.kind {
+		.finished { 'Trying to progress already finished bar.' }
+		.delay_exceeded { 'Delay cannot exceed 100%.' }
+		.missing_multi { 'Failed drawing bars. []&Bar indices not set as multi: ${err.msg}' }
 	}
 }
