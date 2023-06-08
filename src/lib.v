@@ -39,8 +39,6 @@ bartender
 module bartender
 
 import sync
-import term
-import os
 import io
 
 // == Bar =====================================================================
