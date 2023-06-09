@@ -1,8 +1,6 @@
 module bartender
 
 import term
-import time
-import sync
 
 fn (bars []&SmoothBar) draw() bool {
 	mut finished := true
@@ -34,21 +32,4 @@ fn (bars []&SmoothBar) ensure_mutli() ! {
 			msg: '${not_multi}'
 		})
 	}
-}
-
-fn (bars []&SmoothBar) watch_(mut wg sync.WaitGroup) {
-	// NOTE: Same function for Bars and SmoothBars. Re-check with Vlangs progression if this can be solved with a sumtype.
-	bars.ensure_mutli() or {
-		eprintln(err)
-		exit(0)
-	}
-	for {
-		if bars.draw() {
-			term.show_cursor()
-			break
-		}
-		// Slow redraw loop to reduce load.
-		time.sleep(time.millisecond * 5)
-	}
-	wg.done()
 }

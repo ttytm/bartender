@@ -83,7 +83,7 @@ pub fn (mut b Bar) bar_reader(bytes []u8) &io.BufferedReader {
 
 // Monitors the progress of multiple bars until all of them are finished.
 pub fn (bars []&Bar) watch(mut wg sync.WaitGroup) {
-	bars.watch_(mut wg)
+	watch_(bars, mut wg)
 }
 
 // == SmoothBar ===============================================================
@@ -128,7 +128,7 @@ pub fn (mut b SmoothBar) bar_reader(bytes []u8) &io.BufferedReader {
 
 // Monitors the progress of multiple bars until all of them are finished.
 pub fn (bars []&SmoothBar) watch(mut wg sync.WaitGroup) {
-	bars.watch_(mut wg)
+	watch_(bars, mut wg)
 }
 
 // == Misc ====================================================================

@@ -1,25 +1,6 @@
 module bartender
 
 import term
-import time
-import sync
-
-fn (bars []&Bar) watch_(mut wg sync.WaitGroup) {
-	bars.ensure_mutli() or {
-		eprintln(err)
-		exit(0)
-	}
-	time.sleep(time.millisecond * 15)
-	for {
-		if bars.draw() {
-			term.show_cursor()
-			break
-		}
-		// Redraw the bars every 15ms to reduce load and prevent flashing output.
-		time.sleep(time.millisecond * 15)
-	}
-	wg.done()
-}
 
 fn (bars []&Bar) draw() bool {
 	mut finished := true
