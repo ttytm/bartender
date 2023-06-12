@@ -2,65 +2,35 @@ module bartender
 
 import io
 
-const buf_max_len = 1024
+fn bar_reader(b BarType, reader io.Reader, size u64) &io.BufferedReader {
+	return io.new_buffered_reader(
+		reader: BarReader{
+			bar: b
+			reader: reader
+			size: size
+		}
+	)
+}
 
-fn bar_reader_(b BarType, bytes []u8) &io.BufferedReader {
-	return match b {
+fn (mut br BarReader) read(mut buf []u8) !int {
+	if br.pos >= br.size {
+		return io.Eof{}
+	}
+	n := br.reader.read(mut buf)!
+	br.pos += n
+	match mut br.bar {
+		// Unfortunately, comma separation doesn't work here ATM.
+		// SmoothBar won't be visible or will have corrupted chars.
 		Bar {
-			io.new_buffered_reader(
-				reader: BarReader{
-					bytes: bytes
-					size: bytes.len
-					bar: b
-				}
-			)
+			if (f64(br.pos) / br.size * br.bar.width) > br.bar.state.pos {
+				br.bar.progress()
+			}
 		}
 		SmoothBar {
-			io.new_buffered_reader(
-				reader: SmoothBarReader{
-					bytes: bytes
-					size: bytes.len
-					bar: b
-				}
-			)
+			if (f64(br.pos) / br.size * br.bar.width) > br.bar.state.pos {
+				br.bar.progress()
+			}
 		}
 	}
-}
-
-fn get_buf_end(r BarReaderType) int {
-	return if r.pos + bartender.buf_max_len >= r.size {
-		r.size
-	} else {
-		r.pos + bartender.buf_max_len
-	}
-}
-
-fn (mut r BarReader) read(mut buf []u8) !int {
-	if r.pos >= r.size {
-		return io.Eof{}
-	}
-
-	n := copy(mut buf, r.bytes[r.pos..get_buf_end(r)])
-	r.pos += n
-
-	if (f64(r.pos) / r.size * r.bar.width) > r.bar.pos() {
-		r.bar.progress()
-	}
-
-	return n
-}
-
-fn (mut r SmoothBarReader) read(mut buf []u8) !int {
-	if r.pos >= r.size {
-		return io.Eof{}
-	}
-
-	n := copy(mut buf, r.bytes[r.pos..get_buf_end(r)])
-	r.pos += n
-
-	if (f64(r.pos) / r.size * r.bar.width) > r.bar.pos() {
-		r.bar.progress()
-	}
-
 	return n
 }

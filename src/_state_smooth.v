@@ -50,12 +50,6 @@ mut: // Strings instead of runes for color support.
 	sm []string // Smooth Mirrored. Used for merge, expand and split variant.
 }
 
-struct SmoothBarReader {
-	BarReaderBase
-mut:
-	bar SmoothBar
-}
-
 const (
 	smooth_ltr = [' ', '▏', '▎', '▍', '▌', '▋', '▊', '▉', '█']
 	smooth_rtl = ['█', '🮋', '🮊', '🮉', '▐', '🮈', '🮇', '▕', ' ']

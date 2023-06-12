@@ -1,5 +1,7 @@
 module bartender
 
+import io
+
 struct BarBase {
 pub mut:
 	width u16 = 60
@@ -17,11 +19,12 @@ mut:
 	post_  string
 }
 
-struct BarReaderBase {
-	bytes []u8
-	size  int
+struct BarReader {
+	size u64
 mut:
-	pos int
+	bar    BarType
+	pos    int
+	reader io.Reader
 }
 
 struct State {
@@ -35,7 +38,5 @@ mut:
 }
 
 type BarType = Bar | SmoothBar
-
-type BarReaderType = BarReader | SmoothBarReader
 
 type MultiBarType = []&Bar | []&SmoothBar

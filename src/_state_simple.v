@@ -25,9 +25,3 @@ struct BarRunes_ {
 	indicator string
 	remaining string
 }
-
-struct BarReader {
-	BarReaderBase
-mut:
-	bar Bar
-}
