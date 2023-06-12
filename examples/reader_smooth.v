@@ -6,8 +6,36 @@ import time
 import term
 import bartender
 
+struct MyCustomReader {
+	size u64 [required]
+mut:
+	reader io.Reader [required]
+	pos    int
+}
+
+fn (mut r MyCustomReader) read(mut buf []u8) !int {
+	if r.pos >= r.size {
+		return io.Eof{}
+	}
+	n := r.reader.read(mut buf)!
+	r.pos += n
+	time.sleep(10 * time.millisecond)
+	return n
+}
+
 fn main() {
-	mut start := time.ticks()
+	// Prepare dummy files.
+	src_file_path := './examples/dummy-src-file.txt'
+	dst_file_path := './examples/dummy-dst-file.txt'
+	os.write_file(src_file_path, '123456789\n'.repeat(10 * 1024 * 1024))!
+	mut src_file := os.open(src_file_path)!
+	mut dst_file := os.create(dst_file_path)!
+	defer {
+		src_file.close()
+		dst_file.close()
+		os.rm(src_file_path) or { panic(err) }
+		os.rm(dst_file_path) or { panic(err) }
+	}
 
 	// Create a smooth bar. Apply customizations.
 	mut b := bartender.SmoothBar{
@@ -18,11 +46,11 @@ fn main() {
 	}
 	b.colorize(.cyan)
 
-	mut r := bartender.bar_reader(b, '1234567890'.repeat(50 * 1024 * 1024).bytes())
-	mut f := os.create('testfile')!
-	io.cp(mut r, mut f)!
-	f.close()
+	r := MyCustomReader{
+		reader: src_file
+		size: os.file_size(src_file_path)
+	}
 
-	println('Completed in ${f64(time.ticks() - start) / 1000:.2f}s')
-	os.rm('testfile')!
+	mut bar_reader := b.reader(r, r.size)
+	io.cp(mut bar_reader, mut dst_file)!
 }
