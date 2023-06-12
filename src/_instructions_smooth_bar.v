@@ -214,6 +214,8 @@ fn (mut b SmoothBar) progress_() {
 		b.state.time = struct {time.ticks(), 0}
 		term.hide_cursor()
 		os.signal_opt(.int, handle_interrupt) or { panic(err) }
+		// Print empty line before first progress to not overwrite current line.
+		println('')
 	}
 	if b.state.pos > b.width_ {
 		panic(IError(BarError{ kind: .finished }))
@@ -226,7 +228,6 @@ fn (mut b SmoothBar) progress_() {
 
 	b.draw()
 	if b.state.pos >= b.width_ && b.rune_i == 0 {
-		println('')
 		term.show_cursor()
 	}
 }

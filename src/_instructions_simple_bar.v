@@ -36,9 +36,6 @@ fn (mut b Bar) set_vals() {
 }
 
 fn (b Bar) draw() {
-	if b.state.pos == 1 && !b.multi {
-		println('')
-	}
 	term.clear_previous_line()
 	println(b.format())
 }
@@ -89,6 +86,8 @@ fn (mut b Bar) progress_() {
 		b.state.time = struct {time.ticks(), 0}
 		term.hide_cursor()
 		os.signal_opt(.int, handle_interrupt) or { panic(err) }
+		// Print empty line before first progress to not overwrite current line.
+		println('')
 	}
 	if b.state.pos >= b.width_ {
 		panic(IError(BarError{ kind: .finished }))
