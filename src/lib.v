@@ -77,8 +77,8 @@ pub fn (mut b Bar) reset() {
 }
 
 // Returns a `io.BufferedReader` that displays a progressing bar when used in a reader operation.
-pub fn (mut b Bar) bar_reader(bytes []u8) &io.BufferedReader {
-	return bar_reader_(b, bytes)
+pub fn (b Bar) reader(reader io.Reader, size u64) &io.BufferedReader {
+	return bar_reader(b, reader, size)
 }
 
 // Monitors the progress of multiple bars until all of them are finished.
@@ -122,8 +122,8 @@ pub fn (mut b SmoothBar) reset() {
 }
 
 // Returns a `io.BufferedReader` that displays a progressing bar when used in a reader operation.
-pub fn (mut b SmoothBar) bar_reader(bytes []u8) &io.BufferedReader {
-	return bar_reader_(b, bytes)
+pub fn (b SmoothBar) reader(reader io.Reader, size u64) &io.BufferedReader {
+	return bar_reader(b, reader, size)
 }
 
 // Monitors the progress of multiple bars until all of them are finished.
@@ -132,10 +132,6 @@ pub fn (bars []&SmoothBar) watch(mut wg sync.WaitGroup) {
 }
 
 // == Misc ====================================================================
-
-pub fn bar_reader(b BarType, bytes []u8) &io.BufferedReader {
-	return bar_reader_(b, bytes)
-}
 
 // Returns the bar's current position.
 pub fn (b BarBase) pos() u16 {

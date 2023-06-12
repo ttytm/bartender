@@ -2,35 +2,35 @@ module bartender
 
 import io
 
-const buf_max_len = 1024
-
-fn bar_reader_(b BarType, bytes []u8) &io.BufferedReader {
-	return match b {
-		Bar {
-			io.new_buffered_reader(
-				reader: BarReader{
-					bytes: bytes
-					size: bytes.len
-					bar: b
-				}
-			)
+fn bar_reader(b BarType, reader io.Reader, size u64) &io.BufferedReader {
+	return io.new_buffered_reader(
+		reader: BarReader{
+			bar: b
+			reader: reader
+			size: size
 		}
-		SmoothBar {
-			io.new_buffered_reader(
-				reader: SmoothBarReader{
-					bytes: bytes
-					size: bytes.len
-					bar: b
-				}
-			)
-		}
-	}
+	)
 }
 
-fn get_buf_end(r BarReaderType) int {
-	return if r.pos + bartender.buf_max_len >= r.size {
-		r.size
-	} else {
-		r.pos + bartender.buf_max_len
+fn (mut br BarReader) read(mut buf []u8) !int {
+	if br.pos >= br.size {
+		return io.Eof{}
 	}
+	n := br.reader.read(mut buf)!
+	br.pos += n
+	match mut br.bar {
+		// Unfortunately, comma separation doesn't work here ATM.
+		// SmoothBar won't be visible or will have corrupted chars.
+		Bar {
+			if (f64(br.pos) / br.size * br.bar.width) > br.bar.state.pos {
+				br.bar.progress()
+			}
+		}
+		SmoothBar {
+			if (f64(br.pos) / br.size * br.bar.width) > br.bar.state.pos {
+				br.bar.progress()
+			}
+		}
+	}
+	return n
 }
