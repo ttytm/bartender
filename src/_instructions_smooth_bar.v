@@ -2,7 +2,6 @@ module bartender
 
 import term
 import time
-import io
 import os
 
 fn (mut b SmoothBar) setup() {
@@ -181,21 +180,6 @@ fn (b SmoothBar) format() string {
 			left + middle + right
 		}
 	}
-}
-
-fn (mut r SmoothBarReader) read(mut buf []u8) !int {
-	if r.pos >= r.size {
-		return io.Eof{}
-	}
-
-	n := copy(mut buf, r.bytes[r.pos..get_buf_end(r)])
-	r.pos += n
-
-	if (f64(r.pos) / r.size * r.bar.width) > r.bar.pos() {
-		r.bar.progress()
-	}
-
-	return n
 }
 
 fn (b SmoothBar) next_pos() u16 {

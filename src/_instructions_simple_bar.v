@@ -2,7 +2,6 @@ module bartender
 
 import term
 import time
-import io
 import os
 
 fn (mut b Bar) setup() {
@@ -48,21 +47,6 @@ fn (b Bar) format() string {
 	indicator := if b.state.pos < b.width_ { b.runes_.indicator } else { b.runes_.progress }
 	right := b.runes_.remaining.repeat(b.width_ - b.state.pos) + b.post_
 	return left + indicator + right
-}
-
-fn (mut r BarReader) read(mut buf []u8) !int {
-	if r.pos >= r.size {
-		return io.Eof{}
-	}
-
-	n := copy(mut buf, r.bytes[r.pos..get_buf_end(r)])
-	r.pos += n
-
-	if (f64(r.pos) / r.size * r.bar.width) > r.bar.pos() {
-		r.bar.progress()
-	}
-
-	return n
 }
 
 fn (mut b Bar) colorize_uni(color Color) {
