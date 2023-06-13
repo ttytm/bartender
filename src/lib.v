@@ -82,8 +82,8 @@ pub fn (b Bar) reader(reader io.Reader, size u64) &io.BufferedReader {
 }
 
 // Monitors the progress of multiple bars until all of them are finished.
-pub fn (bars []&Bar) watch(mut wg sync.WaitGroup) {
-	watch_(bars, mut wg) or { panic(err) } // can only fail on initial check if bars in bar array not set to `multi: true`.
+pub fn (mut bars []&Bar) watch(mut wg sync.WaitGroup) {
+	watch_(mut bars, mut wg)
 }
 
 // == SmoothBar ===============================================================
@@ -127,8 +127,8 @@ pub fn (b SmoothBar) reader(reader io.Reader, size u64) &io.BufferedReader {
 }
 
 // Monitors the progress of multiple bars until all of them are finished.
-pub fn (bars []&SmoothBar) watch(mut wg sync.WaitGroup) {
-	watch_(bars, mut wg) or { panic(err) } // can only fail on initial check if bars in bar array not set to `multi: true`.
+pub fn (mut bars []&SmoothBar) watch(mut wg sync.WaitGroup) {
+	watch_(mut bars, mut wg)
 }
 
 // == Misc ====================================================================

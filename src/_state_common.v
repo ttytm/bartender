@@ -8,9 +8,9 @@ pub mut:
 	// Number of iterations. NOTE: Solution is up for improvement.
 	// Resolves to `width_` for `Bar` and `smooth_runes.len * width_` for `SmoothBar`.
 	iters int = 60
-	multi bool
 mut:
 	state State
+	multi bool
 	// Private params. Based on public equivalents.
 	// Assigned on `<bar>.setup()` or on `<bar>.progress()`.
 	// Might get mutated by state or terminal size changes.
