@@ -10,7 +10,7 @@ fn main() {
 	// ===========================================================================
 	mut b := bartender.Bar{}
 	for _ in 0 .. b.iters {
-		b.progress()
+		b.progress()!
 		time.sleep(timeout)
 	}
 
@@ -25,7 +25,7 @@ fn main() {
 		}
 	}
 	for _ in 0 .. b2.iters {
-		b2.progress()
+		b2.progress()!
 		time.sleep(timeout)
 	}
 
@@ -45,7 +45,7 @@ fn main() {
 		}
 	}
 	for _ in 0 .. b3.iters {
-		b3.progress()
+		b3.progress()!
 		time.sleep(timeout * 5)
 	}
 }
