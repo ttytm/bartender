@@ -6,38 +6,28 @@ import time
 import term
 import bartender
 
-struct MyCustomReader {
-	size u64 [required]
+const max_bytes = 8 * 1024 // 8 KiB
+
+pub struct MyCustomReader {
+	data []u8 [required]
+	size int  [required]
 mut:
-	reader io.Reader [required]
-	pos    int
+	pos int
 }
 
 fn (mut r MyCustomReader) read(mut buf []u8) !int {
 	if r.pos >= r.size {
 		return io.Eof{}
 	}
-	n := r.reader.read(mut buf)!
+	end := if r.pos + max_bytes >= r.size { r.size } else { r.pos + max_bytes }
+	n := copy(mut buf, r.data[r.pos..end])
+	time.sleep(1 * time.millisecond)
 	r.pos += n
-	time.sleep(10 * time.millisecond)
 	return n
 }
 
 fn main() {
-	// Prepare dummy files.
-	src_file_path := './examples/dummy-src-file.txt'
-	dst_file_path := './examples/dummy-dst-file.txt'
-	os.write_file(src_file_path, '123456789\n'.repeat(10 * 1024 * 1024))!
-	mut src_file := os.open(src_file_path)!
-	mut dst_file := os.create(dst_file_path)!
-	defer {
-		src_file.close()
-		dst_file.close()
-		os.rm(src_file_path) or { panic(err) }
-		os.rm(dst_file_path) or { panic(err) }
-	}
-
-	// Create a smooth bar. Apply customizations.
+	// Create a smooth bar. Apply customizations
 	mut b := bartender.SmoothBar{
 		pre: '│'
 		post: fn (b bartender.SmoothBar) (string, string) {
@@ -46,11 +36,25 @@ fn main() {
 	}
 	b.colorize(.cyan)
 
-	r := MyCustomReader{
-		reader: src_file
-		size: os.file_size(src_file_path)
+	// Prepare dummy files
+	mut file_path := './examples/dummy-file.txt'
+	mut file := os.create(file_path)!
+	defer {
+		file.close()
+		os.rm(file_path) or { panic(err) }
 	}
 
-	mut bar_reader := b.reader(r, r.size)
-	io.cp(mut bar_reader, mut dst_file)!
+	// Create reader.
+	data := [u8(1), 2, 3, 4, 5, 6, 7, 8, 9, `\n`].repeat(5 * 1024 * 1024 / 10) // 5MiB
+	mut r := io.new_buffered_reader(
+		reader: MyCustomReader{
+			data: data
+			size: data.len
+		}
+	)
+
+	// Create bar readre based on reader.
+	mut bar_reader := b.reader(r, u64(data.len))
+	// Use bar reader.
+	io.cp(mut bar_reader, mut file)!
 }

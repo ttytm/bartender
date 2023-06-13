@@ -79,9 +79,6 @@ fn main() {
 	mut b5 := SmoothBar{
 		pre: term.blue('│')
 		theme: Theme.split
-		// Add percentage and time to the label.
-		// The accuracy of an ETA calculation increases as a process progresses.
-		// In this example, showing the ETA is delayed. In the meantime, a spinner is displayed.
 		post: fn (b SmoothBar) (string, string) {
 			return '${term.blue('│')} Split ${b.pct().str()}% ${term.blue(b.eta(10))}', '${term.blue('│')} 🪄 Done!'
 		}

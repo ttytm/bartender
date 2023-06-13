@@ -28,7 +28,7 @@ fn main() {
 	// ===========================================================================
 	mut b2 := Bar{
 		pre: term.bright_black('[')
-		// Affix short struct literal.
+		// Affix short struct literal
 		post: Affix{'${term.bright_black(']')} Multi Color', '${term.bright_black(']')} Done!'}
 		runes: BarRunes{
 			progress: `#`
