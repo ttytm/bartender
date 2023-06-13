@@ -41,7 +41,7 @@ fn main() {
 		os.rm(file_path) or { panic(err) }
 	}
 
-	// Create reader.
+	// Create reader
 	data := [u8(1), 2, 3, 4, 5, 6, 7, 8, 9, `\n`].repeat(5 * 1024 * 1024 / 10) // 5MiB
 	mut r := io.new_buffered_reader(
 		reader: MyCustomReader{
@@ -51,8 +51,8 @@ fn main() {
 		cap: 8 * 1024 // 8 KiB
 	)
 
-	// Create bar readre based on reader.
+	// Create a bar reader based on `r` reader
 	mut bar_reader := b.reader(r, u64(data.len))
-	// Use bar reader.
+	// Use `bar_reader`
 	io.cp(mut bar_reader, mut file)!
 }

@@ -93,17 +93,22 @@ Install via `v` cli
 - Bar Reader for `io` operations.
 
   ```v
-  // 500 MB of sample content.
-  content := '1234567890'.repeat(50 * 1024 * 1024)
+  // Returns an `io.BufferedReader` that displays a progressing bar when used in a reader operation.
+  pub fn (b Bar) reader(reader io.Reader, size u64) &io.BufferedReader
+  ```
 
-  mut r := bar_reader(Bar{}, content.bytes())
-  mut f := os.create('testfile')!
-  io.cp(mut r, mut f)!
+  ```v
+  mut src_file := os.open(src_file_path)!
+  mut dst_file := os.create(dst_file_path)!
+
+  bar := bartender.Bar{}
+  mut bar_reader := bar.reader(src_file, os.file_size(src_file_path))
+  io.cp(mut bar_reader, mut dst_file)!
   ```
 
 ### Run examples
 
-Extended and executable examples can be found in the sample files.
+Extended and executable examples can be found in the `examples` directory.
 
 ```
 v run examples/<file>.v

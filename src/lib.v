@@ -76,7 +76,7 @@ pub fn (mut b Bar) reset() {
 	b.reset_()
 }
 
-// Returns a `io.BufferedReader` that displays a progressing bar when used in a reader operation.
+// Returns an `io.BufferedReader` that displays a progressing bar when used in a reader operation.
 pub fn (b Bar) reader(reader io.Reader, size u64) &io.BufferedReader {
 	return bar_reader(b, reader, size)
 }
@@ -121,7 +121,7 @@ pub fn (mut b SmoothBar) reset() {
 	b.setup()
 }
 
-// Returns a `io.BufferedReader` that displays a progressing bar when used in a reader operation.
+// Returns an `io.BufferedReader` that displays a progressing bar when used in a reader operation.
 pub fn (b SmoothBar) reader(reader io.Reader, size u64) &io.BufferedReader {
 	return bar_reader(b, reader, size)
 }
