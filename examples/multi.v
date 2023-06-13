@@ -8,7 +8,7 @@ import rand
 fn pseudo_dissimilar_progress(mut wg sync.WaitGroup, mut b bartender.Bar) ! {
 	rand_num := rand.intn(100) or { panic(err) }
 	for _ in 0 .. b.iters {
-		b.progress()
+		b.progress()!
 		time.sleep((time.millisecond * rand_num) + (50 * time.millisecond))
 	}
 	wg.done()

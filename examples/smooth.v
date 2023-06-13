@@ -12,7 +12,7 @@ fn main() {
 	// Add optional fields
 	b.post = ' Push Fill'
 	for _ in 0 .. b.iters {
-		b.progress()
+		b.progress()!
 		time.sleep(timeout)
 	}
 
@@ -22,7 +22,7 @@ fn main() {
 		theme: Theme.pull
 	}
 	for _ in 0 .. b2.iters {
-		b2.progress()
+		b2.progress()!
 		time.sleep(timeout)
 	}
 
@@ -33,7 +33,7 @@ fn main() {
 		theme: ThemeVariant{.push, .drain}
 	}
 	for _ in 0 .. b.iters {
-		b.progress()
+		b.progress()!
 		time.sleep(timeout)
 	}
 
@@ -43,7 +43,7 @@ fn main() {
 		theme: ThemeVariant{.pull, .drain}
 	}
 	for _ in 0 .. b2.iters {
-		b2.progress()
+		b2.progress()!
 		time.sleep(timeout)
 	}
 	time.sleep(timeout)
@@ -59,7 +59,7 @@ fn main() {
 	}
 	b3.colorize(Color.cyan)
 	for _ in 0 .. b3.iters {
-		b3.progress()
+		b3.progress()!
 		time.sleep(timeout * 2)
 	}
 
@@ -70,7 +70,7 @@ fn main() {
 	}
 	b4.colorize(Color.bright_black)
 	for _ in 0 .. b4.iters {
-		b4.progress()
+		b4.progress()!
 		time.sleep(timeout * 2)
 	}
 
@@ -86,7 +86,7 @@ fn main() {
 	b5.width -= 2
 	b5.colorize(Color.green)
 	for _ in 0 .. b5.iters {
-		b5.progress()
+		b5.progress()!
 		time.sleep(timeout * 10)
 	}
 }

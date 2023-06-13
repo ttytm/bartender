@@ -20,29 +20,29 @@ fn test_setup() {
 fn test_progress() {
 	mut b := bartender.test_bar
 	// 1/9
-	b.progress()
+	b.progress()!
 	assert b.format() == '▏                                        Loading...'
 	// 2/9
-	b.progress()
+	b.progress()!
 	assert b.format() == '▎                                        Loading...'
 	// 1
 	for i := 0; i < 6; i++ {
-		b.progress()
+		b.progress()!
 	}
 	assert b.format() == '█                                        Loading...'
 	// 1 5/9
 	for i := 0; i < 5; i++ {
-		b.progress()
+		b.progress()!
 	}
 	assert b.format() == '█▌                                       Loading...'
 	// 20 5/9
 	for i := 0; i < bartender.col_iters * 19; i++ {
-		b.progress()
+		b.progress()!
 	}
 	assert b.format() == '████████████████████▌                    Loading...'
 
 	for i := 0; i < bartender.col_iters * 19 + 4; i++ {
-		b.progress()
+		b.progress()!
 	}
 	assert b.format() == '████████████████████████████████████████ Finished!'
 }

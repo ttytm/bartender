@@ -4,14 +4,11 @@ import term
 import time
 import sync
 
-fn watch_(bars MultiBarType, mut wg sync.WaitGroup) {
+fn watch_(bars MultiBarType, mut wg sync.WaitGroup) ! {
 	// NOTE: Same operation for Bars and SmoothBars (re-check with V's progression if this can be grouped).
 	// Tested match statements and alias types for arrays with bar references.
 	if bars is []&Bar {
-		ensure_mutli(bars) or {
-			eprintln(err)
-			exit(0)
-		}
+		ensure_multi(bars)!
 		for {
 			if bars.draw() {
 				term.show_cursor()
@@ -21,10 +18,7 @@ fn watch_(bars MultiBarType, mut wg sync.WaitGroup) {
 			time.sleep(time.millisecond * 15)
 		}
 	} else if bars is []&SmoothBar {
-		ensure_mutli(bars) or {
-			eprintln(err)
-			exit(0)
-		}
+		ensure_multi(bars)!
 		for {
 			if bars.draw() {
 				term.show_cursor()
@@ -37,7 +31,7 @@ fn watch_(bars MultiBarType, mut wg sync.WaitGroup) {
 	wg.done()
 }
 
-fn ensure_mutli(bars MultiBarType) ! {
+fn ensure_multi(bars MultiBarType) ! {
 	// Same operation for both types.
 	if bars is []&Bar {
 		mut not_multi := []int{}
@@ -47,10 +41,7 @@ fn ensure_mutli(bars MultiBarType) ! {
 			}
 		}
 		if not_multi.len > 0 {
-			return IError(BarError{
-				kind: .missing_multi
-				msg: '${not_multi}'
-			})
+			return bar_error(.missing_multi, not_multi.str())
 		}
 	} else if bars is []&SmoothBar {
 		mut not_multi := []int{}
@@ -60,10 +51,7 @@ fn ensure_mutli(bars MultiBarType) ! {
 			}
 		}
 		if not_multi.len > 0 {
-			return IError(BarError{
-				kind: .missing_multi
-				msg: '${not_multi}'
-			})
+			return bar_error(.missing_multi, not_multi.str())
 		}
 	}
 }

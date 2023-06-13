@@ -23,12 +23,12 @@ fn (mut br BarReader) read(mut buf []u8) !int {
 		// SmoothBar won't be visible or will have corrupted chars.
 		Bar {
 			if (f64(br.pos) / br.size * br.bar.width) > br.bar.state.pos {
-				br.bar.progress()
+				br.bar.progress()!
 			}
 		}
 		SmoothBar {
 			if (f64(br.pos) / br.size * br.bar.width) > br.bar.state.pos {
-				br.bar.progress()
+				br.bar.progress()!
 			}
 		}
 	}

@@ -62,21 +62,21 @@ fn (mut b Bar) colorize_components(color BarColor) {
 	}
 }
 
-fn (mut b Bar) progress_() {
+fn (mut b Bar) progress_() ! {
 	if b.state.time.start == 0 {
 		if b.runes_.progress == '' {
 			b.setup()
 		}
 		b.state.time = struct {time.ticks(), 0}
 		term.hide_cursor()
-		os.signal_opt(.int, handle_interrupt) or { panic(err) }
+		os.signal_opt(.int, handle_interrupt)!
 		// Print empty line before first progress to not overwrite current line.
 		if !b.multi {
 			println('')
 		}
 	}
 	if b.state.pos >= b.width_ {
-		panic(IError(BarError{ kind: .finished }))
+		return bar_error(.already_finished, none)
 	}
 
 	b.set_vals()
@@ -98,9 +98,9 @@ fn (mut b Bar) colorize_(color BarColorType) {
 	}
 }
 
-fn (b Bar) eta_(delay u8) string {
+fn (b Bar) eta_(delay u8) !string {
 	if delay > 100 {
-		panic(IError(BarError{ kind: .delay_exceeded }))
+		return bar_error(.delay_exceeded, none)
 	}
 	next_pos := b.state.pos + 1
 	if next_pos < f32(b.width_) * delay / 100 {

@@ -8,7 +8,7 @@ import rand
 fn pseudo_dissimilar_progress_(mut wg sync.WaitGroup, mut b SmoothBar) ! {
 	rand_num := rand.intn(20) or { panic(err) }
 	for _ in 0 .. b.iters {
-		b.progress()
+		b.progress()!
 		// HACK: modifer to adjust timeout for the scope of this example
 		modifier := if b.pre.str()[..1].int() > 4 { 2 } else { 1 }
 		time.sleep((time.millisecond * rand_num) + (15 * modifier * time.millisecond))

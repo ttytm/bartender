@@ -21,7 +21,7 @@ fn main() {
 	// Colorize all components uniformly
 	b.colorize(Color.magenta)
 	for _ in 0 .. b.iters {
-		b.progress()
+		b.progress()!
 		time.sleep(timeout)
 	}
 
@@ -43,7 +43,7 @@ fn main() {
 		indicator: Color.magenta
 	})
 	for _ in 0 .. b2.iters {
-		b2.progress()
+		b2.progress()!
 		time.sleep(timeout * 2)
 	}
 
@@ -65,7 +65,7 @@ fn main() {
 		indicator: Color.magenta
 	})
 	for _ in 0 .. b3.iters {
-		b3.progress()
+		b3.progress()!
 		time.sleep(timeout * 2)
 	}
 
@@ -84,7 +84,7 @@ fn main() {
 	for i in 0 .. b4.iters {
 		j := term.bright_black('(${i + 1}/${b4.width})')
 		b4.post = '${term.cyan('│')} ${j} ${term.blue(b4.spinner())}'
-		b4.progress()
+		b4.progress()!
 		time.sleep(timeout * 3)
 	}
 }

@@ -44,8 +44,8 @@ import io
 // == Bar =====================================================================
 
 // Progresses the bar to its next position.
-pub fn (mut b Bar) progress() {
-	b.progress_()
+pub fn (mut b Bar) progress() ! {
+	b.progress_()! // can only fail when calling progress after the bar is finished.
 }
 
 // Colorizes the specified parts of the bar.
@@ -63,7 +63,7 @@ pub fn (b Bar) pct() u16 {
 // The display of the time can be postponed until the progress bar reaches 0-100% completion.
 // A spinner will be shown until the specified delay is reached.
 pub fn (b Bar) eta(delay u8) string {
-	return b.eta_(delay)
+	return b.eta_(delay) or { panic(err) } // can only fail if delay exceeds 100%.
 }
 
 // Returns a snapshot of a spinner based on the bar's current position.
@@ -83,14 +83,14 @@ pub fn (b Bar) reader(reader io.Reader, size u64) &io.BufferedReader {
 
 // Monitors the progress of multiple bars until all of them are finished.
 pub fn (bars []&Bar) watch(mut wg sync.WaitGroup) {
-	watch_(bars, mut wg)
+	watch_(bars, mut wg) or { panic(err) } // can only fail on initial check if bars in bar array not set to `multi: true`.
 }
 
 // == SmoothBar ===============================================================
 
 // Progresses the bar to its next position.
-pub fn (mut b SmoothBar) progress() {
-	b.progress_()
+pub fn (mut b SmoothBar) progress() ! {
+	b.progress_()! // can only fail when calling progress after the bar is finished.
 }
 
 // Colorizes the specified parts of the bar.
@@ -108,7 +108,7 @@ pub fn (b SmoothBar) pct() u16 {
 // The display of the time can be postponed until the progress bar reaches 0-100% completion.
 // A spinner will be shown until the specified delay is reached.
 pub fn (b SmoothBar) eta(delay u8) string {
-	return b.eta_(delay)
+	return b.eta_(delay) or { panic(err) } // can only fail if passed delay exceeds 100%.
 }
 
 // Returns a snapshot of a spinner based on the bar's current position.
@@ -128,7 +128,7 @@ pub fn (b SmoothBar) reader(reader io.Reader, size u64) &io.BufferedReader {
 
 // Monitors the progress of multiple bars until all of them are finished.
 pub fn (bars []&SmoothBar) watch(mut wg sync.WaitGroup) {
-	watch_(bars, mut wg)
+	watch_(bars, mut wg) or { panic(err) } // can only fail on initial check if bars in bar array not set to `multi: true`.
 }
 
 // == Misc ====================================================================
