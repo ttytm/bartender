@@ -18,7 +18,6 @@ fn pseudo_dissimilar_progress_(mut wg sync.WaitGroup, mut b SmoothBar) ! {
 
 fn main() {
 	mut b1 := SmoothBar{
-		multi: true
 		post: ''
 	}
 	b1.pre = '1: '
@@ -40,14 +39,14 @@ fn main() {
 	mut b7 := b1
 	b7.pre = '7: '
 	b7.theme = Theme.merge
-	mut bars := [&b1, &b2, &b3, &b4, &b5, &b6, &b7]
+	mut bars := &[&b1, &b2, &b3, &b4, &b5, &b6, &b7]
 
 	mut wg := sync.new_waitgroup()
+	wg.add(1)
+	spawn bars.watch(mut wg)
 	for mut b in bars {
 		wg.add(1)
 		spawn pseudo_dissimilar_progress_(mut wg, mut b)
 	}
-	wg.add(1)
-	spawn bars.watch(mut wg)
 	wg.wait()
 }

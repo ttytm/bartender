@@ -15,22 +15,20 @@ fn pseudo_dissimilar_progress(mut wg sync.WaitGroup, mut b bartender.Bar) ! {
 }
 
 fn main() {
-	mut b1 := bartender.Bar{
-		multi: true
-	}
+	mut b1 := bartender.Bar{}
 	b1.pre = '1: ['
 	mut b2 := b1
 	b2.pre = '2: ['
 	mut b3 := b1
 	b3.pre = '3: ['
-	mut bars := [&b1, &b2, &b3]
+	mut bars := &[&b1, &b2, &b3]
 
 	mut wg := sync.new_waitgroup()
+	wg.add(1)
+	spawn bars.watch(mut wg)
 	for mut b in bars {
 		wg.add(1)
 		spawn pseudo_dissimilar_progress(mut wg, mut b)
 	}
-	wg.add(1)
-	spawn bars.watch(mut wg)
 	wg.wait()
 }
