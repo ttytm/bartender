@@ -199,7 +199,9 @@ fn (mut b SmoothBar) progress_() {
 		term.hide_cursor()
 		os.signal_opt(.int, handle_interrupt) or { panic(err) }
 		// Print empty line before first progress to not overwrite current line.
-		println('')
+		if !b.multi {
+			println('')
+		}
 	}
 	if b.state.pos > b.width_ {
 		panic(IError(BarError{ kind: .finished }))
