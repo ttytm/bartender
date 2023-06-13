@@ -6,8 +6,6 @@ import time
 import term
 import bartender
 
-const max_bytes = 8 * 1024 // 8 KiB
-
 pub struct MyCustomReader {
 	data []u8 [required]
 	size int  [required]
@@ -19,8 +17,7 @@ fn (mut r MyCustomReader) read(mut buf []u8) !int {
 	if r.pos >= r.size {
 		return io.Eof{}
 	}
-	end := if r.pos + max_bytes >= r.size { r.size } else { r.pos + max_bytes }
-	n := copy(mut buf, r.data[r.pos..end])
+	n := copy(mut buf, r.data[r.pos..r.pos + buf.cap])
 	time.sleep(1 * time.millisecond)
 	r.pos += n
 	return n
@@ -51,6 +48,7 @@ fn main() {
 			data: data
 			size: data.len
 		}
+		cap: 8 * 1024 // 8 KiB
 	)
 
 	// Create bar readre based on reader.
