@@ -10,7 +10,9 @@ fn watch_(mut bars MultiBarType, mut wg sync.WaitGroup) {
 	if mut bars is []&Bar {
 		for mut b in bars {
 			b.multi = true
+			b.setup()
 		}
+		time.sleep(time.millisecond * 15)
 		for {
 			if bars.draw() {
 				term.show_cursor()
@@ -22,6 +24,7 @@ fn watch_(mut bars MultiBarType, mut wg sync.WaitGroup) {
 	} else if mut bars is []&SmoothBar {
 		for mut b in bars {
 			b.multi = true
+			b.setup()
 		}
 		for {
 			if bars.draw() {
@@ -40,7 +43,7 @@ fn (bars []&Bar) draw() bool {
 	mut formatted := []string{}
 	for b in bars {
 		formatted << b.format()
-		if b.state.pos > 0 && b.state.pos < b.width_ {
+		if b.state.pos < b.width_ {
 			finished = false
 		}
 	}
