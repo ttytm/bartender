@@ -5,34 +5,37 @@ import time
 import sync
 
 fn watch_(mut bars MultiBarType, mut wg sync.WaitGroup) {
-	// NOTE: Same operation for Bars and SmoothBars (re-check with V's progression if this can be grouped).
-	// Tested match statements and alias types for arrays with bar references.
-	if mut bars is []&Bar {
-		for mut b in bars {
-			b.multi = true
-			b.setup()
-		}
-		time.sleep(time.millisecond * 15)
-		for {
-			if bars.draw() {
-				term.show_cursor()
-				break
+	// NOTE: Operation for Bars and SmoothBars can be grouped potentially
+	// (comma separation won't work atm. Re-check with V's progression).
+	match mut bars {
+		[]&Bar {
+			for mut b in bars {
+				b.multi = true
+				b.setup()
 			}
-			// Slow down redraw loop interval to reduce load.
 			time.sleep(time.millisecond * 15)
-		}
-	} else if mut bars is []&SmoothBar {
-		for mut b in bars {
-			b.multi = true
-			b.setup()
-		}
-		for {
-			if bars.draw() {
-				term.show_cursor()
-				break
+			for {
+				if bars.draw() {
+					term.show_cursor()
+					break
+				}
+				// Slow down redraw loop interval to reduce load.
+				time.sleep(time.millisecond * 15)
 			}
-			// Slow down redraw loop interval to reduce load.
-			time.sleep(time.millisecond * 5)
+		}
+		[]&SmoothBar {
+			for mut b in bars {
+				b.multi = true
+				b.setup()
+			}
+			for {
+				if bars.draw() {
+					term.show_cursor()
+					break
+				}
+				// Slow down redraw loop interval to reduce load.
+				time.sleep(time.millisecond * 5)
+			}
 		}
 	}
 	wg.done()
