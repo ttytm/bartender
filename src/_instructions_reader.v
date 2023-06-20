@@ -13,9 +13,6 @@ fn bar_reader(b BarType, reader io.Reader, size u64) &io.BufferedReader {
 }
 
 fn (mut br BarReader) read(mut buf []u8) !int {
-	if br.pos >= br.size {
-		return io.Eof{}
-	}
 	n := br.reader.read(mut buf)!
 	br.pos += n
 	match mut br.bar {
@@ -31,6 +28,9 @@ fn (mut br BarReader) read(mut buf []u8) !int {
 				br.bar.progress()!
 			}
 		}
+	}
+	if br.pos >= br.size {
+		return io.Eof{}
 	}
 	return n
 }

@@ -14,12 +14,12 @@ mut:
 }
 
 fn (mut r MyCustomReader) read(mut buf []u8) !int {
-	if r.pos >= r.size {
-		return io.Eof{}
-	}
 	n := copy(mut buf, r.data[r.pos..r.pos + buf.cap])
 	time.sleep(1 * time.millisecond)
 	r.pos += n
+	if r.pos >= r.size {
+		return io.Eof{}
+	}
 	return n
 }
 
