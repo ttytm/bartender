@@ -4,8 +4,8 @@ on:
   workflow_call:
 
 env:
-  WORK_PATH: /home/runner/work/${{ github.event.repository.name }}/${{ github.event.repository.name }}/
-  GHA_PATH: ${{ github.event.repository.name }}-gha
+  REPO: ${{ github.event.repository.name }}
+  MOD_PATH: ~/.vmodules/bartender
 
 jobs:
   fmt:
@@ -14,20 +14,23 @@ jobs:
       - name: Restore Cache
         uses: actions/cache/restore@v3
         with:
-          path: ${{ env.WORK_PATH }}vlang/
+          path: vlang
           key: ${{ runner.os }}-v-
           fail-on-cache-miss: true
 
       - name: Setup V
         uses: vlang/setup-v@v1.3
 
-      - name: Checkout ${{ github.event.repository.name }}
+      - name: Checkout ${{ env.REPO }}
         uses: actions/checkout@v3
         with:
-          path: ${{ env.GHA_PATH }}
+          path: ${{ env.REPO }}
+
+      - name: Copy ${{ env.REPO }} to ${{ env.MOD_PATH }}
+        run: cp -r ${{ env.REPO }} ${{ env.MOD_PATH }}
 
       - name: Check Formatting
-        run: v fmt -verify ${{ env.GHA_PATH }}
+        run: v fmt -verify ${{ env.MOD_PATH }}
 
   # Vet includes checking public functions without documentation
   # Disable until public functions are documented
@@ -44,8 +47,14 @@ jobs:
   #     - name: Setup V
   #       uses: vlang/setup-v@v1.3
   #
+  #     - name: Setup libcurl
+  #       run: sudo apt install libcurl4-openssl-dev
+  #
   #     - name: Checkout ${{ github.event.repository.name }}
   #       uses: actions/checkout@v3
   #
-  #     - name: Vet Code
-  #       run: v vet -W .
+  #     - name: Copy ${{ env.REPO }} to ${{ env.MOD_PATH }}
+  #       run: cp -r ${{ env.REPO }} ${{ env.MOD_PATH }}
+  #
+  #     - name: Vet ${{ github.event.repository.name }}
+  #       run: v vet -W ${{ env.MOD_PATH }}/src/
