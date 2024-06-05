@@ -1,6 +1,6 @@
 module bartender
 
-const spinner_runes = ['⡀', '⠄', '⠂', '⠁', '⠈', '⠐', '⠠', '⢀']!
+const spinner_runes = ['⠻', '⠽', '⠾', '⠷', '⠯', '⠟']
 
 fn (b Bar) spinner_() string {
 	if b.state.pos + 1 >= b.width_ {
