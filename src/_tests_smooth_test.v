@@ -1,12 +1,10 @@
 module bartender
 
-const (
-	test_bar = SmoothBar{
-		width: 40
-		post: Affix{' Loading...', ' Finished!'}
-	}
-	col_iters = [' ', '▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'].len
-)
+const test_bar = SmoothBar{
+	width: 40
+	post: Affix{' Loading...', ' Finished!'}
+}
+const col_iters = [' ', '▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'].len
 
 fn test_setup() {
 	mut b := bartender.test_bar

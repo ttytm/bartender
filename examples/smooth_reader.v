@@ -7,8 +7,8 @@ import term
 import bartender
 
 pub struct MyCustomReader {
-	data []u8 [required]
-	size int  [required]
+	data []u8 @[required]
+	size int  @[required]
 mut:
 	pos int
 }

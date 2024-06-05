@@ -50,8 +50,6 @@ mut: // Strings instead of runes for color support.
 	sm []string // Smooth Mirrored. Used for merge, expand and split variant.
 }
 
-const (
-	smooth_ltr = [' ', '▏', '▎', '▍', '▌', '▋', '▊', '▉', '█']
-	smooth_rtl = ['█', '🮋', '🮊', '🮉', '▐', '🮈', '🮇', '▕', ' ']
-	fillers    = ['█', ' '] // Used for progress until current state and remaining space.
-)
+const smooth_ltr = [' ', '▏', '▎', '▍', '▌', '▋', '▊', '▉', '█']
+const smooth_rtl = ['█', '🮋', '🮊', '🮉', '▐', '🮈', '🮇', '▕', ' ']
+const fillers = ['█', ' '] // Used for progress until current state and remaining space.
