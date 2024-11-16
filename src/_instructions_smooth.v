@@ -70,7 +70,7 @@ fn (mut b SmoothBar) setup_duals() {
 		} else {
 			smooth_rtl.reverse()
 		}
-		f:  fillers
+		f:  unsafe { fillers }
 	}
 }
 
