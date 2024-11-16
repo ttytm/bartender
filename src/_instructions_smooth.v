@@ -64,13 +64,13 @@ fn (mut b SmoothBar) setup_pull(stream Stream) {
 
 fn (mut b SmoothBar) setup_duals() {
 	b.runes = SmoothRunes{
-		s: if b.theme_ == .split { smooth_rtl } else { smooth_ltr }
+		s:  if b.theme_ == .split { smooth_rtl } else { smooth_ltr }
 		sm: if b.theme_ == .split {
 			smooth_ltr.reverse()
 		} else {
 			smooth_rtl.reverse()
 		}
-		f: fillers
+		f:  fillers
 	}
 }
 

@@ -18,9 +18,9 @@ fn main() {
 	// ===========================================================================
 	mut b2 := bartender.Bar{
 		width: 60
-		pre: '|'
-		post: bartender.Affix{
-			pending: '| Loading...'
+		pre:   '|'
+		post:  bartender.Affix{
+			pending:  '| Loading...'
 			finished: '| Done!'
 		}
 	}
@@ -34,11 +34,11 @@ fn main() {
 		width: 60
 		// Set custom runes
 		runes: bartender.BarRunes{
-			progress: `#`
+			progress:  `#`
 			remaining: `-`
 			indicator: `❯`
 		}
-		pre: '['
+		pre:   '['
 		// Customize percent and time
 		post: fn (b bartender.Bar) (string, string) {
 			return '] ${b.pct()}% (${b.eta(0)})', '] Done!'

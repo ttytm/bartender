@@ -18,7 +18,7 @@ fn main() {
 
 	// ===========================================================================
 	mut b2 := SmoothBar{
-		post: ' Pull Fill'
+		post:  ' Pull Fill'
 		theme: Theme.pull
 	}
 	for _ in 0 .. b2.iters {
@@ -29,7 +29,7 @@ fn main() {
 	// Re-use bars
 	// ===========================================================================
 	b = SmoothBar{
-		post: ' Push Drain'
+		post:  ' Push Drain'
 		theme: ThemeVariant{.push, .drain}
 	}
 	for _ in 0 .. b.iters {
@@ -39,7 +39,7 @@ fn main() {
 
 	// ===========================================================================
 	b2 = SmoothBar{
-		post: ' Pull Drain'
+		post:  ' Pull Drain'
 		theme: ThemeVariant{.pull, .drain}
 	}
 	for _ in 0 .. b2.iters {
@@ -51,8 +51,8 @@ fn main() {
 	// Dual-bar variants
 	// ===========================================================================
 	mut b3 := SmoothBar{
-		post: bartender.Affix{
-			pending: ' Merge'
+		post:  bartender.Affix{
+			pending:  ' Merge'
 			finished: ' 🐿️ ShipIt!'
 		}
 		theme: Theme.merge
@@ -66,7 +66,7 @@ fn main() {
 	// ===========================================================================
 	mut b4 := SmoothBar{
 		theme: Theme.expand
-		post: bartender.Affix{' Expand', ' 🌌 Expanded!'}
+		post:  bartender.Affix{' Expand', ' 🌌 Expanded!'}
 	}
 	b4.colorize(Color.bright_black)
 	for _ in 0 .. b4.iters {
@@ -77,9 +77,9 @@ fn main() {
 	// Further customization
 	// ===========================================================================
 	mut b5 := SmoothBar{
-		pre: term.blue('│')
+		pre:   term.blue('│')
 		theme: Theme.split
-		post: fn (b SmoothBar) (string, string) {
+		post:  fn (b SmoothBar) (string, string) {
 			return '${term.blue('│')} Split ${b.pct().str()}% ${term.blue(b.eta(10))}', '${term.blue('│')} 🪄 Done!'
 		}
 	}

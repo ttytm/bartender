@@ -5,9 +5,9 @@ import io
 fn bar_reader(b BarType, reader io.Reader, size u64) &io.BufferedReader {
 	return io.new_buffered_reader(
 		reader: BarReader{
-			bar: b
+			bar:    b
 			reader: reader
-			size: size
+			size:   size
 		}
 	)
 }

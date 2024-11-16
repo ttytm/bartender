@@ -23,6 +23,6 @@ fn (err BarError) msg() string {
 fn bar_error(kind ErrorKind, val ?string) IError {
 	return IError(BarError{
 		kind: kind
-		val: val or { '' }
+		val:  val or { '' }
 	})
 }

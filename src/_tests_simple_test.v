@@ -4,32 +4,32 @@ import time
 
 const test_bar = Bar{
 	width: 20
-	pre: '['
-	post: Affix{
-		pending: '] Loading...'
+	pre:   '['
+	post:  Affix{
+		pending:  '] Loading...'
 		finished: '] Done!'
 	}
 	runes: BarRunes{
-		progress: `#`
+		progress:  `#`
 		indicator: `>`
 		remaining: ` `
 	}
 }
 
 fn test_setup() {
-	mut b := bartender.test_bar
+	mut b := test_bar
 	b.setup()
 	assert b.state.pos == 0
 	assert b.width_ == b.width
 	assert b.runes_ == BarRunes_{
-		progress: b.runes.progress.str()
+		progress:  b.runes.progress.str()
 		remaining: b.runes.remaining.str()
 		indicator: b.runes.indicator or { b.runes.progress }.str()
 	}
 }
 
 fn test_progress() {
-	mut b := bartender.test_bar
+	mut b := test_bar
 	b.progress()!
 	assert b.format() == '[>                   ] Loading...'
 	b.progress()!
@@ -46,7 +46,7 @@ fn test_progress() {
 }
 
 fn test_pct() {
-	mut b := bartender.test_bar
+	mut b := test_bar
 	b.setup()
 	b.state.pos = 10
 	// pct() gets the percentage of the next position to be used in the next draw event
@@ -54,7 +54,7 @@ fn test_pct() {
 }
 
 fn test_eta() {
-	mut b := bartender.test_bar
+	mut b := test_bar
 	b.setup()
 	for i := 0; i < 10; i++ {
 		b.progress()!

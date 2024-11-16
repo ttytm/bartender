@@ -9,7 +9,7 @@ fn (mut b Bar) setup() {
 	b.width_ = b.width
 	b.iters = b.width
 	b.runes_ = BarRunes_{
-		progress: b.runes.progress.str()
+		progress:  b.runes.progress.str()
 		remaining: b.runes.remaining.str()
 		indicator: b.runes.indicator or { b.runes.progress }.str()
 	}
@@ -48,7 +48,7 @@ fn (b Bar) format() string {
 
 fn (mut b Bar) colorize_uni(color Color) {
 	b.runes_ = BarRunes_{
-		progress: color.paint(b.runes_.progress, .fg)
+		progress:  color.paint(b.runes_.progress, .fg)
 		indicator: color.paint(b.runes_.indicator, .fg)
 		remaining: color.paint(b.runes_.remaining, .fg)
 	}
@@ -56,7 +56,7 @@ fn (mut b Bar) colorize_uni(color Color) {
 
 fn (mut b Bar) colorize_components(color BarColor) {
 	b.runes_ = BarRunes_{
-		progress: color.progress.paint_component(b.runes_.progress)
+		progress:  color.progress.paint_component(b.runes_.progress)
 		indicator: color.indicator.paint_component(b.runes_.indicator)
 		remaining: color.remaining.paint_component(b.runes_.remaining)
 	}

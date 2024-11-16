@@ -6,7 +6,7 @@ fn (b Bar) spinner_() string {
 	if b.state.pos + 1 >= b.width_ {
 		return ''
 	}
-	return bartender.spinner_runes[(b.state.pos - 1) % bartender.spinner_runes.len]
+	return spinner_runes[(b.state.pos - 1) % spinner_runes.len]
 }
 
 fn (b SmoothBar) spinner_() string {
@@ -14,5 +14,5 @@ fn (b SmoothBar) spinner_() string {
 	if b.width_ == next_pos {
 		return ''
 	}
-	return bartender.spinner_runes[(b.rune_i) % bartender.spinner_runes.len]
+	return spinner_runes[(b.rune_i) % spinner_runes.len]
 }

@@ -9,9 +9,9 @@ fn main() {
 
 	// ===========================================================================
 	mut b := Bar{
-		pre: term.magenta('[')
-		post: Affix{
-			pending: '${term.magenta(']')} Single Color'
+		pre:   term.magenta('[')
+		post:  Affix{
+			pending:  '${term.magenta(']')} Single Color'
 			finished: '${term.magenta(']')} Done!'
 		}
 		runes: BarRunes{
@@ -29,16 +29,16 @@ fn main() {
 	mut b2 := Bar{
 		pre: term.bright_black('[')
 		// Affix short struct literal
-		post: Affix{'${term.bright_black(']')} Multi Color', '${term.bright_black(']')} Done!'}
+		post:  Affix{'${term.bright_black(']')} Multi Color', '${term.bright_black(']')} Done!'}
 		runes: BarRunes{
-			progress: `#`
+			progress:  `#`
 			indicator: `❯`
 			remaining: `-`
 		}
 	}
 	// Component Colors
 	b2.colorize(BarColor{
-		progress: Color.cyan
+		progress:  Color.cyan
 		remaining: Color.bright_black
 		indicator: Color.magenta
 	})
@@ -51,12 +51,12 @@ fn main() {
 	mut b3 := Bar{
 		// BarRunes struct literal
 		runes: BarRunes{`═`, `❯`, `─`}
-		pre: term.cyan('╒')
-		post: term.cyan('╕') + ' Customized...'
+		pre:   term.cyan('╒')
+		post:  term.cyan('╕') + ' Customized...'
 	}
 	b3.colorize(BarColor{
 		// Be specific about the foreground and/or background color
-		progress: FgBg{
+		progress:  FgBg{
 			fg: .cyan
 			// fg: .black
 			// bg: .cyan
@@ -71,14 +71,14 @@ fn main() {
 
 	// ===========================================================================
 	mut b4 := Bar{
-		pre: term.cyan('│')
+		pre:   term.cyan('│')
 		runes: BarRunes{
-			progress: `█`
+			progress:  `█`
 			remaining: `░`
 		}
 	}
 	b4.colorize(BarColor{
-		progress: Color.cyan
+		progress:  Color.cyan
 		indicator: Color.cyan
 	})
 	for i in 0 .. b4.iters {

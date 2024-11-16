@@ -26,7 +26,7 @@ fn (mut r MyCustomReader) read(mut buf []u8) !int {
 fn main() {
 	// Create a smooth bar. Apply customizations
 	mut b := bartender.SmoothBar{
-		pre: '│'
+		pre:  '│'
 		post: fn (b bartender.SmoothBar) (string, string) {
 			return '│ Saving... ${b.pct()}% ${term.blue(b.eta(20))}', '│ Saved!'
 		}
@@ -48,7 +48,7 @@ fn main() {
 			data: data
 			size: data.len
 		}
-		cap: 8 * 1024 // 8 KiB
+		cap:    8 * 1024 // 8 KiB
 	)
 
 	// Create a bar reader based on `r` reader

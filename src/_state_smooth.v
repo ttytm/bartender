@@ -5,10 +5,10 @@ pub struct SmoothBar {
 pub mut:
 	theme ThemeChoice = Theme.push
 	pre   AffixInput  = Affix{
-		pending: ''
+		pending:  ''
 		finished: ''
 	}
-	post AffixInput = fn (b SmoothBar) (string, string) {
+	post  AffixInput = fn (b SmoothBar) (string, string) {
 		return ' ${b.pct()}% (${b.eta(0)})', ' ${b.pct()}%'
 	}
 mut:
@@ -44,7 +44,8 @@ pub enum Stream {
 }
 
 struct SmoothRunes {
-mut: // Strings instead of runes for color support.
+mut:
+	// Strings instead of runes for color support.
 	f  []string // Fillers.
 	s  []string // Smooth.
 	sm []string // Smooth Mirrored. Used for merge, expand and split variant.
