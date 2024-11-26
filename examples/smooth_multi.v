@@ -6,12 +6,16 @@ import time
 import rand
 
 fn pseudo_dissimilar_progress_(mut wg sync.WaitGroup, mut b SmoothBar) ! {
-	rand_num := rand.intn(20) or { panic(err) }
+	rand_num := rand.int_in_range(15, 35) or { 15 }
+	sample_num := b.pre.str()[..1].int()
+	// Modifier for the sake of this simple example.
+	// It adjusts the randomized timeout for the split bar examples (numbers 5 and onward),
+	// as they would finish faster using the same linear-time pseudo-progress loop.
+	modifier := if sample_num > 4 { 2 } else { 1 }
+	timeout := time.millisecond * rand_num * modifier
 	for _ in 0 .. b.iters {
 		b.progress()!
-		// HACK: modifer to adjust timeout for the scope of this example
-		modifier := if b.pre.str()[..1].int() > 4 { 2 } else { 1 }
-		time.sleep((time.millisecond * rand_num) + (15 * modifier * time.millisecond))
+		time.sleep(timeout)
 	}
 	wg.done()
 }

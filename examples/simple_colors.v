@@ -28,7 +28,7 @@ fn main() {
 	// ===========================================================================
 	mut b2 := Bar{
 		pre: term.bright_black('[')
-		// Affix short struct literal
+		// Affix short literal (pending, finished)
 		post:  Affix{'${term.bright_black(']')} Multi Color', '${term.bright_black(']')} Done!'}
 		runes: BarRunes{
 			progress:  `#`
@@ -36,7 +36,7 @@ fn main() {
 			remaining: `-`
 		}
 	}
-	// Component Colors
+	// Colorize components individually
 	b2.colorize(BarColor{
 		progress:  Color.cyan
 		remaining: Color.bright_black
@@ -49,13 +49,13 @@ fn main() {
 
 	// ===========================================================================
 	mut b3 := Bar{
-		// BarRunes struct literal
+		// BarRunes short literal (pending, indicator, remaining)
 		runes: BarRunes{`═`, `❯`, `─`}
 		pre:   term.cyan('╒')
 		post:  term.cyan('╕') + ' Customized...'
 	}
 	b3.colorize(BarColor{
-		// Be specific about the foreground and/or background color
+		// Use `FgBg` to customize foreground / background colors for a component
 		progress:  FgBg{
 			fg: .cyan
 			// fg: .black

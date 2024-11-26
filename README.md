@@ -33,7 +33,7 @@ Install via `v` cli
 - Simple bars
 
   ```v
-  // Defaul bar
+  // Default bar
   mut b := Bar{}
   for _ in 0 .. b.iters {
    	b.progress()

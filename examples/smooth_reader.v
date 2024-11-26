@@ -6,7 +6,7 @@ import time
 import term
 import bartender
 
-pub struct MyCustomReader {
+struct MyCustomReader {
 	data []u8 @[required]
 	size int  @[required]
 mut:
@@ -24,7 +24,7 @@ fn (mut r MyCustomReader) read(mut buf []u8) !int {
 }
 
 fn main() {
-	// Create a smooth bar. Apply customizations
+	// Create a customized smooth bar
 	mut b := bartender.SmoothBar{
 		pre:  '│'
 		post: fn (b bartender.SmoothBar) (string, string) {
@@ -41,7 +41,7 @@ fn main() {
 		os.rm(file_path) or { panic(err) }
 	}
 
-	// Create reader
+	// Create a reader
 	data := [u8(1), 2, 3, 4, 5, 6, 7, 8, 9, `\n`].repeat(5 * 1024 * 1024 / 10) // 5MiB
 	mut r := io.new_buffered_reader(
 		reader: MyCustomReader{
@@ -50,9 +50,9 @@ fn main() {
 		}
 		cap:    8 * 1024 // 8 KiB
 	)
-
-	// Create a bar reader based on `r` reader
+	// Create a bar reader with reader `r`
 	mut bar_reader := b.reader(r, u64(data.len))
-	// Use `bar_reader`
+
+	// Use the progress bar reader
 	io.cp(mut bar_reader, mut file)!
 }
