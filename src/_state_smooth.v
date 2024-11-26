@@ -29,6 +29,7 @@ pub enum Theme {
 }
 
 pub struct ThemeVariant {
+pub:
 	theme  ThemeVariantOpt
 	stream Stream
 }

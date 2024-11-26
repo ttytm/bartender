@@ -11,6 +11,7 @@ pub:
 }
 
 pub struct FgBg {
+pub:
 	fg Color = .white
 	bg Color = .reset
 }
