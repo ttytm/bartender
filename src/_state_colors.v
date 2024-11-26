@@ -4,6 +4,7 @@ type BarColorType = BarColor | Color
 type ColorType = Color | FgBg
 
 pub struct BarColor {
+pub:
 	progress  ColorType = Color.white
 	remaining ColorType = Color.bright_black
 	indicator ColorType = Color.white

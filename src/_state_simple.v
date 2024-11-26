@@ -14,6 +14,7 @@ mut:
 }
 
 pub struct BarRunes {
+pub:
 	progress  rune = `#`
 	indicator ?rune
 	remaining rune = ` `
